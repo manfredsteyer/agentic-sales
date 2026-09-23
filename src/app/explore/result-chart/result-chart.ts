@@ -8,7 +8,6 @@ import {
   viewChild,
 } from '@angular/core';
 import Chart from 'chart.js/auto';
-import { injectPrefersDark } from '../../prefers-dark';
 import { formatValue } from '../../sales-api';
 
 export interface ChartSeries {
@@ -16,9 +15,9 @@ export interface ChartSeries {
   data: number[];
 }
 
-// Reference dataviz palette: fixed slot order, stepped separately for
-// light and dark surfaces. Never cycled - the dashboard caps series at 8.
-const PALETTE_LIGHT = [
+// Reference dataviz palette: fixed slot order, never cycled - the dashboard
+// caps series at 8.
+const PALETTE = [
   '#2a78d6',
   '#eb6834',
   '#1baf7a',
@@ -28,33 +27,15 @@ const PALETTE_LIGHT = [
   '#4a3aa7',
   '#e34948',
 ];
-const PALETTE_DARK = [
-  '#3987e5',
-  '#d95926',
-  '#199e70',
-  '#c98500',
-  '#d55181',
-  '#008300',
-  '#9085e9',
-  '#e66767',
-];
 
 const THEME = {
-  light: {
-    palette: PALETTE_LIGHT,
-    surface: '#fcfcfb',
-    text: '#0b0b0b',
-    muted: '#52514e',
-    grid: 'rgba(11, 11, 11, 0.08)',
-  },
-  dark: {
-    palette: PALETTE_DARK,
-    surface: '#1a1a19',
-    text: '#ffffff',
-    muted: '#c3c2b7',
-    grid: 'rgba(255, 255, 255, 0.1)',
-  },
+  surface: '#ffffff',
+  text: '#111827',
+  muted: '#5b6779',
+  grid: 'rgba(16, 24, 40, 0.08)',
 };
+
+Chart.defaults.font.family = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
 @Component({
   selector: 'app-result-chart',
@@ -67,7 +48,6 @@ export class ResultChart {
   readonly datasets = input.required<ChartSeries[]>();
 
   private readonly canvas = viewChild.required<ElementRef<HTMLCanvasElement>>('cv');
-  private readonly dark = injectPrefersDark();
   private chart: Chart | undefined;
   private renderedState = '';
   private chartLayout = '';
@@ -79,12 +59,11 @@ export class ResultChart {
   }
 
   private render() {
-    const theme = THEME[this.dark() ? 'dark' : 'light'];
     const type = this.type();
     const labels = this.labels();
     const series = this.datasets();
 
-    const state = JSON.stringify([theme, type, labels, series]);
+    const state = JSON.stringify([type, labels, series]);
     if (state === this.renderedState) {
       return;
     }
@@ -99,15 +78,15 @@ export class ResultChart {
                 label: series[0]?.label ?? '',
                 data: series[0]?.data ?? [],
                 // one palette slot per slice, 2px surface spacer between fills
-                backgroundColor: labels.map((_, i) => theme.palette[i % theme.palette.length]),
-                borderColor: theme.surface,
+                backgroundColor: labels.map((_, i) => PALETTE[i % PALETTE.length]),
+                borderColor: THEME.surface,
                 borderWidth: 2,
               },
             ]
           : series.map((s, i) => ({
               label: s.label,
               data: s.data,
-              backgroundColor: theme.palette[i],
+              backgroundColor: PALETTE[i],
               // rounded data-end anchored to the baseline
               borderRadius: 4,
               borderSkipped: 'start' as const,
@@ -115,7 +94,7 @@ export class ResultChart {
             })),
     };
 
-    const layout = JSON.stringify([theme, type, series.length]);
+    const layout = JSON.stringify([type, series.length]);
     if (this.chart && layout === this.chartLayout) {
       this.chart.data = data;
       this.chart.update('none');
@@ -136,7 +115,7 @@ export class ResultChart {
           legend: {
             display: type === 'pie' || series.length > 1,
             position: type === 'pie' ? 'right' : 'top',
-            labels: { color: theme.text, usePointStyle: true, boxHeight: 8 },
+            labels: { color: THEME.text, usePointStyle: true, boxHeight: 8 },
           },
           tooltip: {
             callbacks: {
@@ -150,13 +129,13 @@ export class ResultChart {
         scales:
           type === 'bar'
             ? {
-                x: { grid: { display: false }, ticks: { color: theme.muted } },
+                x: { grid: { display: false }, ticks: { color: THEME.muted } },
                 y: {
                   beginAtZero: true,
-                  grid: { color: theme.grid },
+                  grid: { color: THEME.grid },
                   border: { display: false },
                   ticks: {
-                    color: theme.muted,
+                    color: THEME.muted,
                     callback: (v) => formatValue(v),
                   },
                 },

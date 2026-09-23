@@ -2,7 +2,6 @@ import { type Interrupt } from '@ag-ui/core';
 import { Component, computed, input, signal } from '@angular/core';
 import { CopilotChat, injectInterrupt } from '@copilotkit/angular';
 
-import { injectPrefersDark } from '../prefers-dark';
 import { type InterruptModel, toInterruptModel } from './interrupt-model';
 
 /** CopilotKit's prebuilt chat, talking to an agent via AG-UI. */
@@ -11,13 +10,9 @@ import { type InterruptModel, toInterruptModel } from './interrupt-model';
   imports: [CopilotChat],
   templateUrl: './assistant-chat.html',
   styleUrl: './assistant-chat.css',
-  // CopilotKit switches its dark theme by a .dark class on an ancestor
-  host: { '[class.dark]': 'dark()' },
 })
 export class AssistantChat {
   readonly agentId = input.required<string>();
-
-  protected readonly dark = injectPrefersDark();
 
   private readonly controller = injectInterrupt(this.agentId);
   private readonly answered = signal<ReadonlySet<string>>(new Set());

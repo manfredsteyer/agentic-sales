@@ -19,17 +19,25 @@ import { Component, computed, model } from '@angular/core';
   styles: `
     button {
       display: inline-flex;
-      padding: 0.25rem;
+      padding: 0.3rem;
       border: 1px solid transparent;
-      border-radius: 0.375rem;
+      border-radius: var(--radius-sm);
       background: transparent;
       color: var(--text-secondary);
       cursor: pointer;
+      transition:
+        background-color 0.15s,
+        color 0.15s;
     }
 
     button:hover {
+      background: var(--surface-2);
       color: var(--text-primary);
-      border-color: var(--app-border, var(--border));
+    }
+
+    button:focus-visible {
+      outline: none;
+      box-shadow: var(--focus-ring);
     }
 
     svg {

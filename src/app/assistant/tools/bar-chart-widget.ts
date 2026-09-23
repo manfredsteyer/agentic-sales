@@ -33,7 +33,7 @@ import { BarChartArgs, barChartSchema } from './visualization-schemas';
       </div>
     }
   `,
-  host: { class: 'chat-widget' },
+  host: { class: 'chat-widget not-prose' },
 })
 export class BarChartWidget implements ToolRenderer<BarChartArgs> {
   readonly toolCall = input.required<AngularToolCall<BarChartArgs>>();

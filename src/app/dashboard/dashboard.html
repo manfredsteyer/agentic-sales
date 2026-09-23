@@ -1,10 +1,23 @@
 <section class="dashboard" aria-label="Dashboard">
-  <div class="dashboard-header">
-    <h1>Dashboard</h1>
-    <button type="button" (click)="toggleChat()">
-      {{ chatVisible() ? 'Hide chat' : 'Show chat' }}
-    </button>
-  </div>
+  <header class="page-header">
+    <div>
+      <h1>Dashboard</h1>
+      <p>Charts and tables you pinned from the assistant.</p>
+    </div>
+    <div class="actions">
+      <button
+        type="button"
+        class="btn btn-danger"
+        [disabled]="items().length === 0"
+        (click)="clear()"
+      >
+        Clear
+      </button>
+      @if (!chatVisible()) {
+        <button type="button" class="btn btn-primary" (click)="toggleChat()">Show chat</button>
+      }
+    </div>
+  </header>
   <div class="tiles">
     @for (item of items(); track item.id) {
       @switch (item.kind) {
@@ -19,15 +32,27 @@
         }
       }
     } @empty {
-      <p class="hint">No charts yet. Ask the assistant for a chart and click "Add to dashboard".</p>
+      <div class="empty card">
+        <span class="empty-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="22" height="22">
+            <rect x="3" y="3" width="7" height="7" rx="1.5" />
+            <rect x="14" y="3" width="7" height="7" rx="1.5" />
+            <rect x="3" y="14" width="7" height="7" rx="1.5" />
+            <path d="M17.5 14v7M14 17.5h7" />
+          </svg>
+        </span>
+        <p class="empty-title">No tiles yet</p>
+        <p class="hint">Ask the assistant for a chart or table and click “Add to dashboard”.</p>
+      </div>
     }
   </div>
-  <footer class="dashboard-footer">
-    <button type="button" class="clear" [disabled]="items().length === 0" (click)="clear()">
-      Clear
-    </button>
-  </footer>
 </section>
 @if (chatVisible()) {
-  <app-assistant-chat [agentId]="agentId" />
+  <aside class="chat-panel" aria-label="Assistant">
+    <div class="chat-panel-header">
+      <span>Assistant</span>
+      <button type="button" class="btn btn-ghost btn-sm" (click)="toggleChat()">Hide</button>
+    </div>
+    <app-assistant-chat [agentId]="agentId" />
+  </aside>
 }

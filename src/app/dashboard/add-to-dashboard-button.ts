@@ -10,29 +10,26 @@ import { DashboardArgs, DashboardKind, withItem } from './dashboard-state';
   selector: 'app-add-to-dashboard',
   template: `
     @if (visible()) {
-      <button type="button" (click)="add()">+ Add to dashboard</button>
+      <button type="button" class="btn btn-sm" (click)="add()">
+        <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+          <path d="M8 3v10M3 8h10" />
+        </svg>
+        Add to dashboard
+      </button>
     }
   `,
   styles: `
     :host {
-      display: block;
-      text-align: right;
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 0.75rem;
     }
 
-    button {
-      margin-top: 0.5rem;
-      padding: 0.3rem 0.75rem;
-      border: 1px dashed var(--app-border);
-      border-radius: 0.5rem;
-      background: transparent;
-      color: var(--text-secondary);
-      font-size: 0.85rem;
-      cursor: pointer;
-    }
-
-    button:hover {
-      color: var(--text-primary);
-      border-color: var(--text-secondary);
+    svg {
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.75;
+      stroke-linecap: round;
     }
   `,
 })

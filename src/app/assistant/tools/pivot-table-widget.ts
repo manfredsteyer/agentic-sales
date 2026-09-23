@@ -33,7 +33,7 @@ import { PivotTableArgs, pivotTableSchema } from './visualization-schemas';
       </div>
     }
   `,
-  host: { class: 'chat-widget' },
+  host: { class: 'chat-widget not-prose' },
 })
 export class PivotTableWidget implements ToolRenderer<PivotTableArgs> {
   readonly toolCall = input.required<AngularToolCall<PivotTableArgs>>();

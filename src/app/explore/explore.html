@@ -1,8 +1,11 @@
-<div class="explore-header">
-  <h1>Explore</h1>
-</div>
+<header class="page-header">
+  <div>
+    <h1>Explore</h1>
+    <p>Aggregate the sales data by up to two dimensions and narrow it down with filters.</p>
+  </div>
+</header>
 
-<section class="controls" aria-label="Query">
+<section class="controls card" aria-label="Query">
   <div class="control">
     <label for="fn">Aggregation</label>
     <select id="fn" [value]="aggregateFn()" (change)="update({ agg: $any($event.target).value })">
@@ -53,44 +56,57 @@
     />
   }
   @if (filters().length < 2) {
-    <button type="button" class="add-filter" (click)="addFilter()">+ Filter</button>
+    <button type="button" class="btn add-filter" (click)="addFilter()">
+      <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+        <path d="M8 3v10M3 8h10" />
+      </svg>
+      Filter
+    </button>
   }
 </section>
 
-<section class="view-switch" aria-label="View">
-  <button
-    type="button"
-    [class.active]="effectiveView() === 'bar'"
-    (click)="update({ view: 'bar' })"
-  >
-    Bar
-  </button>
-  <button
-    type="button"
-    [class.active]="effectiveView() === 'pie'"
-    [disabled]="!pieAllowed()"
-    [title]="pieAllowed() ? '' : 'Pie chart only with one dimension and sum or count'"
-    (click)="update({ view: 'pie' })"
-  >
-    Pie
-  </button>
-  <button
-    type="button"
-    [class.active]="effectiveView() === 'pivot'"
-    (click)="update({ view: 'pivot' })"
-  >
-    Pivot
-  </button>
-</section>
+<div class="toolbar">
+  <div class="segmented" role="group" aria-label="View">
+    <button
+      type="button"
+      [class.active]="effectiveView() === 'bar'"
+      (click)="update({ view: 'bar' })"
+    >
+      Bar
+    </button>
+    <button
+      type="button"
+      [class.active]="effectiveView() === 'pie'"
+      [disabled]="!pieAllowed()"
+      [title]="pieAllowed() ? '' : 'Pie chart only with one dimension and sum or count'"
+      (click)="update({ view: 'pie' })"
+    >
+      Pie
+    </button>
+    <button
+      type="button"
+      [class.active]="effectiveView() === 'pivot'"
+      (click)="update({ view: 'pivot' })"
+    >
+      Pivot
+    </button>
+  </div>
+  @if (result.hasValue()) {
+    <p class="meta">
+      {{ valueLabel() }} · grouped by {{ result.value().dimensions.join(', ') }} ·
+      {{ result.value().rowCount }} rows
+    </p>
+  }
+</div>
 
 @if (errorMessage()) {
   <p class="error" role="alert">{{ errorMessage() }}</p>
 } @else if (result.isLoading() && !result.hasValue()) {
   <p class="hint">Loading data …</p>
 } @else if (result.hasValue()) {
-  <section class="result" [class.loading]="result.isLoading()">
+  <section class="result card" [class.loading]="result.isLoading()">
     @if (chart().note) {
-      <p class="hint">{{ chart().note }}</p>
+      <p class="hint note">{{ chart().note }}</p>
     }
     @if (result.value().rowCount === 0) {
       <p class="hint">No data for these filters.</p>
@@ -107,9 +123,5 @@
         [datasets]="chart().datasets"
       />
     }
-    <p class="meta">
-      {{ valueLabel() }} · grouped by {{ result.value().dimensions.join(', ') }} ·
-      {{ result.value().rowCount }} rows
-    </p>
   </section>
 }

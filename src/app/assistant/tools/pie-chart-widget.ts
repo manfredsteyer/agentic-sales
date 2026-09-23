@@ -33,7 +33,7 @@ import { PieChartArgs, pieChartSchema } from './visualization-schemas';
       </div>
     }
   `,
-  host: { class: 'chat-widget' },
+  host: { class: 'chat-widget not-prose' },
 })
 export class PieChartWidget implements ToolRenderer<PieChartArgs> {
   readonly toolCall = input.required<AngularToolCall<PieChartArgs>>();

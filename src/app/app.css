@@ -4,38 +4,82 @@
   grid-template-rows: auto minmax(0, 1fr);
 }
 
-.menu {
+.topbar {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
-  padding: 0.5rem 1rem;
-  border-bottom: 1px solid var(--border);
-  background: var(--surface-2);
+  gap: 1.5rem;
+  height: 3.5rem;
+  padding-inline: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--surface-1);
 }
 
 .brand {
-  margin-right: 1rem;
-  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--text-primary);
+  font-weight: 650;
   letter-spacing: -0.02em;
-}
-
-.menu a {
-  padding: 0.35rem 0.75rem;
-  border-radius: 0.5rem;
-  color: var(--text-secondary);
   text-decoration: none;
 }
 
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 0.55rem;
+  background: linear-gradient(135deg, var(--brand-strong), var(--brand));
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+}
+
+.brand-mark svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.menu {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.menu a {
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  text-decoration: none;
+  transition:
+    background-color 0.15s,
+    color 0.15s;
+}
+
 .menu a:hover {
+  background: var(--surface-2);
   color: var(--text-primary);
 }
 
 .menu a.active {
-  background: var(--accent);
-  color: #fff;
+  background: var(--brand-soft);
+  color: var(--brand-strong);
 }
 
 main {
   min-height: 0;
   overflow-y: auto;
+}
+
+@media (max-width: 40rem) {
+  .topbar {
+    gap: 0.75rem;
+    padding-inline: 1rem;
+  }
+
+  .brand-name {
+    display: none;
+  }
 }

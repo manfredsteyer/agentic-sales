@@ -1,37 +1,52 @@
 .table-box {
-  overflow-x: auto;
   max-height: 28rem;
-  overflow-y: auto;
+  overflow: auto;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
 }
 
 table {
   width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9rem;
+  margin: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
   font-variant-numeric: tabular-nums;
 }
 
 thead th {
   position: sticky;
   top: 0;
+  z-index: 1;
+  padding: 0.55rem 0.85rem;
+  border-bottom: 1px solid var(--border-color);
   background: var(--surface-2);
   color: var(--text-secondary);
+  font-size: 0.72rem;
   font-weight: 600;
+  letter-spacing: 0.04em;
   text-align: left;
-  padding: 0.5rem 0.75rem;
-  border-bottom: 1px solid var(--border);
-}
-
-tbody th.dim {
-  font-weight: 500;
-  text-align: left;
-  color: var(--text-primary);
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 td,
 tbody th {
-  padding: 0.45rem 0.75rem;
-  border-bottom: 1px solid var(--border);
+  padding: 0.5rem 0.85rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+tbody tr:last-child td,
+tbody tr:last-child th {
+  border-bottom: none;
+}
+
+tbody th.dim {
+  color: var(--text-primary);
+  font-weight: 500;
+  text-align: left;
+  white-space: nowrap;
 }
 
 .num {

@@ -1,9 +1,18 @@
-<nav class="menu" aria-label="Main">
-  <span class="brand">Agentic Sales</span>
-  <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
-  <a routerLink="/explore" routerLinkActive="active">Explore</a>
-  <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
-</nav>
+<header class="topbar">
+  <a class="brand" routerLink="/">
+    <span class="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="18" height="18">
+        <path d="M5 19v-8M12 19V5M19 19v-5" />
+      </svg>
+    </span>
+    <span class="brand-name">Agentic Sales</span>
+  </a>
+  <nav class="menu" aria-label="Main">
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
+    <a routerLink="/explore" routerLinkActive="active">Explore</a>
+    <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+  </nav>
+</header>
 <main>
   <router-outlet />
 </main>
