@@ -5,26 +5,20 @@ import {
   type ToolRenderer,
 } from '@copilotkit/angular';
 
-import { ChartData, toChartData } from '../../explore/chart-data';
-import { ResultChart } from '../../explore/result-chart/result-chart';
 import { AddToDashboardButton } from '../../dashboard/add-to-dashboard-button';
+import { BarChartFigure } from '../../figures/bar-chart-figure';
 import { BarChartArgs, barChartSchema } from './visualization-schemas';
 
 @Component({
   selector: 'app-bar-chart-widget',
-  imports: [ResultChart, AddToDashboardButton],
+  imports: [BarChartFigure, AddToDashboardButton],
   template: `
     @if (args(); as args) {
-      <figure>
-        <figcaption>{{ args.title }}</figcaption>
-        <app-result-chart type="bar" [labels]="chart().labels" [datasets]="chart().datasets" />
-        @if (chart().note) {
-          <p class="hint">{{ chart().note }}</p>
-        }
+      <app-bar-chart-figure [args]="args">
         @if (toolCall().status === 'complete') {
           <app-add-to-dashboard kind="barChart" [args]="args" />
         }
-      </figure>
+      </app-bar-chart-figure>
     } @else if (toolCall().status === 'complete') {
       <p class="hint">Can't show this chart: the agent passed incomplete data.</p>
     } @else {
@@ -45,7 +39,6 @@ export class BarChartWidget implements ToolRenderer<BarChartArgs> {
   readonly toolCall = input.required<AngularToolCall<BarChartArgs>>();
 
   protected readonly args = computed(() => toBarChartArgs(this.toolCall().args));
-  protected readonly chart = computed(() => toBarChartData(this.args()));
 }
 
 export const barChartWidget: RegisterComponentConfig<BarChartArgs> = {
@@ -62,17 +55,4 @@ function toBarChartArgs(args: Partial<BarChartArgs>): BarChartArgs | undefined {
   const bars = args.bars?.filter((bar) => bar?.value !== undefined);
   const result = barChartSchema.safeParse({ ...args, bars });
   return result.data;
-}
-
-export function toBarChartData(args: BarChartArgs | undefined): ChartData {
-  if (!args) {
-    return { labels: [], datasets: [], note: '' };
-  }
-  const grouped = args.bars.some((bar) => typeof bar.series === 'string');
-  const rows = args.bars.map((bar) => ({
-    label: bar.label,
-    series: bar.series ?? args.valueLabel,
-    value: bar.value,
-  }));
-  return toChartData(rows, grouped ? ['label', 'series'] : ['label'], args.valueLabel, 'bar');
 }

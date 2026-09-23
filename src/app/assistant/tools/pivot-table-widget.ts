@@ -5,27 +5,20 @@ import {
   type ToolRenderer,
 } from '@copilotkit/angular';
 
-import { PivotTable } from '../../explore/pivot-table/pivot-table';
 import { AddToDashboardButton } from '../../dashboard/add-to-dashboard-button';
-import { AggRow } from '../../sales-api';
+import { PivotTableFigure } from '../../figures/pivot-table-figure';
 import { PivotTableArgs, pivotTableSchema } from './visualization-schemas';
 
 @Component({
   selector: 'app-pivot-table-widget',
-  imports: [PivotTable, AddToDashboardButton],
+  imports: [PivotTableFigure, AddToDashboardButton],
   template: `
     @if (args(); as args) {
-      <figure>
-        <figcaption>{{ args.title }}</figcaption>
-        <app-pivot-table
-          [rows]="rows()"
-          [dimensions]="[args.rowDimension, args.columnDimension]"
-          [valueLabel]="args.valueLabel"
-        />
+      <app-pivot-table-figure [args]="args">
         @if (toolCall().status === 'complete') {
           <app-add-to-dashboard kind="pivotTable" [args]="args" />
         }
-      </figure>
+      </app-pivot-table-figure>
     } @else if (toolCall().status === 'complete') {
       <p class="hint">Can't show this table: the agent passed incomplete data.</p>
     } @else {
@@ -46,7 +39,6 @@ export class PivotTableWidget implements ToolRenderer<PivotTableArgs> {
   readonly toolCall = input.required<AngularToolCall<PivotTableArgs>>();
 
   protected readonly args = computed(() => toPivotTableArgs(this.toolCall().args));
-  protected readonly rows = computed(() => toPivotRows(this.args()));
 }
 
 export const pivotTableWidget: RegisterComponentConfig<PivotTableArgs> = {
@@ -62,15 +54,4 @@ function toPivotTableArgs(args: Partial<PivotTableArgs>): PivotTableArgs | undef
   const cells = args.cells?.filter((cell) => cell?.value !== undefined);
   const result = pivotTableSchema.safeParse({ ...args, cells });
   return result.data;
-}
-
-export function toPivotRows(args: PivotTableArgs | undefined): AggRow[] {
-  if (!args) {
-    return [];
-  }
-  return args.cells.map((cell) => ({
-    [args.rowDimension]: cell.row,
-    [args.columnDimension]: cell.column,
-    value: cell.value,
-  }));
 }

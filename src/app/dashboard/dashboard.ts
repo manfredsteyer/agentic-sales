@@ -3,12 +3,14 @@ import { injectAgentStore } from '@copilotkit/angular';
 
 import { DASHBOARD_AGENT_ID } from '../assistant/agent-ids';
 import { AssistantChat } from '../assistant/assistant-chat';
+import { BarChartFigure } from '../figures/bar-chart-figure';
+import { PieChartFigure } from '../figures/pie-chart-figure';
+import { PivotTableFigure } from '../figures/pivot-table-figure';
 import { saveDashboard, toDashboardItems } from './dashboard-state';
-import { DashboardTile } from './dashboard-tile';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [AssistantChat, DashboardTile],
+  imports: [AssistantChat, BarChartFigure, PieChartFigure, PivotTableFigure],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
   host: { '[class.with-chat]': 'chatVisible()' },

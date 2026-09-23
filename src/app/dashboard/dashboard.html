@@ -7,7 +7,17 @@
   </div>
   <div class="tiles">
     @for (item of items(); track item.id) {
-      <app-dashboard-tile [item]="item" />
+      @switch (item.kind) {
+        @case ('barChart') {
+          <app-bar-chart-figure [args]="item.args" />
+        }
+        @case ('pieChart') {
+          <app-pie-chart-figure [args]="item.args" />
+        }
+        @default {
+          <app-pivot-table-figure [args]="item.args" />
+        }
+      }
     } @empty {
       <p class="hint">No charts yet. Ask the assistant for a chart and click "Add to dashboard".</p>
     }

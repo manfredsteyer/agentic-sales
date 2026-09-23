@@ -9,7 +9,6 @@ import {
   updateDashboardItem,
 } from '../tools/dashboard-tools';
 import { executeJavaScript } from '../tools/execute-javascript';
-import { aggregateSales, getSalesDetails } from '../tools/sales-tools';
 import { dashboardAgentPrompt } from './dashboard-agent.prompt';
 
 export const dashboardAgent = new Agent({
@@ -19,8 +18,6 @@ export const dashboardAgent = new Agent({
     dashboardAgentPrompt + toDashboardSection(requestContext.get(AG_UI_STATE_KEY)),
   model: 'openai/gpt-5.6-terra',
   tools: {
-    aggregateSales,
-    getSalesDetails,
     executeJavaScript,
     addDashboardItem,
     updateDashboardItem,

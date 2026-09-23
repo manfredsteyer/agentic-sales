@@ -5,23 +5,20 @@ import {
   type ToolRenderer,
 } from '@copilotkit/angular';
 
-import { ChartData } from '../../explore/chart-data';
-import { ResultChart } from '../../explore/result-chart/result-chart';
 import { AddToDashboardButton } from '../../dashboard/add-to-dashboard-button';
+import { PieChartFigure } from '../../figures/pie-chart-figure';
 import { PieChartArgs, pieChartSchema } from './visualization-schemas';
 
 @Component({
   selector: 'app-pie-chart-widget',
-  imports: [ResultChart, AddToDashboardButton],
+  imports: [PieChartFigure, AddToDashboardButton],
   template: `
     @if (args(); as args) {
-      <figure>
-        <figcaption>{{ args.title }}</figcaption>
-        <app-result-chart type="pie" [labels]="chart().labels" [datasets]="chart().datasets" />
+      <app-pie-chart-figure [args]="args">
         @if (toolCall().status === 'complete') {
           <app-add-to-dashboard kind="pieChart" [args]="args" />
         }
-      </figure>
+      </app-pie-chart-figure>
     } @else if (toolCall().status === 'complete') {
       <p class="hint">Can't show this chart: the agent passed incomplete data.</p>
     } @else {
@@ -42,7 +39,6 @@ export class PieChartWidget implements ToolRenderer<PieChartArgs> {
   readonly toolCall = input.required<AngularToolCall<PieChartArgs>>();
 
   protected readonly args = computed(() => toPieChartArgs(this.toolCall().args));
-  protected readonly chart = computed(() => toPieChartData(this.args()));
 }
 
 export const pieChartWidget: RegisterComponentConfig<PieChartArgs> = {
@@ -58,15 +54,4 @@ function toPieChartArgs(args: Partial<PieChartArgs>): PieChartArgs | undefined {
   const slices = args.slices?.filter((slice) => slice?.value !== undefined);
   const result = pieChartSchema.safeParse({ ...args, slices });
   return result.data;
-}
-
-export function toPieChartData(args: PieChartArgs | undefined): ChartData {
-  if (!args) {
-    return { labels: [], datasets: [], note: '' };
-  }
-  return {
-    labels: args.slices.map((slice) => slice.label),
-    datasets: [{ label: args.valueLabel, data: args.slices.map((slice) => slice.value) }],
-    note: '',
-  };
 }

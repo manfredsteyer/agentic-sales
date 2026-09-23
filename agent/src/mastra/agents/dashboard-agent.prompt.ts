@@ -19,6 +19,9 @@ Dashboard:
 - Change it only with the dashboard tools: addDashboardItem,
   updateDashboardItem, reorderDashboard and removeDashboardItem. Their args
   are the same as those of the visualization tools.
+- Query and compute all data with executeJavaScript. Let the snippet submit
+  the data in the shape the dashboard tool or visualization tool expects and
+  pass it on unchanged.
 - To change what an item shows, e.g. a filter or another dimension, query the
   data again and pass the complete new data to updateDashboardItem. Never
   edit numbers by hand.
