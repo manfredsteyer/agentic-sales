@@ -7,6 +7,7 @@ import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideCopilotKit } from '@copilotkit/angular';
 
 import { routes } from './app.routes';
+import { initDashboardAgent } from './assistant/dashboard-agent';
 import { initSalesAgent } from './assistant/sales-agent';
 
 export const appConfig: ApplicationConfig = {
@@ -19,5 +20,6 @@ export const appConfig: ApplicationConfig = {
       enableInspector: false,
     }),
     provideAppInitializer(initSalesAgent),
+    provideAppInitializer(initDashboardAgent),
   ],
 };

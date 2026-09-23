@@ -4,29 +4,23 @@ import {
   type RegisterComponentConfig,
   type ToolRenderer,
 } from '@copilotkit/angular';
-import { z } from 'zod';
 
-import { ChartSeries, ResultChart } from '../../dashboard/result-chart/result-chart';
-
-export const pieChartSchema = z.object({
-  title: z.string().describe('Short title, e.g. "Revenue share per category"'),
-  valueLabel: z.string().describe('What the values are, e.g. "Revenue (USD)"'),
-  slices: z
-    .array(z.object({ label: z.string(), value: z.number() }))
-    .min(1)
-    .describe('One slice per aggregate row, e.g. { "label": "Apparel", "value": 171727 }'),
-});
-
-export type PieChartArgs = z.infer<typeof pieChartSchema>;
+import { ChartData } from '../../explore/chart-data';
+import { ResultChart } from '../../explore/result-chart/result-chart';
+import { AddToDashboardButton } from '../../dashboard/add-to-dashboard-button';
+import { PieChartArgs, pieChartSchema } from './visualization-schemas';
 
 @Component({
   selector: 'app-pie-chart-widget',
-  imports: [ResultChart],
+  imports: [ResultChart, AddToDashboardButton],
   template: `
     @if (args(); as args) {
       <figure>
         <figcaption>{{ args.title }}</figcaption>
-        <app-result-chart type="pie" [labels]="labels()" [datasets]="datasets()" />
+        <app-result-chart type="pie" [labels]="chart().labels" [datasets]="chart().datasets" />
+        @if (toolCall().status === 'complete') {
+          <app-add-to-dashboard kind="pieChart" [args]="args" />
+        }
       </figure>
     } @else if (toolCall().status === 'complete') {
       <p class="hint">Can't show this chart: the agent passed incomplete data.</p>
@@ -48,8 +42,7 @@ export class PieChartWidget implements ToolRenderer<PieChartArgs> {
   readonly toolCall = input.required<AngularToolCall<PieChartArgs>>();
 
   protected readonly args = computed(() => toPieChartArgs(this.toolCall().args));
-  protected readonly labels = computed(() => this.args()?.slices.map((slice) => slice.label) ?? []);
-  protected readonly datasets = computed(() => toDatasets(this.args()));
+  protected readonly chart = computed(() => toPieChartData(this.args()));
 }
 
 export const pieChartWidget: RegisterComponentConfig<PieChartArgs> = {
@@ -67,6 +60,13 @@ function toPieChartArgs(args: Partial<PieChartArgs>): PieChartArgs | undefined {
   return result.data;
 }
 
-function toDatasets(args: PieChartArgs | undefined): ChartSeries[] {
-  return args ? [{ label: args.valueLabel, data: args.slices.map((slice) => slice.value) }] : [];
+export function toPieChartData(args: PieChartArgs | undefined): ChartData {
+  if (!args) {
+    return { labels: [], datasets: [], note: '' };
+  }
+  return {
+    labels: args.slices.map((slice) => slice.label),
+    datasets: [{ label: args.valueLabel, data: args.slices.map((slice) => slice.value) }],
+    note: '',
+  };
 }

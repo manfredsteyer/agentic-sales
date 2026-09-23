@@ -1,36 +1,41 @@
-.content {
+:host {
   display: grid;
   height: 100vh;
-  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto minmax(0, 1fr);
 }
 
-.content:has(app-dashboard) {
-  grid-template-columns: minmax(0, 1fr) minmax(22rem, 28rem);
-  grid-template-rows: minmax(0, 1fr);
+.menu {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
 }
 
-.dashboard-area {
-  min-width: 0;
-  overflow-y: auto;
+.brand {
+  margin-right: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
-app-assistant-chat {
+.menu a {
+  padding: 0.35rem 0.75rem;
+  border-radius: 0.5rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.menu a:hover {
+  color: var(--text-primary);
+}
+
+.menu a.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+main {
   min-height: 0;
-}
-
-.content:has(app-dashboard) app-assistant-chat {
-  border-left: 1px solid var(--border);
-}
-
-@media (max-width: 60rem) {
-  .content:has(app-dashboard) {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
-  }
-
-  .content:has(app-dashboard) app-assistant-chat {
-    border-left: none;
-    border-top: 1px solid var(--border);
-  }
+  overflow-y: auto;
 }

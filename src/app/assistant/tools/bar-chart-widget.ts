@@ -4,37 +4,15 @@ import {
   type RegisterComponentConfig,
   type ToolRenderer,
 } from '@copilotkit/angular';
-import { z } from 'zod';
 
-import { ChartData, toChartData } from '../../dashboard/chart-data';
-import { ResultChart } from '../../dashboard/result-chart/result-chart';
-
-export const barChartSchema = z.object({
-  title: z.string().describe('Short title, e.g. "Revenue per week"'),
-  valueLabel: z.string().describe('What the values are, e.g. "Revenue (USD)"'),
-  bars: z
-    .array(
-      z.object({
-        label: z.string(),
-        series: z
-          .string()
-          .nullish()
-          .describe('Value of the second dimension for grouped bars, e.g. "Europe"'),
-        value: z.number(),
-      }),
-    )
-    .min(1)
-    .describe(
-      'One bar per aggregate row, e.g. { "label": "2020-W50", "value": 59842 }. With a second ' +
-        'dimension, add its value as series: { "label": "Apparel", "series": "Europe", "value": 21530 }',
-    ),
-});
-
-export type BarChartArgs = z.infer<typeof barChartSchema>;
+import { ChartData, toChartData } from '../../explore/chart-data';
+import { ResultChart } from '../../explore/result-chart/result-chart';
+import { AddToDashboardButton } from '../../dashboard/add-to-dashboard-button';
+import { BarChartArgs, barChartSchema } from './visualization-schemas';
 
 @Component({
   selector: 'app-bar-chart-widget',
-  imports: [ResultChart],
+  imports: [ResultChart, AddToDashboardButton],
   template: `
     @if (args(); as args) {
       <figure>
@@ -42,6 +20,9 @@ export type BarChartArgs = z.infer<typeof barChartSchema>;
         <app-result-chart type="bar" [labels]="chart().labels" [datasets]="chart().datasets" />
         @if (chart().note) {
           <p class="hint">{{ chart().note }}</p>
+        }
+        @if (toolCall().status === 'complete') {
+          <app-add-to-dashboard kind="barChart" [args]="args" />
         }
       </figure>
     } @else if (toolCall().status === 'complete') {
@@ -83,7 +64,7 @@ function toBarChartArgs(args: Partial<BarChartArgs>): BarChartArgs | undefined {
   return result.data;
 }
 
-function toBarChartData(args: BarChartArgs | undefined): ChartData {
+export function toBarChartData(args: BarChartArgs | undefined): ChartData {
   if (!args) {
     return { labels: [], datasets: [], note: '' };
   }

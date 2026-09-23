@@ -1,12 +1,11 @@
 import { type Interrupt } from '@ag-ui/core';
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, input, signal } from '@angular/core';
 import { CopilotChat, injectInterrupt } from '@copilotkit/angular';
 
 import { injectPrefersDark } from '../prefers-dark';
 import { type InterruptModel, toInterruptModel } from './interrupt-model';
-import { SALES_AGENT_ID } from './sales-agent';
 
-/** CopilotKit's prebuilt chat, talking to the sales agent via AG-UI. */
+/** CopilotKit's prebuilt chat, talking to an agent via AG-UI. */
 @Component({
   selector: 'app-assistant-chat',
   imports: [CopilotChat],
@@ -16,10 +15,11 @@ import { SALES_AGENT_ID } from './sales-agent';
   host: { '[class.dark]': 'dark()' },
 })
 export class AssistantChat {
-  protected readonly agentId = SALES_AGENT_ID;
+  readonly agentId = input.required<string>();
+
   protected readonly dark = injectPrefersDark();
 
-  private readonly controller = injectInterrupt(SALES_AGENT_ID);
+  private readonly controller = injectInterrupt(this.agentId);
   private readonly answered = signal<ReadonlySet<string>>(new Set());
 
   /**

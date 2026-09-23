@@ -1,6 +1,9 @@
-<div class="content">
-  <main class="dashboard-area">
-    <router-outlet />
-  </main>
-  <app-assistant-chat />
-</div>
+<nav class="menu" aria-label="Main">
+  <span class="brand">Agentic Sales</span>
+  <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
+  <a routerLink="/explore" routerLinkActive="active">Explore</a>
+  <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+</nav>
+<main>
+  <router-outlet />
+</main>

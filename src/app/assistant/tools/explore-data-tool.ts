@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { type FrontendToolConfig } from '@copilotkit/angular';
 import { z } from 'zod';
 
-import { toQueryParams } from '../../dashboard/dashboard-params';
+import { toQueryParams } from '../../explore/explore-params';
 
 export const exploreDataSchema = z.object({
   fact: z.string().describe('Fact column, e.g. "Revenue"'),
@@ -16,7 +16,7 @@ export const exploreDataSchema = z.object({
   filters: z
     .array(z.object({ column: z.string(), value: z.string() }))
     .describe('Exact-match filters, e.g. [{ "column": "Country", "value": "Germany" }]'),
-  view: z.enum(['bar', 'pie', 'pivot']).describe('Initial view of the dashboard'),
+  view: z.enum(['bar', 'pie', 'pivot']).describe('Initial view of the explorer'),
 });
 
 export type ExploreDataArgs = z.infer<typeof exploreDataSchema>;
@@ -24,7 +24,7 @@ export type ExploreDataArgs = z.infer<typeof exploreDataSchema>;
 export const exploreDataTool: FrontendToolConfig<ExploreDataArgs> = {
   name: 'exploreData',
   description:
-    'Opens an aggregation in an interactive view next to the chat, where the user can change ' +
+    'Opens an aggregation in the interactive Explore view, where the user can change ' +
     'dimensions, filters and the chart type. Call it ONLY when the user wants to explore the ' +
     'data themselves or asks for an interactive view - never on your own initiative, never ' +
     'just to show a result and never for follow-up questions like "and per country?": answer ' +
@@ -34,7 +34,7 @@ export const exploreDataTool: FrontendToolConfig<ExploreDataArgs> = {
   parameters: exploreDataSchema,
   handler: async (query) => {
     const router = inject(Router);
-    await router.navigate(['/dashboard'], { queryParams: toQueryParams(query) });
+    await router.navigate(['/explore'], { queryParams: toQueryParams(query) });
     return { opened: true };
   },
 };

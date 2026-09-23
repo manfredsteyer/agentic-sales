@@ -5,7 +5,7 @@ import { FilterSpec } from './filter-row/filter-row';
 
 export type ViewMode = 'bar' | 'pie' | 'pivot';
 
-export interface DashboardQuery {
+export interface ExploreQuery {
   aggregateFn: AggregateFn;
   fact: string;
   dimensions: string[];
@@ -13,7 +13,7 @@ export interface DashboardQuery {
   view: ViewMode;
 }
 
-export function toQueryParams(query: DashboardQuery): Params {
+export function toQueryParams(query: ExploreQuery): Params {
   return {
     agg: query.aggregateFn,
     fact: query.fact,

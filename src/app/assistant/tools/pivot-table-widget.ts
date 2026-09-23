@@ -4,29 +4,15 @@ import {
   type RegisterComponentConfig,
   type ToolRenderer,
 } from '@copilotkit/angular';
-import { z } from 'zod';
 
-import { PivotTable } from '../../dashboard/pivot-table/pivot-table';
+import { PivotTable } from '../../explore/pivot-table/pivot-table';
+import { AddToDashboardButton } from '../../dashboard/add-to-dashboard-button';
 import { AggRow } from '../../sales-api';
-
-export const pivotTableSchema = z.object({
-  title: z.string().describe('Short title, e.g. "Revenue per month and device"'),
-  rowDimension: z.string().describe('Dimension spanning the rows, e.g. "Month"'),
-  columnDimension: z.string().describe('Dimension spanning the columns, e.g. "DeviceCategory"'),
-  valueLabel: z.string().describe('What the values are, e.g. "Revenue (USD)"'),
-  cells: z
-    .array(z.object({ row: z.string(), column: z.string(), value: z.number() }))
-    .min(1)
-    .describe(
-      'One cell per aggregate row, e.g. { "row": "2020-12", "column": "mobile", "value": 60423 }',
-    ),
-});
-
-export type PivotTableArgs = z.infer<typeof pivotTableSchema>;
+import { PivotTableArgs, pivotTableSchema } from './visualization-schemas';
 
 @Component({
   selector: 'app-pivot-table-widget',
-  imports: [PivotTable],
+  imports: [PivotTable, AddToDashboardButton],
   template: `
     @if (args(); as args) {
       <figure>
@@ -36,6 +22,9 @@ export type PivotTableArgs = z.infer<typeof pivotTableSchema>;
           [dimensions]="[args.rowDimension, args.columnDimension]"
           [valueLabel]="args.valueLabel"
         />
+        @if (toolCall().status === 'complete') {
+          <app-add-to-dashboard kind="pivotTable" [args]="args" />
+        }
       </figure>
     } @else if (toolCall().status === 'complete') {
       <p class="hint">Can't show this table: the agent passed incomplete data.</p>
@@ -57,7 +46,7 @@ export class PivotTableWidget implements ToolRenderer<PivotTableArgs> {
   readonly toolCall = input.required<AngularToolCall<PivotTableArgs>>();
 
   protected readonly args = computed(() => toPivotTableArgs(this.toolCall().args));
-  protected readonly rows = computed(() => toRows(this.args()));
+  protected readonly rows = computed(() => toPivotRows(this.args()));
 }
 
 export const pivotTableWidget: RegisterComponentConfig<PivotTableArgs> = {
@@ -75,7 +64,7 @@ function toPivotTableArgs(args: Partial<PivotTableArgs>): PivotTableArgs | undef
   return result.data;
 }
 
-function toRows(args: PivotTableArgs | undefined): AggRow[] {
+export function toPivotRows(args: PivotTableArgs | undefined): AggRow[] {
   if (!args) {
     return [];
   }
