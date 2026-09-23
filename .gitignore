@@ -43,8 +43,8 @@ __screenshots__/
 .DS_Store
 Thumbs.db
 
-# Sales data: exported from BigQuery by each developer, not redistributable (see README)
-server/data/
+# Local DuckDB database, built from server/data/ga4-purchases.csv by npm run import
+server/data/sales.duckdb
 
 # Local secrets (template: .env.example)
 .env
