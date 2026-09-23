@@ -1,69 +1,43 @@
-# AgenticSales
+# Agentic Sales
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.1.2.
+An Angular app that analyzes sales data with AI agents, built with [CopilotKit](https://copilotkit.ai) and AG-UI on the frontend and [Mastra](https://mastra.ai) on the agent side. It has three pages:
 
-## Sales data
+## Data
 
-The app analyzes real purchases of the Google Merchandise Store, taken from Google's public GA4 sample dataset in BigQuery (`bigquery-public-data.ga4_obfuscated_sample_ecommerce`, November 2020 to January 2021, obfuscated by Google). The export ships with the repository as `server/data/ga4-purchases.csv`. To export it yourself, e.g. for a different time range, it takes about five minutes and is free:
+The app analyzes real purchases of the Google Merchandise Store from Google's public, obfuscated GA4 sample dataset in BigQuery (`bigquery-public-data.ga4_obfuscated_sample_ecommerce`), November 2020 to January 2021. The export ships as [`server/data/ga4-purchases.csv`](server/data/ga4-purchases.csv); the query that produced it is in [`server/ga4-export.sql`](server/ga4-export.sql). On start, the aggregation server loads the CSV into a local DuckDB database.
 
-1. Open the [BigQuery console](https://console.cloud.google.com/bigquery) with a Google account. On first use, it sets up a free sandbox project; you don't need a billing account.
-2. Paste the query from [`server/ga4-export.sql`](server/ga4-export.sql) and click **Run**.
-3. Choose **Save results** → **CSV (local file)** and store the file as `server/data/ga4-purchases.csv`.
+## Configuration
 
-`npm run server` and `npm run dev` load this CSV into a local DuckDB database (`server/data/sales.duckdb`) before starting the aggregation server. To rebuild the database without starting the server, run `npm run import`. The import prints a summary; with the full export, expect 15,555 item lines from 4,907 orders.
-
-## Development server
-
-To start a local development server, run:
+The agent needs an OpenAI API key. Copy the template to `.env` and fill it in:
 
 ```bash
-ng serve
+cp .env.example .env
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+```dotenv
+OPENAI_API_KEY=sk-...
+```
 
-## Code scaffolding
+`AGG_SERVER_URL` in the same file is optional. Set it only if the aggregation server runs somewhere other than `http://localhost:3000`.
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Running the app
+
+Install the dependencies of the app and of the agent, then start everything with the `dev` script:
 
 ```bash
-ng generate component component-name
+npm install
+npm install --prefix agent
+npm run dev
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+`npm run dev` runs three processes side by side:
 
-```bash
-ng generate --help
-```
+| Process            | Port | Command          |
+| ------------------ | ---- | ---------------- |
+| Aggregation server | 3000 | `npm run server` |
+| Mastra agent       | 4111 | `npm run agent`  |
+| Angular dev server | 4200 | `npm start`      |
 
-## Building
+Then open [http://localhost:4200](http://localhost:4200).
 
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Unit tests run with `npm test`.
