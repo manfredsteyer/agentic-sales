@@ -1,19 +1,27 @@
-import { initAgentStore } from '../util-copilotkit/init-agent-store';
-import { barChartTool, pieChartTool, pivotTableTool } from './visualization-tools';
+import { HttpAgent } from '@ag-ui/client';
+import { inject } from '@angular/core';
+import { CopilotKit, registerComponent, registerFrontendTool } from '@copilotkit/angular';
+
+import { barChartWidget } from './tools/bar-chart-widget';
+import { pieChartWidget } from './tools/pie-chart-widget';
+import { pivotTableWidget } from './tools/pivot-table-widget';
+import { exploreDataTool } from './tools/explore-data-tool';
 
 export const SALES_AGENT_ID = 'salesAgent';
 
-// AG-UI endpoint of the Mastra agent (npm run agent)
-const AG_UI_URL = 'http://localhost:4111/ag-ui';
+const AG_UI_URL = `/ag-ui/${SALES_AGENT_ID}`;
 
-/**
- * Registers the sales agent and the visualizations it may show with
- * CopilotKit. Needs an injection context; registrations end with it.
- */
 export function initSalesAgent(): void {
-  initAgentStore({
-    agentId: SALES_AGENT_ID,
-    url: `${AG_UI_URL}/${SALES_AGENT_ID}`,
-    components: [barChartTool, pieChartTool, pivotTableTool],
+  const copilotKit = inject(CopilotKit);
+  copilotKit.updateRuntime({
+    selfManagedAgents: {
+      ...copilotKit.agents(),
+      [SALES_AGENT_ID]: new HttpAgent({ agentId: SALES_AGENT_ID, url: AG_UI_URL }),
+    },
   });
+
+  registerComponent({ ...barChartWidget, agentId: SALES_AGENT_ID });
+  registerComponent({ ...pieChartWidget, agentId: SALES_AGENT_ID });
+  registerComponent({ ...pivotTableWidget, agentId: SALES_AGENT_ID });
+  registerFrontendTool({ ...exploreDataTool, agentId: SALES_AGENT_ID });
 }

@@ -6,14 +6,18 @@
 // names; identifiers are still validated against the schema and double-quoted
 // here, filter values are always bound as prepared-statement parameters.
 import { DuckDBInstance } from '@duckdb/node-api';
+import { COLUMN_DESCRIPTIONS } from './column-descriptions.mjs';
 
 const NUMERIC_TYPE = /^(TINYINT|SMALLINT|INTEGER|BIGINT|HUGEINT|UTINYINT|USMALLINT|UINTEGER|UBIGINT|FLOAT|DOUBLE|DECIMAL)/;
 const AGGREGATE_SQL = { avg: 'AVG', sum: 'SUM', count: 'COUNT' };
+const MAX_LISTED_VALUES = 30;
+const EXAMPLE_COUNT = 5;
+const PLACEHOLDERS = ['(not set)', '<Other>', '(data deleted)'];
 
 export const AGGREGATE_FUNCTIONS = Object.keys(AGGREGATE_SQL);
 
 /**
- * @typedef {{ name: string, type: string, numeric: boolean }} Column
+ * @typedef {{ name: string, type: string, numeric: boolean, description?: string, distinctCount?: number, values?: string[], examples?: string[] }} Column
  * @typedef {{ fact: string, aggregateFn: 'avg'|'sum'|'count', dimensions: string[], filter: Record<string, string|number|boolean|null> }} AggregateQuery
  * @typedef {{ column: string, direction: 'asc'|'desc' }} SortSpec
  * @typedef {{ columns: string[], filter: Record<string, string|number|boolean|null>, sort: SortSpec[], limit: number, offset: number }} DetailsQuery
@@ -46,11 +50,42 @@ async function openReadOnlyConnection(dbPath) {
 /** @returns {Promise<Column[]>} */
 async function readColumns(connection, table) {
   const reader = await connection.runAndReadAll(`DESCRIBE ${quoteIdent(table)}`);
-  return reader.getRowObjectsJson().map((row) => ({
+  const columns = reader.getRowObjectsJson().map((row) => ({
     name: String(row.column_name),
     type: String(row.column_type),
     numeric: NUMERIC_TYPE.test(String(row.column_type)),
+    description: COLUMN_DESCRIPTIONS[String(row.column_name)],
   }));
+  return Promise.all(columns.map((column) => withValues(connection, table, column)));
+}
+
+/** @returns {Promise<Column>} */
+async function withValues(connection, table, column) {
+  if (column.type !== 'VARCHAR') {
+    return column;
+  }
+  const columnSql = quoteIdent(column.name);
+  const tableSql = quoteIdent(table);
+  const counted = await connection.runAndReadAll(
+    `SELECT CAST(COUNT(DISTINCT ${columnSql}) AS INTEGER) AS n FROM ${tableSql}`,
+  );
+  const distinctCount = Number(counted.getRowObjectsJson()[0].n);
+  if (distinctCount <= MAX_LISTED_VALUES) {
+    const values = await readValues(connection, `SELECT DISTINCT ${columnSql} AS value FROM ${tableSql} ORDER BY value`);
+    return { ...column, distinctCount, values };
+  }
+  const placeholdersSql = PLACEHOLDERS.map(quoteString).join(', ');
+  const examples = await readValues(
+    connection,
+    `SELECT ${columnSql} AS value FROM ${tableSql} WHERE ${columnSql} NOT IN (${placeholdersSql}) ` +
+      `GROUP BY value ORDER BY COUNT(*) DESC, value LIMIT ${EXAMPLE_COUNT}`,
+  );
+  return { ...column, distinctCount, examples };
+}
+
+async function readValues(connection, sql) {
+  const reader = await connection.runAndReadAll(sql);
+  return reader.getRowObjectsJson().map((row) => String(row.value));
 }
 
 async function runAggregate(connection, table, findColumn, query) {

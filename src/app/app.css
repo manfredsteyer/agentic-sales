@@ -1,54 +1,36 @@
-/* Dashboard on the left, the assistant docked on the right */
-.layout {
+.content {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(22rem, 28rem);
-  min-height: 100vh;
-}
-
-.main {
-  min-width: 0;
-}
-
-.assistant {
-  position: sticky;
-  top: 0;
-  display: flex;
-  flex-direction: column;
   height: 100vh;
-  border-left: 1px solid var(--border);
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.content:has(app-dashboard) {
+  grid-template-columns: minmax(0, 1fr) minmax(22rem, 28rem);
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.dashboard-area {
+  min-width: 0;
+  overflow-y: auto;
 }
 
 app-assistant-chat {
-  flex: 1;
+  min-height: 0;
+}
+
+.content:has(app-dashboard) app-assistant-chat {
+  border-left: 1px solid var(--border);
 }
 
 @media (max-width: 60rem) {
-  .layout {
+  .content:has(app-dashboard) {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
   }
 
-  .assistant {
-    position: static;
-    height: 80vh;
+  .content:has(app-dashboard) app-assistant-chat {
     border-left: none;
     border-top: 1px solid var(--border);
   }
-}
-
-.app-header {
-  max-width: 72rem;
-  margin-inline: auto;
-  padding: 2rem 1.5rem 0;
-}
-
-.app-header h1 {
-  margin: 0;
-  font-size: 1.5rem;
-  letter-spacing: -0.02em;
-}
-
-.app-header p {
-  margin: 0.25rem 0 0;
-  color: var(--text-secondary);
-  font-size: 0.9rem;
 }

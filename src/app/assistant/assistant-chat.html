@@ -1,0 +1,21 @@
+<copilot-chat [agentId]="agentId" [messageViewChildrenTemplate]="interruptTemplate" />
+
+<!-- Questions of the agent (AG-UI interrupts), shown below the messages -->
+<ng-template #interruptTemplate>
+  @for (interrupt of interrupts(); track interrupt.id) {
+    <div class="interrupt" role="group" aria-label="Question from the assistant">
+      <p class="interrupt-message">{{ interrupt.message }}</p>
+      <div class="interrupt-actions">
+        @for (option of interrupt.options; track $index) {
+          <button
+            type="button"
+            [class.primary]="$first"
+            (click)="resolve(interrupt.id, option.payload)"
+          >
+            {{ option.label }}
+          </button>
+        }
+      </div>
+    </div>
+  }
+</ng-template>

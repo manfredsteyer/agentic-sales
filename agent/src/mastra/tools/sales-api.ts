@@ -19,7 +19,17 @@ export interface DetailsQuery {
   offset?: number;
 }
 
-export function getSchema() {
+export interface Column {
+  name: string;
+  type: string;
+  numeric: boolean;
+  description?: string;
+  distinctCount?: number;
+  values?: string[];
+  examples?: string[];
+}
+
+export function getSchema(): Promise<{ table: string; columns: Column[] }> {
   return callServer('/schema', 'GET');
 }
 

@@ -6,23 +6,23 @@
       [value]="filter().column"
       (change)="setColumn($any($event.target).value)"
     >
-      <option value="">– Spalte –</option>
+      <option value="">– column –</option>
       @for (col of filterColumns(); track col) {
-        <option [value]="col">{{ col }}</option>
+        <option [value]="col" [selected]="col === filter().column">{{ col }}</option>
       }
     </select>
     <select
       [value]="filter().value"
       [disabled]="!filter().column"
-      aria-label="Filterwert"
+      aria-label="Filter value"
       (change)="setValue($any($event.target).value)"
     >
-      <option value="">– Wert –</option>
+      <option value="">– value –</option>
       @for (v of values(); track v) {
-        <option [value]="v">{{ v }}</option>
+        <option [value]="v" [selected]="v === filter().value">{{ v }}</option>
       }
     </select>
-    <button type="button" class="remove" aria-label="Filter entfernen" (click)="removed.emit()">
+    <button type="button" class="remove" aria-label="Remove filter" (click)="removed.emit()">
       ✕
     </button>
   </div>

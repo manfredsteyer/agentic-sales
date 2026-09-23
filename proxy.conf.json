@@ -1,0 +1,6 @@
+{
+  "/ag-ui": {
+    "target": "http://localhost:4111",
+    "secure": false
+  }
+}

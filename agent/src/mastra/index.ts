@@ -7,7 +7,7 @@ import { agUiRouteHandler } from './routes/ag-ui-route';
 export const mastra = new Mastra({
   agents: { salesAgent },
   server: {
-    // The Angular dev server calls the AG-UI endpoint from another origin.
+    // Only for direct browser calls: the Angular dev server proxies /ag-ui.
     cors: {
       origin: ['http://localhost:4200', 'http://localhost:4111'],
       allowHeaders: ['Content-Type', 'Authorization'],

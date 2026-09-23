@@ -1,44 +1,41 @@
 import { createTool } from '@mastra/core/tools';
 import { z } from 'zod';
 
+import { MAX_ROWS } from '../config';
 import { runSandbox } from '../utils/sandbox';
+import {
+  approvalResumeSchema,
+  approvalSuspendSchema,
+  askForApproval,
+  DECLINED,
+  notExecutedSchema,
+} from './row-limit';
 import { aggregate, type AggregateQuery, details, type DetailsQuery } from './sales-api';
 
 // Keeps a runaway result (e.g. thousands of raw rows) out of the model's context.
 const MAX_RESULT_CHARS = 50_000;
 
-export const executeJavaScriptTool = createTool({
+export const executeJavaScript = createTool({
   id: 'execute-javascript',
   description: `
-    Runs a snippet of JavaScript inside a hardened QuickJS sandbox to load sales data and
-    transform it beyond what the aggregation API can do: shares and percentages, differences
-    and growth rates, rankings and top-N lists, ratios such as revenue per order, or
-    combinations of several queries.
+    Runs a JavaScript snippet in a QuickJS sandbox for calculations the aggregation API
+    can't do, e.g. shares, growth rates, rankings or order counts.
 
-    The snippet is executed AS AN ES MODULE, so top-level \`await\` is supported. There is NO
-    wrapping function — write straight-line statements; do NOT use \`return\`.
+    The snippet runs as an ES module: use top-level \`await\`, no \`return\`, no \`import\`.
+    Host functions:
+      \`await aggregate({ fact, aggregateFn, dimensions, filter })\` returns rows like
+        \`{ Country: "Germany", value: 123.4 }\`
+      \`await details({ columns, filter, sort, limit, offset })\` returns \`{ rows, totalCount }\`,
+        limit up to 1000
+      \`submitResult(result)\` - call it exactly once with the JSON result
+    Here, \`filter\` is a plain object, e.g. \`{ Country: "Germany" }\`.
 
-    THREE host functions are exposed:
+    For a visualization, submit the data in the shape the visualization tool expects and pass
+    it on unchanged.
 
-      \`await aggregate({ fact, aggregateFn, dimensions, filter }): Promise<Row[]>\`
-        Like the aggregateSales tool; rows look like \`{ Country: "Germany", value: 123.4 }\`.
-      \`await details({ columns, filter, sort, limit, offset }): Promise<{ rows: Row[], totalCount: number }>\`
-        Like the getSalesDetails tool, but limit may be up to 1000;
-        sort looks like \`[{ column: "Revenue", direction: "desc" }]\`.
-      \`submitResult(result): void\`
-        Call it EXACTLY ONCE with the final, JSON-serializable result.
-
-    Unlike in the tools, \`filter\` is a plain object here: \`{ Country: "Germany", Medium: "organic" }\`.
-
-    To visualize the result, submit the points barChart, pieChart and pivotTable expect,
-    e.g. \`[{ label: "2020-12", value: 42.5 }]\` or
-    \`[{ label: "2020-12", series: "mobile", value: 42.5 }]\`, and pass them on unchanged.
-
-    The sandbox has NO other host APIs: no \`fetch\`, no \`import\`, no \`require\`, no \`process\`,
-    no \`console\`, no network beyond the functions above. \`import\`/\`export\` statements are
-    rejected. It is killed after 30 s wall-clock time and is hard-capped at 64 MB memory and
-    1 MB stack. Results longer than ${MAX_RESULT_CHARS} characters of JSON are rejected:
-    aggregate further instead of returning raw rows.
+    There are no other APIs (no fetch, console or require). Limits: 30 s, 64 MB and results
+    of up to ${MAX_RESULT_CHARS} characters. A query with more than ${MAX_ROWS} result rows
+    needs the user's approval; the snippet then runs again from the start.
   `,
   inputSchema: z.object({
     code: z
@@ -48,25 +45,53 @@ export const executeJavaScriptTool = createTool({
           'transform it, then call `submitResult(result)` exactly once.',
       ),
   }),
-  outputSchema: z.object({
-    result: z.unknown(),
-  }),
-  execute: async ({ code }) => {
+  outputSchema: z.union([z.object({ result: z.unknown() }), notExecutedSchema]),
+  suspendSchema: approvalSuspendSchema,
+  resumeSchema: approvalResumeSchema,
+  execute: async ({ code }, context) => {
+    const approval = context?.agent?.resumeData;
+    if (approval && !approval.approved) {
+      return DECLINED;
+    }
+
+    // Set when a query exceeds MAX_ROWS without approval. The host function
+    // then withholds the data and aborts the snippet; this flag, not the
+    // snippet, decides, so catching the error inside the snippet won't help.
+    let tooLarge: number | undefined;
+    const checkRowLimit = (rows: number) => {
+      if (rows > MAX_ROWS && !approval?.approved) {
+        tooLarge = Math.max(tooLarge ?? 0, rows);
+        throw new Error(`The result has ${rows} rows (max. ${MAX_ROWS}) and needs approval.`);
+      }
+    };
     let submitted: { result: unknown } | undefined;
 
-    await runSandbox(code, {
-      functions: {
-        aggregate: async (query: AggregateQuery) => (await aggregate(query)).rows,
-        details: async (query: DetailsQuery) => {
-          const { rows, totalCount } = await details(query);
-          return { rows, totalCount };
+    try {
+      await runSandbox(code, {
+        functions: {
+          aggregate: async (query: AggregateQuery) => {
+            const { rowCount, rows } = await aggregate(query);
+            checkRowLimit(rowCount);
+            return rows;
+          },
+          details: async (query: DetailsQuery) => {
+            const { rows, totalCount } = await details(query);
+            checkRowLimit(totalCount);
+            return { rows, totalCount };
+          },
+          submitResult: (result: unknown) => {
+            submitted = { result };
+          },
         },
-        submitResult: (result: unknown) => {
-          submitted = { result };
-        },
-      },
-    });
+      });
+    } catch (err) {
+      if (tooLarge === undefined) throw err;
+    }
 
+    if (tooLarge !== undefined) {
+      // resuming with approval runs the whole snippet again
+      return askForApproval(context, tooLarge);
+    }
     if (!submitted) {
       throw new Error('The snippet finished without calling submitResult(result).');
     }

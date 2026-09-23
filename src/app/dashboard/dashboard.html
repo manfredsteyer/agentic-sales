@@ -1,16 +1,21 @@
-<section class="controls" aria-label="Abfrage">
+<div class="dashboard-header">
+  <h1>Dashboard</h1>
+  <a routerLink="/">Close</a>
+</div>
+
+<section class="controls" aria-label="Query">
   <div class="control">
     <label for="fn">Aggregation</label>
-    <select id="fn" [value]="aggregateFn()" (change)="setAggregateFn($any($event.target).value)">
-      <option value="sum">Summe</option>
-      <option value="avg">Durchschnitt</option>
-      <option value="count">Anzahl</option>
+    <select id="fn" [value]="aggregateFn()" (change)="update({ agg: $any($event.target).value })">
+      <option value="sum">Sum</option>
+      <option value="avg">Average</option>
+      <option value="count">Count</option>
     </select>
   </div>
 
   <div class="control">
     <label for="fact">Fact</label>
-    <select id="fact" [value]="fact()" (change)="fact.set($any($event.target).value)">
+    <select id="fact" [value]="fact()" (change)="update({ fact: $any($event.target).value })">
       @for (col of factColumns(); track col) {
         <option [value]="col" [selected]="col === fact()">{{ col }}</option>
       }
@@ -19,7 +24,7 @@
 
   <div class="control">
     <label for="dim1">Dimension 1</label>
-    <select id="dim1" [value]="dim1()" (change)="dim1.set($any($event.target).value)">
+    <select id="dim1" [value]="dim1()" (change)="update({ dim1: $any($event.target).value })">
       @for (col of dimensionColumns(); track col) {
         <option [value]="col" [selected]="col === dim1()">{{ col }}</option>
       }
@@ -28,8 +33,12 @@
 
   <div class="control">
     <label for="dim2">Dimension 2</label>
-    <select id="dim2" [value]="dim2()" (change)="dim2.set($any($event.target).value)">
-      <option value="">– keine –</option>
+    <select
+      id="dim2"
+      [value]="dim2()"
+      (change)="update({ dim2: $any($event.target).value || null })"
+    >
+      <option value="">– none –</option>
       @for (col of dim2Columns(); track col) {
         <option [value]="col" [selected]="col === dim2()">{{ col }}</option>
       }
@@ -49,20 +58,28 @@
   }
 </section>
 
-<section class="view-switch" aria-label="Darstellung">
-  <button type="button" [class.active]="effectiveView() === 'bar'" (click)="viewMode.set('bar')">
-    Balken
+<section class="view-switch" aria-label="View">
+  <button
+    type="button"
+    [class.active]="effectiveView() === 'bar'"
+    (click)="update({ view: 'bar' })"
+  >
+    Bar
   </button>
   <button
     type="button"
     [class.active]="effectiveView() === 'pie'"
     [disabled]="!pieAllowed()"
-    [title]="pieAllowed() ? '' : 'Kreisdiagramm nur bei einer Dimension und Summe/Anzahl'"
-    (click)="viewMode.set('pie')"
+    [title]="pieAllowed() ? '' : 'Pie chart only with one dimension and sum or count'"
+    (click)="update({ view: 'pie' })"
   >
-    Kreis
+    Pie
   </button>
-  <button type="button" [class.active]="effectiveView() === 'pivot'" (click)="viewMode.set('pivot')">
+  <button
+    type="button"
+    [class.active]="effectiveView() === 'pivot'"
+    (click)="update({ view: 'pivot' })"
+  >
     Pivot
   </button>
 </section>
@@ -70,14 +87,14 @@
 @if (errorMessage()) {
   <p class="error" role="alert">{{ errorMessage() }}</p>
 } @else if (result.isLoading() && !result.hasValue()) {
-  <p class="hint">Lade Daten …</p>
+  <p class="hint">Loading data …</p>
 } @else if (result.hasValue()) {
   <section class="result" [class.loading]="result.isLoading()">
     @if (chart().note) {
       <p class="hint">{{ chart().note }}</p>
     }
     @if (result.value().rowCount === 0) {
-      <p class="hint">Keine Daten für diese Filter.</p>
+      <p class="hint">No data for these filters.</p>
     } @else if (effectiveView() === 'pivot') {
       <app-pivot-table
         [rows]="result.value().rows"
@@ -92,8 +109,8 @@
       />
     }
     <p class="meta">
-      {{ valueLabel() }} · gruppiert nach {{ result.value().dimensions.join(', ') }} ·
-      {{ result.value().rowCount }} Zeilen
+      {{ valueLabel() }} · grouped by {{ result.value().dimensions.join(', ') }} ·
+      {{ result.value().rowCount }} rows
     </p>
   </section>
 }

@@ -5,6 +5,23 @@
   padding: 1rem 1.5rem 3rem;
 }
 
+.dashboard-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.dashboard-header h1 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.dashboard-header a {
+  color: var(--accent);
+  font-size: 0.9rem;
+}
+
 .controls {
   display: flex;
   flex-wrap: wrap;

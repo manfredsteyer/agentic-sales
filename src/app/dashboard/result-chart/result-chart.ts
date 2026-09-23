@@ -18,12 +18,42 @@ export interface ChartSeries {
 
 // Reference dataviz palette: fixed slot order, stepped separately for
 // light and dark surfaces. Never cycled - the dashboard caps series at 8.
-const PALETTE_LIGHT = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300', '#4a3aa7', '#e34948'];
-const PALETTE_DARK = ['#3987e5', '#d95926', '#199e70', '#c98500', '#d55181', '#008300', '#9085e9', '#e66767'];
+const PALETTE_LIGHT = [
+  '#2a78d6',
+  '#eb6834',
+  '#1baf7a',
+  '#eda100',
+  '#e87ba4',
+  '#008300',
+  '#4a3aa7',
+  '#e34948',
+];
+const PALETTE_DARK = [
+  '#3987e5',
+  '#d95926',
+  '#199e70',
+  '#c98500',
+  '#d55181',
+  '#008300',
+  '#9085e9',
+  '#e66767',
+];
 
 const THEME = {
-  light: { palette: PALETTE_LIGHT, surface: '#fcfcfb', text: '#0b0b0b', muted: '#52514e', grid: 'rgba(11, 11, 11, 0.08)' },
-  dark: { palette: PALETTE_DARK, surface: '#1a1a19', text: '#ffffff', muted: '#c3c2b7', grid: 'rgba(255, 255, 255, 0.1)' },
+  light: {
+    palette: PALETTE_LIGHT,
+    surface: '#fcfcfb',
+    text: '#0b0b0b',
+    muted: '#52514e',
+    grid: 'rgba(11, 11, 11, 0.08)',
+  },
+  dark: {
+    palette: PALETTE_DARK,
+    surface: '#1a1a19',
+    text: '#ffffff',
+    muted: '#c3c2b7',
+    grid: 'rgba(255, 255, 255, 0.1)',
+  },
 };
 
 @Component({
@@ -36,10 +66,11 @@ export class ResultChart {
   readonly labels = input.required<string[]>();
   readonly datasets = input.required<ChartSeries[]>();
 
-  private readonly canvas =
-    viewChild.required<ElementRef<HTMLCanvasElement>>('cv');
+  private readonly canvas = viewChild.required<ElementRef<HTMLCanvasElement>>('cv');
   private readonly dark = injectPrefersDark();
   private chart: Chart | undefined;
+  private renderedState = '';
+  private chartLayout = '';
 
   constructor() {
     inject(DestroyRef).onDestroy(() => this.chart?.destroy());
@@ -53,33 +84,49 @@ export class ResultChart {
     const labels = this.labels();
     const series = this.datasets();
 
+    const state = JSON.stringify([theme, type, labels, series]);
+    if (state === this.renderedState) {
+      return;
+    }
+    this.renderedState = state;
+
+    const data = {
+      labels,
+      datasets:
+        type === 'pie'
+          ? [
+              {
+                label: series[0]?.label ?? '',
+                data: series[0]?.data ?? [],
+                // one palette slot per slice, 2px surface spacer between fills
+                backgroundColor: labels.map((_, i) => theme.palette[i % theme.palette.length]),
+                borderColor: theme.surface,
+                borderWidth: 2,
+              },
+            ]
+          : series.map((s, i) => ({
+              label: s.label,
+              data: s.data,
+              backgroundColor: theme.palette[i],
+              // rounded data-end anchored to the baseline
+              borderRadius: 4,
+              borderSkipped: 'start' as const,
+              maxBarThickness: 40,
+            })),
+    };
+
+    const layout = JSON.stringify([theme, type, series.length]);
+    if (this.chart && layout === this.chartLayout) {
+      this.chart.data = data;
+      this.chart.update('none');
+      return;
+    }
+    this.chartLayout = layout;
+
     this.chart?.destroy();
     this.chart = new Chart(this.canvas().nativeElement, {
       type,
-      data: {
-        labels,
-        datasets:
-          type === 'pie'
-            ? [
-                {
-                  label: series[0]?.label ?? '',
-                  data: series[0]?.data ?? [],
-                  // one palette slot per slice, 2px surface spacer between fills
-                  backgroundColor: labels.map((_, i) => theme.palette[i % theme.palette.length]),
-                  borderColor: theme.surface,
-                  borderWidth: 2,
-                },
-              ]
-            : series.map((s, i) => ({
-                label: s.label,
-                data: s.data,
-                backgroundColor: theme.palette[i],
-                // rounded data-end anchored to the baseline
-                borderRadius: 4,
-                borderSkipped: 'start' as const,
-                maxBarThickness: 40,
-              })),
-      },
+      data,
       options: {
         responsive: true,
         maintainAspectRatio: false,

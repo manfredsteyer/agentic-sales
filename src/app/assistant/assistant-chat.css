@@ -1,0 +1,47 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  /* CopilotKit redefines --accent and --border inside the chat, so keep
+     the app's values under names of our own */
+  --app-accent: var(--accent);
+  --app-border: var(--border);
+}
+
+copilot-chat {
+  flex: 1;
+  min-height: 0;
+}
+
+.interrupt {
+  margin: 0.75rem 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--app-accent);
+  border-radius: 0.75rem;
+  background: var(--surface-2);
+}
+
+.interrupt-message {
+  margin: 0 0 0.75rem;
+  line-height: 1.5;
+}
+
+.interrupt-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.interrupt-actions button {
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--app-border);
+  border-radius: 0.5rem;
+  background: var(--surface-1);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.interrupt-actions button.primary {
+  border-color: var(--app-accent);
+  background: var(--app-accent);
+  color: #fff;
+}

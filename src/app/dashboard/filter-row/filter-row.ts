@@ -21,14 +21,10 @@ export class FilterRow {
   readonly removed = output<void>();
 
   /** DATE columns have too many distinct values for a select. */
-  readonly filterColumns = computed(() =>
-    this.columns()
-      .filter((c) => c.type !== 'DATE')
-      .map((c) => c.name),
-  );
+  readonly filterColumns = computed(() => filterableColumns(this.columns()));
 
   /** Distinct values of the chosen column, via a count aggregation. */
-  private readonly valueOptions = httpResource<AggregateResponse>(() => {
+  private readonly lookup = httpResource<AggregateResponse>(() => {
     const column = this.filter().column;
     if (!column) return undefined;
     return this.api.aggregateRequest({
@@ -39,11 +35,9 @@ export class FilterRow {
     });
   });
 
-  readonly values = computed(() => {
-    if (!this.valueOptions.hasValue()) return [];
-    const column = this.filter().column;
-    return this.valueOptions.value().rows.map((r) => String(r[column]));
-  });
+  readonly options = computed(() => (this.lookup.hasValue() ? this.lookup.value() : undefined));
+
+  readonly values = computed(() => distinctValues(this.options(), this.filter().column));
 
   setColumn(column: string) {
     this.changed.emit({ column, value: '' });
@@ -52,4 +46,13 @@ export class FilterRow {
   setValue(value: string) {
     this.changed.emit({ column: this.filter().column, value });
   }
+}
+
+function filterableColumns(columns: ColumnInfo[]): string[] {
+  const filterable = columns.filter((c) => c.type !== 'DATE');
+  return filterable.map((c) => c.name);
+}
+
+function distinctValues(options: AggregateResponse | undefined, column: string): string[] {
+  return options ? options.rows.map((r) => String(r[column])) : [];
 }

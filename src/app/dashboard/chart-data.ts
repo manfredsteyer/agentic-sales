@@ -35,10 +35,10 @@ export function toChartData(
       const rest = entries.filter((e) => !keep.has(e.label));
       entries = entries.filter((e) => keep.has(e.label));
       entries.push({
-        label: 'Sonstige',
+        label: 'Other',
         value: rest.reduce((a, e) => a + e.value, 0),
       });
-      note = `${rest.length} kleinere Werte zu „Sonstige“ zusammengefasst.`;
+      note = `${rest.length} smaller values combined into "Other".`;
     }
     return {
       labels: entries.map((e) => e.label),
@@ -61,7 +61,7 @@ export function toChartData(
     datasets,
     note:
       hidden > 0
-        ? `${hidden} Serien ausgeblendet (Palette umfasst ${MAX_SERIES} Farben) – die Pivot-Tabelle zeigt alles.`
+        ? `${hidden} series hidden (the palette has ${MAX_SERIES} colors) – the pivot table shows all of them.`
         : '',
   };
 }

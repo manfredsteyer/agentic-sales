@@ -1,18 +1,23 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import {
+  ApplicationConfig,
+  provideAppInitializer,
+  provideBrowserGlobalErrorListeners,
+} from '@angular/core';
+import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideCopilotKit } from '@copilotkit/angular';
 
 import { routes } from './app.routes';
+import { initSalesAgent } from './assistant/sales-agent';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes),
-    // Server-side tool calls (queries, sandbox) appear as collapsible cards
+    provideRouter(routes, withComponentInputBinding()),
+
     provideCopilotKit({
       defaultToolRendering: true,
-      // the floating dev inspector covers the docked chat
       enableInspector: false,
     }),
+    provideAppInitializer(initSalesAgent),
   ],
 };

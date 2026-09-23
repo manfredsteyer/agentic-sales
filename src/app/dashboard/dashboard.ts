@@ -1,78 +1,48 @@
-import { Component, computed, inject, linkedSignal, signal } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { httpResource } from '@angular/common/http';
-import {
-  AggregateFn,
-  AggregateResponse,
-  SalesApi,
-  formatValue,
-} from '../sales-api';
+import { ActivatedRoute, Params, Router, RouterLink } from '@angular/router';
+import { AggregateFn, AggregateResponse, ColumnInfo, SalesApi, formatValue } from '../sales-api';
 import { ResultChart } from './result-chart/result-chart';
 import { ChartData, toChartData } from './chart-data';
 import { PivotTable } from './pivot-table/pivot-table';
 import { FilterRow, FilterSpec } from './filter-row/filter-row';
-
-type ViewMode = 'bar' | 'pie' | 'pivot';
+import { toAggregateFn, toFilterParam, toFilters, toViewMode, ViewMode } from './dashboard-params';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [ResultChart, PivotTable, FilterRow],
+  imports: [ResultChart, PivotTable, FilterRow, RouterLink],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
 export class Dashboard {
   private readonly api = inject(SalesApi);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+
+  readonly aggParam = input<string>(undefined, { alias: 'agg' });
+  readonly factParam = input<string>(undefined, { alias: 'fact' });
+  readonly dim1Param = input<string>(undefined, { alias: 'dim1' });
+  readonly dim2Param = input<string>(undefined, { alias: 'dim2' });
+  readonly filterParam = input<string | string[]>(undefined, { alias: 'filter' });
+  readonly viewParam = input<string>(undefined, { alias: 'view' });
 
   readonly schema = this.api.schema;
-  readonly columns = computed(() =>
-    this.schema.hasValue() ? this.schema.value().columns : [],
-  );
+  readonly columns = computed(() => (this.schema.hasValue() ? this.schema.value().columns : []));
 
   // --- query controls -------------------------------------------------------
-  readonly aggregateFn = signal<AggregateFn>('sum');
+  readonly aggregateFn = computed(() => toAggregateFn(this.aggParam()));
 
   /** avg/sum need a numeric fact column; count works on any column. */
-  readonly factColumns = computed(() =>
-    this.columns()
-      .filter((c) => this.aggregateFn() === 'count' || c.numeric)
-      .map((c) => c.name),
-  );
-  readonly fact = linkedSignal<string[], string>({
-    source: this.factColumns,
-    computation: (cols, previous) =>
-      previous && cols.includes(previous.value)
-        ? previous.value
-        : cols.includes('Revenue')
-          ? 'Revenue'
-          : (cols[0] ?? ''),
-  });
+  readonly factColumns = computed(() => factColumnsFor(this.columns(), this.aggregateFn()));
+  readonly fact = computed(() => pickColumn(this.factParam(), this.factColumns(), 'Revenue'));
 
-  readonly dimensionColumns = computed(() =>
-    this.columns()
-      .filter((c) => c.type === 'VARCHAR')
-      .map((c) => c.name),
-  );
-  readonly dim1 = linkedSignal<string[], string>({
-    source: this.dimensionColumns,
-    computation: (cols, previous) =>
-      previous && cols.includes(previous.value)
-        ? previous.value
-        : cols.includes('Country')
-          ? 'Country'
-          : (cols[0] ?? ''),
-  });
-  readonly dim2 = signal('');
-  readonly dim2Columns = computed(() =>
-    this.dimensionColumns().filter((c) => c !== this.dim1()),
-  );
+  readonly dimensionColumns = computed(() => dimensionColumnsOf(this.columns()));
+  readonly dim1 = computed(() => pickColumn(this.dim1Param(), this.dimensionColumns(), 'Country'));
+  readonly dim2 = computed(() => this.dim2Param() ?? '');
+  readonly dim2Columns = computed(() => this.dimensionColumns().filter((c) => c !== this.dim1()));
 
-  readonly filters = signal<FilterSpec[]>([]);
-  private readonly completeFilters = computed(() =>
-    Object.fromEntries(
-      this.filters()
-        .filter((f) => f.column && f.value)
-        .map((f) => [f.column, f.value]),
-    ),
-  );
+  readonly filters = computed(() => toFilters(this.filterParam()));
+  private readonly completeFilters = computed(() => toFilterRecord(this.filters()));
 
   // --- data -----------------------------------------------------------------
   readonly result = httpResource<AggregateResponse>(() => {
@@ -87,50 +57,86 @@ export class Dashboard {
     });
   });
 
-  readonly errorMessage = computed(() => {
-    const err = this.result.error() as { error?: { error?: string } } | undefined;
-    return err
-      ? (err.error?.error ?? 'Server nicht erreichbar (npm run server)')
-      : '';
-  });
+  readonly data = computed(() => (this.result.hasValue() ? this.result.value() : undefined));
+
+  readonly errorMessage = computed(() => toErrorMessage(this.result.error()));
 
   // --- view -----------------------------------------------------------------
-  readonly viewMode = signal<ViewMode>('bar');
+  readonly viewMode = computed(() => toViewMode(this.viewParam()));
   /** A pie shows parts of a whole: one dimension, additive aggregate only. */
-  readonly pieAllowed = computed(
-    () => !this.dim2() && this.aggregateFn() !== 'avg',
-  );
-  readonly effectiveView = computed<ViewMode>(() =>
-    this.viewMode() === 'pie' && !this.pieAllowed() ? 'bar' : this.viewMode(),
-  );
+  readonly pieAllowed = computed(() => !this.dim2() && this.aggregateFn() !== 'avg');
+  readonly effectiveView = computed(() => effectiveViewOf(this.viewMode(), this.pieAllowed()));
 
   readonly valueLabel = computed(() => `${this.aggregateFn()}(${this.fact()})`);
 
-  readonly chart = computed<ChartData>(() => {
-    if (!this.result.hasValue()) return { labels: [], datasets: [], note: '' };
-    const { rows, dimensions } = this.result.value();
-    const type = this.effectiveView() === 'pie' ? 'pie' : 'bar';
-    return toChartData(rows, dimensions, this.valueLabel(), type);
-  });
+  readonly chart = computed(() => chartFor(this.data(), this.effectiveView(), this.valueLabel()));
 
   // --- event handlers -------------------------------------------------------
   readonly formatValue = formatValue;
 
-  setAggregateFn(value: string) {
-    this.aggregateFn.set(value as AggregateFn);
+  update(params: Params) {
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: params,
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   }
 
   addFilter() {
     if (this.filters().length < 2) {
-      this.filters.update((f) => [...f, { column: '', value: '' }]);
+      this.updateFilters([...this.filters(), { column: '', value: '' }]);
     }
   }
 
   updateFilter(index: number, spec: FilterSpec) {
-    this.filters.update((f) => f.map((old, i) => (i === index ? spec : old)));
+    this.updateFilters(this.filters().map((old, i) => (i === index ? spec : old)));
   }
 
   removeFilter(index: number) {
-    this.filters.update((f) => f.filter((_, i) => i !== index));
+    this.updateFilters(this.filters().filter((_, i) => i !== index));
   }
+
+  private updateFilters(filters: FilterSpec[]) {
+    this.update({ filter: toFilterParam(filters) });
+  }
+}
+
+function factColumnsFor(columns: ColumnInfo[], aggregateFn: AggregateFn): string[] {
+  const usable = columns.filter((c) => aggregateFn === 'count' || c.numeric);
+  return usable.map((c) => c.name);
+}
+
+function dimensionColumnsOf(columns: ColumnInfo[]): string[] {
+  const dimensions = columns.filter((c) => c.type === 'VARCHAR');
+  return dimensions.map((c) => c.name);
+}
+
+function pickColumn(preferred: string | undefined, columns: string[], fallback: string): string {
+  if (preferred && columns.includes(preferred)) return preferred;
+  return columns.includes(fallback) ? fallback : (columns[0] ?? '');
+}
+
+function toFilterRecord(filters: FilterSpec[]): Record<string, string> {
+  const complete = filters.filter((f) => f.column && f.value);
+  return Object.fromEntries(complete.map((f) => [f.column, f.value]));
+}
+
+function toErrorMessage(error: unknown): string {
+  if (!error) return '';
+  const body = (error as { error?: { error?: string } }).error;
+  return body?.error ?? 'Server not reachable (npm run server)';
+}
+
+function effectiveViewOf(view: ViewMode, pieAllowed: boolean): ViewMode {
+  return view === 'pie' && !pieAllowed ? 'bar' : view;
+}
+
+function chartFor(
+  result: AggregateResponse | undefined,
+  view: ViewMode,
+  valueLabel: string,
+): ChartData {
+  if (!result) return { labels: [], datasets: [], note: '' };
+  return toChartData(result.rows, result.dimensions, valueLabel, view === 'pie' ? 'pie' : 'bar');
 }

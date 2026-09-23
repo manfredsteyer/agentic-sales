@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 import { AssistantChat } from './assistant/assistant-chat';
-import { Dashboard } from './dashboard/dashboard';
 
 @Component({
   selector: 'app-root',
-  imports: [Dashboard, AssistantChat],
+  imports: [RouterOutlet, AssistantChat],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })

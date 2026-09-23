@@ -1,7 +1,14 @@
 import { createTool } from '@mastra/core/tools';
 import { z } from 'zod';
 
-import { aggregate, details, getSchema } from './sales-api';
+import { MAX_ROWS } from '../config';
+import {
+  approvalResumeSchema,
+  approvalSuspendSchema,
+  notExecutedSchema,
+  withRowLimit,
+} from './row-limit';
+import { aggregate, details } from './sales-api';
 
 // A list instead of a { column: value } record: the model cannot fill
 // objects with arbitrary keys through the tool schema.
@@ -19,33 +26,17 @@ function toFilter(filter: z.infer<typeof filterSchema>) {
 
 const rowSchema = z.record(z.string(), z.union([z.string(), z.number(), z.null()]));
 
-export const getSalesSchema = createTool({
-  id: 'get-sales-schema',
-  description:
-    'Returns the columns of the sales table with their types. ' +
-    'Call this first to learn which fact columns and dimensions exist.',
-  inputSchema: z.object({}),
-  outputSchema: z.object({
-    table: z.string(),
-    columns: z.array(
-      z.object({
-        name: z.string(),
-        type: z.string(),
-        numeric: z.boolean().describe('Only numeric columns can be used with avg/sum'),
-      }),
-    ),
-  }),
-  execute: async () => {
-    return getSchema();
-  },
-});
+const approvalNote =
+  ` Results with more than ${MAX_ROWS} rows need the user's approval: the tool ` +
+  'pauses and asks the user before it returns them.';
 
 export const aggregateSales = createTool({
   id: 'aggregate-sales',
   description:
     'Aggregates the sales table: applies avg, sum, or count to a fact column, ' +
     'grouped by 1-2 dimension columns, optionally filtered by exact-match values. ' +
-    'Results are sorted by the dimensions.',
+    'Results are sorted by the dimensions.' +
+    approvalNote,
   inputSchema: z.object({
     fact: z.string().describe('Fact column to aggregate, e.g. "Revenue" or "Quantity"'),
     aggregateFn: z.enum(['avg', 'sum', 'count']),
@@ -56,15 +47,24 @@ export const aggregateSales = createTool({
       .describe('1-2 columns to group by, e.g. ["Country", "DeviceCategory"]'),
     filter: filterSchema,
   }),
-  outputSchema: z.object({
-    fact: z.string(),
-    aggregateFn: z.string(),
-    dimensions: z.array(z.string()),
-    rowCount: z.number(),
-    rows: z.array(rowSchema),
-  }),
-  execute: async ({ filter, ...query }) => {
-    return aggregate({ ...query, filter: toFilter(filter) });
+  outputSchema: z.union([
+    z.object({
+      fact: z.string(),
+      aggregateFn: z.string(),
+      dimensions: z.array(z.string()),
+      rowCount: z.number(),
+      rows: z.array(rowSchema),
+    }),
+    notExecutedSchema,
+  ]),
+  suspendSchema: approvalSuspendSchema,
+  resumeSchema: approvalResumeSchema,
+  execute: async ({ filter, ...query }, context) => {
+    return withRowLimit(
+      context,
+      () => aggregate({ ...query, filter: toFilter(filter) }),
+      (result) => result.rowCount,
+    );
   },
 });
 
@@ -75,7 +75,8 @@ export const getSalesDetails = createTool({
     'optionally filtered by exact-match values and sorted. Use it to drill down ' +
     'behind an aggregate, e.g. the largest orders of a country or what a ' +
     'specific order contained. Returns one page (limit/offset) plus totalCount, ' +
-    'the number of all matching rows.',
+    'the number of all matching rows. The approval limit applies to totalCount.' +
+    approvalNote,
   inputSchema: z.object({
     columns: z
       .array(z.string())
@@ -93,13 +94,22 @@ export const getSalesDetails = createTool({
     limit: z.number().int().min(1).max(100).optional().describe('Page size, default 20'),
     offset: z.number().int().min(0).optional().describe('Rows to skip, default 0'),
   }),
-  outputSchema: z.object({
-    columns: z.array(z.string()),
-    rowCount: z.number(),
-    totalCount: z.number(),
-    rows: z.array(rowSchema),
-  }),
-  execute: async ({ filter, limit, ...query }) => {
-    return details({ ...query, filter: toFilter(filter), limit: limit ?? 20 });
+  outputSchema: z.union([
+    z.object({
+      columns: z.array(z.string()),
+      rowCount: z.number(),
+      totalCount: z.number(),
+      rows: z.array(rowSchema),
+    }),
+    notExecutedSchema,
+  ]),
+  suspendSchema: approvalSuspendSchema,
+  resumeSchema: approvalResumeSchema,
+  execute: async ({ filter, limit, ...query }, context) => {
+    return withRowLimit(
+      context,
+      () => details({ ...query, filter: toFilter(filter), limit: limit ?? 20 }),
+      (result) => result.totalCount,
+    );
   },
 });
