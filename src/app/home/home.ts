@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 
 import { AssistantChat } from '../assistant/assistant-chat';
 import { SALES_AGENT_ID } from '../assistant/agent-ids';
+import { WidgetOptions } from '../assistant/tools/widget-options';
 
 @Component({
   selector: 'app-home',
@@ -20,4 +21,9 @@ import { SALES_AGENT_ID } from '../assistant/agent-ids';
 })
 export class Home {
   protected readonly agentId = SALES_AGENT_ID;
+  protected readonly options = inject(WidgetOptions);
+
+  constructor() {
+    this.options.showAddToDashboard.set(false);
+  }
 }

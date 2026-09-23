@@ -3,14 +3,13 @@ import { Router } from '@angular/router';
 import { injectAgentStore } from '@copilotkit/angular';
 
 import { DASHBOARD_AGENT_ID } from '../assistant/agent-ids';
+import { WidgetOptions } from '../assistant/tools/widget-options';
 import { DashboardArgs, DashboardKind, withItem } from './dashboard-state';
-
-const ADD_TO_DASHBOARD_ENABLED = true;
 
 @Component({
   selector: 'app-add-to-dashboard',
   template: `
-    @if (enabled) {
+    @if (visible()) {
       <button type="button" (click)="add()">+ Add to dashboard</button>
     }
   `,
@@ -41,10 +40,11 @@ export class AddToDashboardButton {
   readonly kind = input.required<DashboardKind>();
   readonly args = input.required<DashboardArgs>();
 
-  protected readonly enabled = ADD_TO_DASHBOARD_ENABLED;
-
+  private readonly options = inject(WidgetOptions);
   private readonly store = injectAgentStore(DASHBOARD_AGENT_ID);
   private readonly router = inject(Router);
+
+  protected readonly visible = this.options.showAddToDashboard;
 
   protected add(): void {
     const agent = this.store().agent;
