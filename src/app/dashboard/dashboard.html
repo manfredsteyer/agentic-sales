@@ -1,0 +1,99 @@
+<section class="controls" aria-label="Abfrage">
+  <div class="control">
+    <label for="fn">Aggregation</label>
+    <select id="fn" [value]="aggregateFn()" (change)="setAggregateFn($any($event.target).value)">
+      <option value="sum">Summe</option>
+      <option value="avg">Durchschnitt</option>
+      <option value="count">Anzahl</option>
+    </select>
+  </div>
+
+  <div class="control">
+    <label for="fact">Fact</label>
+    <select id="fact" [value]="fact()" (change)="fact.set($any($event.target).value)">
+      @for (col of factColumns(); track col) {
+        <option [value]="col" [selected]="col === fact()">{{ col }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="control">
+    <label for="dim1">Dimension 1</label>
+    <select id="dim1" [value]="dim1()" (change)="dim1.set($any($event.target).value)">
+      @for (col of dimensionColumns(); track col) {
+        <option [value]="col" [selected]="col === dim1()">{{ col }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="control">
+    <label for="dim2">Dimension 2</label>
+    <select id="dim2" [value]="dim2()" (change)="dim2.set($any($event.target).value)">
+      <option value="">– keine –</option>
+      @for (col of dim2Columns(); track col) {
+        <option [value]="col" [selected]="col === dim2()">{{ col }}</option>
+      }
+    </select>
+  </div>
+
+  @for (filter of filters(); track $index) {
+    <app-filter-row
+      [columns]="columns()"
+      [filter]="filter"
+      (changed)="updateFilter($index, $event)"
+      (removed)="removeFilter($index)"
+    />
+  }
+  @if (filters().length < 2) {
+    <button type="button" class="add-filter" (click)="addFilter()">+ Filter</button>
+  }
+</section>
+
+<section class="view-switch" aria-label="Darstellung">
+  <button type="button" [class.active]="effectiveView() === 'bar'" (click)="viewMode.set('bar')">
+    Balken
+  </button>
+  <button
+    type="button"
+    [class.active]="effectiveView() === 'pie'"
+    [disabled]="!pieAllowed()"
+    [title]="pieAllowed() ? '' : 'Kreisdiagramm nur bei einer Dimension und Summe/Anzahl'"
+    (click)="viewMode.set('pie')"
+  >
+    Kreis
+  </button>
+  <button type="button" [class.active]="effectiveView() === 'pivot'" (click)="viewMode.set('pivot')">
+    Pivot
+  </button>
+</section>
+
+@if (errorMessage()) {
+  <p class="error" role="alert">{{ errorMessage() }}</p>
+} @else if (result.isLoading() && !result.hasValue()) {
+  <p class="hint">Lade Daten …</p>
+} @else if (result.hasValue()) {
+  <section class="result" [class.loading]="result.isLoading()">
+    @if (chart().note) {
+      <p class="hint">{{ chart().note }}</p>
+    }
+    @if (result.value().rowCount === 0) {
+      <p class="hint">Keine Daten für diese Filter.</p>
+    } @else if (effectiveView() === 'pivot') {
+      <app-pivot-table
+        [rows]="result.value().rows"
+        [dimensions]="result.value().dimensions"
+        [valueLabel]="valueLabel()"
+      />
+    } @else {
+      <app-result-chart
+        [type]="effectiveView() === 'pie' ? 'pie' : 'bar'"
+        [labels]="chart().labels"
+        [datasets]="chart().datasets"
+      />
+    }
+    <p class="meta">
+      {{ valueLabel() }} · gruppiert nach {{ result.value().dimensions.join(', ') }} ·
+      {{ result.value().rowCount }} Zeilen
+    </p>
+  </section>
+}

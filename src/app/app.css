@@ -1,0 +1,54 @@
+/* Dashboard on the left, the assistant docked on the right */
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(22rem, 28rem);
+  min-height: 100vh;
+}
+
+.main {
+  min-width: 0;
+}
+
+.assistant {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  border-left: 1px solid var(--border);
+}
+
+app-assistant-chat {
+  flex: 1;
+}
+
+@media (max-width: 60rem) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .assistant {
+    position: static;
+    height: 80vh;
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
+}
+
+.app-header {
+  max-width: 72rem;
+  margin-inline: auto;
+  padding: 2rem 1.5rem 0;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+}
+
+.app-header p {
+  margin: 0.25rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}

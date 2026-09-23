@@ -7,7 +7,7 @@
 /bazel-out
 
 # Node
-/node_modules
+node_modules/
 npm-debug.log
 yarn-error.log
 
@@ -42,3 +42,9 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Sales data: exported from BigQuery by each developer, not redistributable (see README)
+server/data/
+
+# Local secrets (template: .env.example)
+.env

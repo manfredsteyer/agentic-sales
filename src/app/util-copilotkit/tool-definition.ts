@@ -1,0 +1,79 @@
+import {
+  type FrontendToolConfig,
+  type HumanInTheLoopConfig,
+  type RegisterComponentConfig,
+  type RenderToolCallConfig,
+} from '@copilotkit/angular';
+
+const TERMINAL_TOOL_HINT =
+  `\n\nCalling this tool ENDS your turn — the agent is not invoked again ` +
+  `afterwards. Do all data gathering and other tool calls BEFORE it, and emit ` +
+  `it (together with any other end-of-turn widgets) as the LAST tool calls of ` +
+  `the turn.`;
+
+function withTerminalHint(description: string | undefined): string {
+  if (!description) {
+    return TERMINAL_TOOL_HINT.trimStart();
+  }
+  if (description.includes(TERMINAL_TOOL_HINT)) {
+    return description;
+  }
+  return description + TERMINAL_TOOL_HINT;
+}
+
+/**
+ * Identity helper for a browser-executed frontend tool. Keeps schema, name,
+ * description, handler, and optional renderer component together, and gives the
+ * handler args full type inference from the Zod `parameters` schema. Does not
+ * register or inject anything. When the tool opts out of a follow-up turn
+ * (`followUp: false`), its description is extended with a hint so the agent
+ * knows the call is terminal.
+ */
+export function createFrontendTool<Args extends Record<string, unknown>>(
+  tool: FrontendToolConfig<Args>,
+): FrontendToolConfig<Args> {
+  if (tool.followUp === false) {
+    return { ...tool, description: withTerminalHint(tool.description) };
+  }
+  return tool;
+}
+
+/**
+ * Identity helper for a display-only component the agent can call to render
+ * it (registered via `registerComponent`): no handler, the tool call only
+ * shows the `component`. Gives the component args full type inference from
+ * the Zod `parameters` schema. Like `createFrontendTool`, it extends the
+ * description with the terminal hint when the component opts out of a
+ * follow-up turn (`followUp: false`).
+ */
+export function createComponentTool<Args extends Record<string, unknown>>(
+  component: RegisterComponentConfig<Args>,
+): RegisterComponentConfig<Args> {
+  if (component.followUp === false) {
+    return {
+      ...component,
+      description: withTerminalHint(component.description),
+    };
+  }
+  return component;
+}
+
+/**
+ * Identity helper for rendering an existing (usually server-side) tool call.
+ * Keeps tool name, args schema, and renderer component together.
+ */
+export function createRenderToolCall<Args extends Record<string, unknown>>(
+  toolCall: RenderToolCallConfig<Args>,
+): RenderToolCallConfig<Args> {
+  return toolCall;
+}
+
+/**
+ * Identity helper for a human-in-the-loop tool that pauses until the user
+ * responds through the renderer's `respond(...)` callback.
+ */
+export function createHumanInTheLoop<Args extends Record<string, unknown>>(
+  tool: HumanInTheLoopConfig<Args>,
+): HumanInTheLoopConfig<Args> {
+  return tool;
+}

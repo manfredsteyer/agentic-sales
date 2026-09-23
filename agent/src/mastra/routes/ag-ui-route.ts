@@ -1,0 +1,47 @@
+// AG-UI endpoint: POST /ag-ui/:agentId runs the Mastra agent registered under
+// that id and streams its work as AG-UI events (server-sent events). The
+// Angular client talks to it through an HttpAgent, see initAgentStore.
+import type { ContextWithMastra } from '@mastra/core/server';
+import { streamSSE } from 'hono/streaming';
+
+import { streamAgentEvents } from './ag-ui-stream';
+import { parseRunAgentInput, toAgUiAgent } from './route-utils';
+
+export async function agUiRouteHandler(
+  c: ContextWithMastra,
+): Promise<Response> {
+  const agentId = c.req.param('agentId') ?? '';
+  const mastraInstance = c.get('mastra');
+  const requestContext = c.get('requestContext');
+
+  const parsed = await parseRunAgentInput(c);
+  if (!parsed.ok) {
+    return parsed.response;
+  }
+
+  const { input } = parsed;
+
+  // getAgent throws for unknown ids; the registry lookup allows a clean 404
+  const mastraAgent = mastraInstance.listAgents()[agentId];
+  if (!mastraAgent) {
+    return c.json(
+      { error: 'not_found', message: `Agent ${agentId} not found` },
+      404,
+    );
+  }
+
+  const agUiAgent = toAgUiAgent({
+    agentId,
+    mastraAgent,
+    input,
+    requestContext,
+    abortSignal: c.req.raw.signal,
+  });
+
+  return streamSSE(
+    c as unknown as Parameters<typeof streamSSE>[0],
+    async (sse) => {
+      await streamAgentEvents(sse, agUiAgent, input);
+    },
+  );
+}

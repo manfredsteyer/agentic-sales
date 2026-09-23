@@ -2,6 +2,16 @@
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.1.2.
 
+## Sales data
+
+The app analyzes real purchases of the Google Merchandise Store, taken from Google's public GA4 sample dataset in BigQuery (`bigquery-public-data.ga4_obfuscated_sample_ecommerce`, November 2020 to January 2021, obfuscated by Google). Google provides this dataset for querying in BigQuery, but we found no license that permits redistributing it. That's why the data isn't part of this repository: export it once yourself. It takes about five minutes and is free:
+
+1. Open the [BigQuery console](https://console.cloud.google.com/bigquery) with a Google account. On first use, it sets up a free sandbox project; you don't need a billing account.
+2. Paste the query from [`server/ga4-export.sql`](server/ga4-export.sql) and click **Run**.
+3. Choose **Save results** → **CSV (local file)** and store the file as `server/data/ga4-purchases.csv`.
+
+`npm run server` and `npm run dev` load this CSV into a local DuckDB database (`server/data/sales.duckdb`) before starting the aggregation server. To rebuild the database without starting the server, run `npm run import`. The import prints a summary; with the full export, expect 15,555 item lines from 4,907 orders.
+
 ## Development server
 
 To start a local development server, run:

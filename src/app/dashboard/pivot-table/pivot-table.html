@@ -1,0 +1,30 @@
+<div class="table-box" tabindex="0">
+  <table>
+    <thead>
+      <tr>
+        <th scope="col" class="dim">{{ pivot().rowDim }}</th>
+        @if (pivot().colKeys.length === 0) {
+          <th scope="col" class="num">{{ valueLabel() }}</th>
+        } @else {
+          @for (col of pivot().colKeys; track col) {
+            <th scope="col" class="num">{{ col }}</th>
+          }
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of pivot().rowKeys; track row) {
+        <tr>
+          <th scope="row" class="dim">{{ row }}</th>
+          @if (pivot().colKeys.length === 0) {
+            <td class="num">{{ cellValue(row) }}</td>
+          } @else {
+            @for (col of pivot().colKeys; track col) {
+              <td class="num">{{ cellValue(row, col) }}</td>
+            }
+          }
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
