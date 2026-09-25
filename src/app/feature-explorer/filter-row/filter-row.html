@@ -1,0 +1,36 @@
+<div class="control">
+  <label [for]="'filter-col-' + filter().column">Filter</label>
+  <div class="row">
+    <select
+      [id]="'filter-col-' + filter().column"
+      [value]="filter().column"
+      (change)="setColumn($any($event.target).value)"
+    >
+      <option value="">– column –</option>
+      @for (col of filterColumns(); track col) {
+        <option [value]="col" [selected]="col === filter().column">
+          {{ col }}
+        </option>
+      }
+    </select>
+    <select
+      [value]="filter().value"
+      [disabled]="!filter().column"
+      aria-label="Filter value"
+      (change)="setValue($any($event.target).value)"
+    >
+      <option value="">– value –</option>
+      @for (v of values(); track v) {
+        <option [value]="v" [selected]="v === filter().value">{{ v }}</option>
+      }
+    </select>
+    <button
+      type="button"
+      class="remove"
+      aria-label="Remove filter"
+      (click)="removed.emit()"
+    >
+      <img src="icons/close.svg" width="14" height="14" alt="" />
+    </button>
+  </div>
+</div>

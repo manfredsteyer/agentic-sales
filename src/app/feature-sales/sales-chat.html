@@ -1,0 +1,21 @@
+<copilot-chat
+  [agentId]="agentId"
+  [messageViewChildrenTemplate]="interruptTemplate"
+/>
+
+<div class="examples" role="group" aria-label="Example requests">
+  @for (example of examples; track example.label) {
+    <button
+      type="button"
+      class="chip"
+      [title]="example.prompt"
+      (click)="sendExample(example)"
+    >
+      {{ example.label }}
+    </button>
+  }
+</div>
+
+<ng-template #interruptTemplate>
+  <app-interrupt-list [agentId]="agentId" />
+</ng-template>

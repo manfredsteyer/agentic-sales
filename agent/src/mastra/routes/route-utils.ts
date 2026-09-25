@@ -100,5 +100,6 @@ export function toAgUiAgent({
     threadId: input.threadId,
     initialMessages: input.messages,
     initialState: input.state,
+    streamServerToolCalls: true,
   });
 }

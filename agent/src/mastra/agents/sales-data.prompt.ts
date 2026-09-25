@@ -18,7 +18,7 @@ Querying:
   with a grouped query.
 - For trends, group by Month or Week rather than by Date.
 - "count" counts item lines. To count orders, count distinct TransactionIds
-  with evaluateJsonata. Count a total over all rows, not by adding up the
+  with JSONata. Count a total over all rows, not by adding up the
   counts per Month: some orders appear in two months.
 - If the user declines a large query, suggest a narrower one, e.g. with a
   filter or grouped by Month instead of Date.`;
@@ -33,15 +33,10 @@ export const salesAnsweringPrompt = `Answering:
   most 8 series, pieChart for shares of a whole, pivotTable when exact
   values matter or for more series. Show a single number in context, e.g.
   per Month.
-- Copy the numbers into the visualization exactly and don't repeat them as a
-  table.
-- Call the visualization first, without any text. Its empty result means
-  it is shown to the user: answer in a few sentences and don't call it
-  again.
 - When the second dimension of a bar chart has more than 8 values, use
   pivotTable if the user wants all of them. Otherwise keep the 7 largest
-  series, fold the rest into a series named "Other" with evaluateJsonata
-  and say how many values it contains.`;
+  series, fold the rest into a series named "Other" with JSONata and say how
+  many values it contains.`;
 
 export const salesColumnsPrompt = `Columns of the sales table:
 - Date (DATE): Purchase date (UTC)

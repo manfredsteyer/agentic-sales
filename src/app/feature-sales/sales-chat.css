@@ -1,0 +1,11 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--surface-1);
+}
+
+copilot-chat {
+  flex: 1;
+  min-height: 0;
+}

@@ -1,11 +1,11 @@
 import { Routes } from '@angular/router';
-import { Dashboard } from './dashboard/dashboard';
-import { Explorer } from './explorer/explorer';
-import { Home } from './home/home';
+import { DashboardView } from './feature-dashboard/dashboard-view/dashboard-view';
+import { Explorer } from './feature-explorer/explorer';
+import { SalesChat } from './feature-sales/sales-chat';
 
 export const routes: Routes = [
-  { path: '', component: Home },
+  { path: '', component: SalesChat },
   { path: 'explorer', component: Explorer },
-  { path: 'dashboard', component: Dashboard },
+  { path: 'dashboard', component: DashboardView },
   { path: '**', redirectTo: '' },
 ];

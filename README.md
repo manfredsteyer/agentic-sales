@@ -4,7 +4,7 @@ An Angular app that analyzes sales data with AI agents, built with [CopilotKit](
 
 - **Home**: a chat with the sales agent. It answers with bar charts, pie charts and pivot tables, evaluates JSONata expressions on the data when a question needs more than one query, and can open a result in the Explorer.
 - **Explorer**: an interactive aggregation of the data with a fact, an aggregate function, up to two dimensions and filters.
-- **Dashboard**: charts and tables pinned from the chat. A second agent edits the tiles via the dashboard's shared state.
+- **Dashboard**: charts and tables pinned from the chat. A second agent edits the tiles via the dashboard's shared state. Its visualizations come from the server-side tool `runQuery`, which evaluates a JSONata expression, so the model never copies the data. A tile stores the query (kind, labels and expression) and runs it again whenever it is shown.
 
 ## Data
 

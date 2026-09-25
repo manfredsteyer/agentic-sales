@@ -22,7 +22,7 @@ export const notExecutedSchema = z.object({
   message: z.string(),
 });
 
-type NotExecuted = z.infer<typeof notExecutedSchema>;
+export type NotExecuted = z.infer<typeof notExecutedSchema>;
 
 export interface ApprovalContext {
   agent?: {
