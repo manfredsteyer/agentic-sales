@@ -341,6 +341,10 @@ copilot-chat-assistant-message-thumbs-down-button {
   display: none;
 }
 
+copilot-chat-user-message-renderer {
+  white-space: pre-line;
+}
+
 app-bar-chart,
 app-pie-chart,
 app-pivot-table {

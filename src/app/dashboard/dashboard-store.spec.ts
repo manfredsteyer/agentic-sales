@@ -30,6 +30,7 @@ describe('DashboardStore', () => {
   let store: DashboardStore;
 
   beforeEach(async () => {
+    localStorage.clear();
     TestBed.configureTestingModule({ providers: appConfig.providers });
     await TestBed.inject(ApplicationInitStatus).donePromise;
     store = TestBed.inject(DashboardStore);
@@ -53,5 +54,23 @@ describe('DashboardStore', () => {
     await vi.waitFor(() => expect(store.items()).toEqual([barChart]));
     store.clear();
     await vi.waitFor(() => expect(store.items()).toEqual([]));
+  });
+
+  it('restores the saved items on load', async () => {
+    store.addItem(barChart);
+    await vi.waitFor(() => expect(store.items()).toEqual([barChart]));
+    store.save();
+    store.clear();
+    await vi.waitFor(() => expect(store.items()).toEqual([]));
+    store.load();
+    await vi.waitFor(() => expect(store.items()).toEqual([barChart]));
+  });
+
+  it('reports whether a saved state exists', async () => {
+    expect(store.hasSavedState()).toBe(false);
+    store.addItem(barChart);
+    await vi.waitFor(() => expect(store.items()).toEqual([barChart]));
+    store.save();
+    expect(store.hasSavedState()).toBe(true);
   });
 });

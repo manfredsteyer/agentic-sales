@@ -7,6 +7,22 @@
     <div class="actions">
       <button
         type="button"
+        class="btn"
+        [disabled]="!store.hasSavedState()"
+        (click)="store.load()"
+      >
+        Load
+      </button>
+      <button
+        type="button"
+        class="btn"
+        [disabled]="store.items().length === 0"
+        (click)="store.save()"
+      >
+        Save
+      </button>
+      <button
+        type="button"
         class="btn btn-danger"
         [disabled]="store.items().length === 0"
         (click)="store.clear()"

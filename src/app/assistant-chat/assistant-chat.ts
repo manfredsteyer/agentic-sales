@@ -58,7 +58,7 @@ export class AssistantChat {
     {
       label: 'Example 3',
       prompt:
-        'For each continent, show me a pie chart with the revenue of the products in the Bags category.',
+        'Show me one pie chart per continent. Each chart should show the revenue of the products in the Bags category.',
     },
   ];
 
