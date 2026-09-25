@@ -1,5 +1,5 @@
 import { Agent } from '@mastra/core/agent';
-import { executeJavaScript } from '../tools/execute-javascript';
+import { evaluateJsonata } from '../tools/evaluate-jsonata';
 import { aggregateSales, getSalesDetails } from '../tools/sales-tools';
 import { salesAgentPrompt } from './sales-agent.prompt';
 
@@ -8,5 +8,5 @@ export const salesAgent = new Agent({
   name: 'Sales Analyst',
   instructions: salesAgentPrompt,
   model: 'openai/gpt-5.6-terra',
-  tools: { aggregateSales, getSalesDetails, executeJavaScript },
+  tools: { aggregateSales, getSalesDetails, evaluateJsonata },
 });

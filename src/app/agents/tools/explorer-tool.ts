@@ -31,7 +31,7 @@ export const explorerTool: FrontendToolConfig<ExplorerToolArgs> = {
     dimensions, filters and the chart type. Call it ONLY when the user wants to explore the
     data themselves or asks for an interactive view - never on your own initiative, never
     just to show a result and never for follow-up questions like "and per country?": answer
-    those in the chat. For results computed with executeJavaScript, pass the
+    those in the chat. For results computed with evaluateJsonata, pass the
     aggregation they are based on: the view shows these base values, not the derived ones.
     Not suitable for order counts.
   `,

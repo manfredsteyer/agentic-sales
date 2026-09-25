@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "npm run dev",
+    "client": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
@@ -13,7 +14,7 @@
     "server:typecheck": "tsc -p server/tsconfig.json",
     "agent": "mastra dev --dir agent/src/mastra --env .env",
     "agent:typecheck": "tsc -p agent/tsconfig.json",
-    "dev": "concurrently -n server,agent,client -c blue,magenta,green \"npm run server\" \"npm run agent\" \"npm run start\"",
+    "dev": "concurrently -n server,agent,client -c blue,magenta,green \"npm run server\" \"npm run agent\" \"npm run client\"",
     "lint": "ng lint",
     "prepare": "husky",
     "format": "prettier --write .",
@@ -39,7 +40,7 @@
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "hono": "~4.13.4",
-    "quickjs-emscripten": "^0.32.0",
+    "jsonata": "^2.2.2",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zod": "^4.6.5"

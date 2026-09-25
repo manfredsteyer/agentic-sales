@@ -21,12 +21,6 @@ export default defineConfig([
     },
   },
   {
-    files: ['agent/src/mastra/utils/sandbox.ts'],
-    rules: {
-      '@typescript-eslint/no-explicit-any': 'off',
-    },
-  },
-  {
     files: ['src/**/*.ts'],
     extends: [angular.configs.tsRecommended],
     processor: angular.processInlineTemplates,

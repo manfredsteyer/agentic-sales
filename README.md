@@ -2,7 +2,7 @@
 
 An Angular app that analyzes sales data with AI agents, built with [CopilotKit](https://copilotkit.ai) and AG-UI on the frontend and [Mastra](https://mastra.ai) on the agent side. It has three pages:
 
-- **Home**: a chat with the sales agent. It answers with bar charts, pie charts and pivot tables, runs JavaScript on the data when a question needs more than one query, and can open a result in the Explorer.
+- **Home**: a chat with the sales agent. It answers with bar charts, pie charts and pivot tables, evaluates JSONata expressions on the data when a question needs more than one query, and can open a result in the Explorer.
 - **Explorer**: an interactive aggregation of the data with a fact, an aggregate function, up to two dimensions and filters.
 - **Dashboard**: charts and tables pinned from the chat. A second agent edits the tiles via the dashboard's shared state.
 
@@ -30,16 +30,16 @@ There is a single `package.json` in the repo root. It holds the dependencies of 
 
 ```bash
 npm install
-npm run dev
+npm start
 ```
 
-`npm run dev` runs three processes side by side:
+`npm start` runs three processes side by side:
 
 | Process            | Port | Command          |
 | ------------------ | ---- | ---------------- |
 | Aggregation server | 3000 | `npm run server` |
 | Mastra agent       | 4111 | `npm run agent`  |
-| Angular dev server | 4200 | `npm start`      |
+| Angular dev server | 4200 | `npm run client` |
 
 Then open [http://localhost:4200](http://localhost:4200). The browser talks to the aggregation server and the agent directly; both allow CORS requests from port 4200.
 
@@ -47,10 +47,10 @@ Then open [http://localhost:4200](http://localhost:4200). The browser talks to t
 
 | Script                     | What it does                                                              |
 | -------------------------- | ------------------------------------------------------------------------- |
-| `npm run dev`              | Starts server, agent and Angular dev server together                      |
+| `npm start`, `npm run dev` | Starts server, agent and Angular dev server together                      |
 | `npm run server`           | Imports the CSV into DuckDB (if needed) and starts the aggregation server |
 | `npm run agent`            | Starts the Mastra dev server for the agents in `agent/src/mastra`         |
-| `npm start`                | Starts the Angular dev server                                             |
+| `npm run client`           | Starts the Angular dev server                                             |
 | `npm run build`            | Production build of the Angular app                                       |
 | `npm test`                 | Unit tests of the Angular app                                             |
 | `npm run server:typecheck` | Type-checks the aggregation server                                        |

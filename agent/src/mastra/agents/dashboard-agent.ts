@@ -7,7 +7,7 @@ import {
   toDashboard,
   updateDashboardItem,
 } from '../tools/dashboard-tools';
-import { executeJavaScript } from '../tools/execute-javascript';
+import { evaluateJsonata } from '../tools/evaluate-jsonata';
 import { dashboardAgentPrompt } from './dashboard-agent.prompt';
 
 export const dashboardAgent = new Agent({
@@ -18,7 +18,7 @@ export const dashboardAgent = new Agent({
     toDashboardSection(requestContext.get(AG_UI_STATE_KEY)),
   model: 'openai/gpt-5.6-terra',
   tools: {
-    executeJavaScript,
+    evaluateJsonata,
     addDashboardItem,
     updateDashboardItem,
     reorderDashboard,

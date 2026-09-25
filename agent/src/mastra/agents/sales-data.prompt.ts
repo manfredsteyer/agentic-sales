@@ -18,7 +18,7 @@ Querying:
   with a grouped query.
 - For trends, group by Month or Week rather than by Date.
 - "count" counts item lines. To count orders, count distinct TransactionIds
-  with executeJavaScript. Count a total over all rows, not by adding up the
+  with evaluateJsonata. Count a total over all rows, not by adding up the
   counts per Month: some orders appear in two months.
 - If the user declines a large query, suggest a narrower one, e.g. with a
   filter or grouped by Month instead of Date.`;
@@ -40,7 +40,7 @@ export const salesAnsweringPrompt = `Answering:
   again.
 - When the second dimension of a bar chart has more than 8 values, use
   pivotTable if the user wants all of them. Otherwise keep the 7 largest
-  series, fold the rest into a series named "Other" with executeJavaScript
+  series, fold the rest into a series named "Other" with evaluateJsonata
   and say how many values it contains.`;
 
 export const salesColumnsPrompt = `Columns of the sales table:
