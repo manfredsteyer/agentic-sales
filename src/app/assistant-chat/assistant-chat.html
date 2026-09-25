@@ -1,6 +1,6 @@
 <copilot-chat
   [agentId]="agentId()"
-  [messageViewChildrenTemplate]="interruptTemplate"
+  [messageViewChildrenTemplate]="messageViewChildren"
 />
 
 <div class="examples" role="group" aria-label="Example requests">
@@ -17,7 +17,7 @@
   }
 </div>
 
-<ng-template #interruptTemplate>
+<ng-template #messageViewChildren>
   @for (interrupt of interrupts(); track interrupt.id) {
     <div
       class="interrupt"
@@ -43,5 +43,8 @@
         </div>
       </div>
     </div>
+  }
+  @if (isThinking()) {
+    <copilot-chat-message-view-cursor />
   }
 </ng-template>

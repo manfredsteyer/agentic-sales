@@ -1,7 +1,8 @@
-import { type Interrupt } from '@ag-ui/core';
+import { type Interrupt, type Message } from '@ag-ui/core';
 import { Component, computed, input, signal, viewChild } from '@angular/core';
 import {
   CopilotChat,
+  CopilotChatMessageViewCursor,
   injectAgentStore,
   injectInterrupt,
 } from '@copilotkit/angular';
@@ -30,7 +31,7 @@ interface ExamplePrompt {
 
 @Component({
   selector: 'app-assistant-chat',
-  imports: [CopilotChat],
+  imports: [CopilotChat, CopilotChatMessageViewCursor],
   templateUrl: './assistant-chat.html',
   styleUrl: './assistant-chat.css',
 })
@@ -47,6 +48,10 @@ export class AssistantChat {
   );
 
   protected readonly isRunning = computed(() => this.agentStore().isRunning());
+
+  protected readonly isThinking = computed(
+    () => this.isRunning() && endsWithReasoning(this.agentStore().messages()),
+  );
 
   protected readonly examples: ExamplePrompt[] = [
     { label: 'Example 1', prompt: 'Show me the revenue per category.' },
@@ -70,6 +75,11 @@ export class AssistantChat {
     this.answered.update((ids) => new Set(ids).add(interruptId));
     void this.controller.resolve(payload, interruptId);
   }
+}
+
+function endsWithReasoning(messages: readonly Message[]): boolean {
+  const last = messages.at(-1);
+  return last?.role === 'reasoning';
 }
 
 function unanswered(
