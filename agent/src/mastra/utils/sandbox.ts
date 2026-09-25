@@ -1,7 +1,3 @@
-/**
- * Convenience wrapper around QuickJS.
- * See https://github.com/justjake/quickjs-emscripten
- */
 import {
   getQuickJS,
   type QuickJSContext,
@@ -11,7 +7,6 @@ import {
 
 export type HostFunctions = Record<
   string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (...args: any[]) => unknown | Promise<unknown>
 >;
 
@@ -121,9 +116,6 @@ async function evalInSandbox(
     );
     runtime.executePendingJobs();
     try {
-      // resolvePromise settles through guest jobs, so they have to be run
-      // right away. Otherwise, a snippet that finishes or fails without an
-      // async host call would hang until the hard timeout.
       const settledPromise = context.resolvePromise(evalHandle);
       runtime.executePendingJobs();
       const settled = await settledPromise;

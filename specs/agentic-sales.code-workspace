@@ -1,11 +1,11 @@
 {
-	"folders": [
-		{
-			"path": ".."
-		},
-		{
-			"path": "../../../../intern/agentic-book"
-		}
-	],
-	"settings": {}
+  "folders": [
+    {
+      "path": "..",
+    },
+    {
+      "path": "../../../../intern/agentic-book",
+    },
+  ],
+  "settings": {},
 }

@@ -1,4 +1,8 @@
-import { salesAnsweringPrompt, salesColumnsPrompt, salesDataPrompt } from './sales-data.prompt';
+import {
+  salesAnsweringPrompt,
+  salesColumnsPrompt,
+  salesDataPrompt,
+} from './sales-data.prompt';
 
 export const dashboardAgentPrompt = `
 You are a sales analyst for the Google Merchandise Store and maintain the

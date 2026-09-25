@@ -1,7 +1,6 @@
 import type { RequestContext } from '@mastra/core/request-context';
 import { createTool } from '@mastra/core/tools';
 import { z } from 'zod';
-
 import { AG_UI_STATE_KEY } from '../config';
 
 const barChartSchema = z.object({
@@ -14,15 +13,16 @@ const barChartSchema = z.object({
         series: z
           .string()
           .nullish()
-          .describe('Value of the second dimension for grouped bars, e.g. "Europe"'),
+          .describe(
+            'Value of the second dimension for grouped bars, e.g. "Europe"',
+          ),
         value: z.number(),
       }),
     )
-    .min(1)
-    .describe(
-      'One bar per aggregate row, e.g. { "label": "2020-W50", "value": 59842 }. With a second ' +
-        'dimension, add its value as series: { "label": "Apparel", "series": "Europe", "value": 21530 }',
-    ),
+    .min(1).describe(`
+      One bar per aggregate row, e.g. { "label": "2020-W50", "value": 59842 }. With a second
+      dimension, add its value as series: { "label": "Apparel", "series": "Europe", "value": 21530 }
+    `),
 });
 
 const pieChartSchema = z.object({
@@ -31,13 +31,21 @@ const pieChartSchema = z.object({
   slices: z
     .array(z.object({ label: z.string(), value: z.number() }))
     .min(1)
-    .describe('One slice per aggregate row, e.g. { "label": "Apparel", "value": 171727 }'),
+    .describe(
+      'One slice per aggregate row, e.g. { "label": "Apparel", "value": 171727 }',
+    ),
 });
 
 const pivotTableSchema = z.object({
-  title: z.string().describe('Short title, e.g. "Revenue per month and device"'),
-  rowDimension: z.string().describe('Dimension spanning the rows, e.g. "Month"'),
-  columnDimension: z.string().describe('Dimension spanning the columns, e.g. "DeviceCategory"'),
+  title: z
+    .string()
+    .describe('Short title, e.g. "Revenue per month and device"'),
+  rowDimension: z
+    .string()
+    .describe('Dimension spanning the rows, e.g. "Month"'),
+  columnDimension: z
+    .string()
+    .describe('Dimension spanning the columns, e.g. "DeviceCategory"'),
   valueLabel: z.string().describe('What the values are, e.g. "Revenue (USD)"'),
   cells: z
     .array(z.object({ row: z.string(), column: z.string(), value: z.number() }))
@@ -47,13 +55,17 @@ const pivotTableSchema = z.object({
     ),
 });
 
-const kindSchema = z.enum(['barChart', 'pieChart', 'pivotTable']).describe('Kind of visualization');
+const kindSchema = z
+  .enum(['barChart', 'pieChart', 'pivotTable'])
+  .describe('Kind of visualization');
 
 const argsSchema = z
   .union([barChartSchema, pieChartSchema, pivotTableSchema])
   .describe('The visualization of that kind, with complete data');
 
-const idSchema = z.string().describe('Id of the dashboard item, see the dashboard list');
+const idSchema = z
+  .string()
+  .describe('Id of the dashboard item, see the dashboard list');
 
 const dashboardItemSchema = z.object({
   id: z.string(),
@@ -91,14 +103,17 @@ export const addDashboardItem = createTool({
 
 export const updateDashboardItem = createTool({
   id: 'update-dashboard-item',
-  description:
-    'Replaces what a dashboard item shows: its kind, title and data. Use it after querying ' +
-    'the changed data, e.g. with another filter or dimension, and pass all of it.',
+  description: `
+    Replaces what a dashboard item shows: its kind, title and data. Use it after querying
+    the changed data, e.g. with another filter or dimension, and pass all of it.
+  `,
   inputSchema: z.object({ id: idSchema, kind: kindSchema, args: argsSchema }),
   outputSchema: resultSchema,
   execute: async ({ id, kind, args }, context) =>
     updateDashboard(context?.requestContext, (items) =>
-      items.map((item) => (item.id === id ? { id, title: args.title, kind, args } : item)),
+      items.map((item) =>
+        item.id === id ? { id, title: args.title, kind, args } : item,
+      ),
     ),
 });
 
@@ -106,7 +121,9 @@ export const reorderDashboard = createTool({
   id: 'reorder-dashboard',
   description: "Changes the order of the user's dashboard items.",
   inputSchema: z.object({
-    ids: z.array(z.string()).describe('The ids of all dashboard items in their new order'),
+    ids: z
+      .array(z.string())
+      .describe('The ids of all dashboard items in their new order'),
   }),
   outputSchema: resultSchema,
   execute: async ({ ids }, context) =>
@@ -121,14 +138,18 @@ export const removeDashboardItem = createTool({
   inputSchema: z.object({ id: idSchema }),
   outputSchema: resultSchema,
   execute: async ({ id }, context) =>
-    updateDashboard(context?.requestContext, (items) => items.filter((item) => item.id !== id)),
+    updateDashboard(context?.requestContext, (items) =>
+      items.filter((item) => item.id !== id),
+    ),
 });
 
 function updateDashboard(
   requestContext: RequestContext | undefined,
   update: (items: DashboardItem[]) => DashboardItem[],
 ) {
-  const dashboard = { items: update(toDashboard(requestContext?.get(AG_UI_STATE_KEY)).items) };
+  const dashboard = {
+    items: update(toDashboard(requestContext?.get(AG_UI_STATE_KEY)).items),
+  };
   requestContext?.set(AG_UI_STATE_KEY, dashboard);
   return { items: dashboard.items.map(({ id, title }) => ({ id, title })) };
 }

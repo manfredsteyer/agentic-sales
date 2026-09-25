@@ -1,6 +1,5 @@
 import { Mastra } from '@mastra/core';
 import { registerApiRoute } from '@mastra/core/server';
-
 import { dashboardAgent } from './agents/dashboard-agent';
 import { salesAgent } from './agents/sales-agent';
 import { agUiRouteHandler } from './routes/ag-ui-route';
@@ -8,7 +7,6 @@ import { agUiRouteHandler } from './routes/ag-ui-route';
 export const mastra = new Mastra({
   agents: { salesAgent, dashboardAgent },
   server: {
-    // Only for direct browser calls: the Angular dev server proxies /ag-ui.
     cors: {
       origin: ['http://localhost:4200', 'http://localhost:4111'],
       allowHeaders: ['Content-Type', 'Authorization'],

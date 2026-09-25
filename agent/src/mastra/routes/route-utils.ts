@@ -60,11 +60,6 @@ function withStream(agent: Agent, stream: unknown): Agent {
   });
 }
 
-/**
- * The AG-UI adapter always passes memory options (thread, resource). An
- * agent without memory, like the sales agent, gets the whole conversation
- * with every request instead, so these options are dropped.
- */
 export function withoutMemoryArgs(agent: Agent): Agent {
   if (agent.hasOwnMemory()) {
     return agent;

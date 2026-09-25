@@ -1,15 +1,13 @@
-// AG-UI endpoint: POST /ag-ui/:agentId runs the Mastra agent registered under
-// that id and streams its work as AG-UI events (server-sent events). The
-// Angular client talks to it through an HttpAgent, see initAgentStore.
 import type { ContextWithMastra } from '@mastra/core/server';
 import { streamSSE } from 'hono/streaming';
-
 import { AG_UI_STATE_KEY } from '../config';
 import { streamAgentEvents } from './ag-ui-stream';
-import { stateSnapshots } from './state-snapshots';
 import { parseRunAgentInput, toAgUiAgent } from './route-utils';
+import { stateSnapshots } from './state-snapshots';
 
-export async function agUiRouteHandler(c: ContextWithMastra): Promise<Response> {
+export async function agUiRouteHandler(
+  c: ContextWithMastra,
+): Promise<Response> {
   const agentId = c.req.param('agentId') ?? '';
   const mastraInstance = c.get('mastra');
   const requestContext = c.get('requestContext');
@@ -22,10 +20,12 @@ export async function agUiRouteHandler(c: ContextWithMastra): Promise<Response> 
   const { input } = parsed;
   requestContext.set(AG_UI_STATE_KEY, input.state);
 
-  // getAgent throws for unknown ids; the registry lookup allows a clean 404
   const mastraAgent = mastraInstance.listAgents()[agentId];
   if (!mastraAgent) {
-    return c.json({ error: 'not_found', message: `Agent ${agentId} not found` }, 404);
+    return c.json(
+      { error: 'not_found', message: `Agent ${agentId} not found` },
+      404,
+    );
   }
 
   const agUiAgent = toAgUiAgent({
@@ -36,9 +36,12 @@ export async function agUiRouteHandler(c: ContextWithMastra): Promise<Response> 
     abortSignal: c.req.raw.signal,
   });
 
-  return streamSSE(c as unknown as Parameters<typeof streamSSE>[0], async (sse) => {
-    await streamAgentEvents(sse, agUiAgent, input, {
-      onEvent: stateSnapshots(requestContext),
-    });
-  });
+  return streamSSE(
+    c as unknown as Parameters<typeof streamSSE>[0],
+    async (sse) => {
+      await streamAgentEvents(sse, agUiAgent, input, {
+        onEvent: stateSnapshots(requestContext),
+      });
+    },
+  );
 }

@@ -1,17 +1,23 @@
 {
   "name": "agentic-sales",
   "version": "0.0.0",
+  "type": "module",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "import": "node server/import.mjs",
-    "server": "node server/import.mjs && node server/server.mjs",
+    "import": "node server/data/import.ts",
+    "server": "node server/data/import.ts && node server/server.ts",
+    "server:typecheck": "tsc -p server/tsconfig.json",
     "agent": "mastra dev --dir agent/src/mastra --env .env",
     "agent:typecheck": "tsc -p agent/tsconfig.json",
-    "dev": "concurrently -n server,agent,client -c blue,magenta,green \"npm run server\" \"npm run agent\" \"npm run start\""
+    "dev": "concurrently -n server,agent,client -c blue,magenta,green \"npm run server\" \"npm run agent\" \"npm run start\"",
+    "lint": "ng lint",
+    "prepare": "husky",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "private": true,
   "packageManager": "npm@11.18.0",
@@ -42,16 +48,28 @@
     "@angular/build": "^22.1.2",
     "@angular/cli": "^22.1.2",
     "@angular/compiler-cli": "^22.1.0",
+    "@eslint/js": "^10.0.1",
+    "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
     "@types/node": "^26.3.0",
+    "angular-eslint": "22.5.0",
     "concurrently": "^10.0.5",
+    "eslint": "^10.9.1",
+    "husky": "^9.1.7",
     "jsdom": "^28.0.0",
+    "lint-staged": "^17.5.1",
     "mastra": "^1.26.0",
     "prettier": "^3.8.1",
     "typescript": "~6.0.2",
+    "typescript-eslint": "8.69.0",
     "vitest": "^4.0.8"
   },
   "overrides": {
     "rxjs": "$rxjs",
     "@copilotkit/runtime": "file:./agent/libs/copilotkit-runtime-stub"
+  },
+  "lint-staged": {
+    "*": "prettier --write --ignore-unknown"
   }
 }

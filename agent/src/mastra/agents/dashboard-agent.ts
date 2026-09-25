@@ -1,5 +1,4 @@
 import { Agent } from '@mastra/core/agent';
-
 import { AG_UI_STATE_KEY } from '../config';
 import {
   addDashboardItem,
@@ -15,7 +14,8 @@ export const dashboardAgent = new Agent({
   id: 'dashboard-agent',
   name: 'Dashboard Editor',
   instructions: ({ requestContext }) =>
-    dashboardAgentPrompt + toDashboardSection(requestContext.get(AG_UI_STATE_KEY)),
+    dashboardAgentPrompt +
+    toDashboardSection(requestContext.get(AG_UI_STATE_KEY)),
   model: 'openai/gpt-5.6-terra',
   tools: {
     executeJavaScript,

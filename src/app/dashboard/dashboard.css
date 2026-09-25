@@ -23,9 +23,6 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
   gap: 1rem;
-}
-
-.tiles .chart-figure {
   --chart-height: 16rem;
 }
 

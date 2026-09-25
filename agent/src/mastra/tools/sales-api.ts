@@ -1,5 +1,3 @@
-// Client for the aggregation server (npm run server in the repo root), shared
-// by the agent's tools and the JavaScript sandbox.
 const BASE_URL = process.env.AGG_SERVER_URL ?? 'http://localhost:3000';
 
 export type FilterValue = string | number | boolean;
@@ -19,7 +17,12 @@ export interface DetailsQuery {
   offset?: number;
 }
 
-export function aggregate({ fact, aggregateFn, dimensions, filter }: AggregateQuery) {
+export function aggregate({
+  fact,
+  aggregateFn,
+  dimensions,
+  filter,
+}: AggregateQuery) {
   return callServer('/aggregate', 'QUERY', {
     Fact: fact,
     AggregateFn: aggregateFn,
@@ -28,17 +31,25 @@ export function aggregate({ fact, aggregateFn, dimensions, filter }: AggregateQu
   });
 }
 
-export function details({ columns, filter, sort, limit, offset }: DetailsQuery) {
+export function details({
+  columns,
+  filter,
+  sort,
+  limit,
+  offset,
+}: DetailsQuery) {
   return callServer('/details', 'QUERY', {
     Columns: columns,
     Filter: filter ?? {},
-    Sort: sort?.map((s) => ({ Column: s.column, Direction: s.direction ?? 'asc' })),
+    Sort: sort?.map((s) => ({
+      Column: s.column,
+      Direction: s.direction ?? 'asc',
+    })),
     Limit: limit,
     Offset: offset,
   });
 }
 
-/** The aggregation server speaks the HTTP QUERY verb; POST is its fallback. */
 async function callServer(path: string, method: string, body?: unknown) {
   const doFetch = (m: string) =>
     fetch(`${BASE_URL}${path}`, {
@@ -51,13 +62,13 @@ async function callServer(path: string, method: string, body?: unknown) {
     response = await doFetch(method);
   } catch (err) {
     if (method !== 'QUERY') throw err;
-    response = await doFetch('POST'); // runtime cannot send QUERY
+    response = await doFetch('POST');
   }
   const payload = await response.json();
   if (!response.ok) {
-    // Surface the server's validation message (e.g. unknown column + the
-    // list of available ones) so the agent can self-correct.
-    throw new Error(`Aggregation server (${response.status}): ${payload.error ?? 'unknown error'}`);
+    throw new Error(
+      `Aggregation server (${response.status}): ${payload.error ?? 'unknown error'}`,
+    );
   }
   return payload;
 }

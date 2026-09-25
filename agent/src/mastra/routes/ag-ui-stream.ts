@@ -1,10 +1,9 @@
 import {
+  EventType,
   type AbstractAgent,
   type BaseEvent,
-  EventType,
   type RunAgentInput,
 } from '@ag-ui/client';
-
 import type { SseWriter } from './route-utils';
 
 export interface CreateAgUiEventStreamOptions {

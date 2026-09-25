@@ -1,6 +1,5 @@
 import { createTool } from '@mastra/core/tools';
 import { z } from 'zod';
-
 import { MAX_ROWS } from '../config';
 import { runSandbox } from '../utils/sandbox';
 import {
@@ -10,9 +9,13 @@ import {
   DECLINED,
   notExecutedSchema,
 } from './row-limit';
-import { aggregate, type AggregateQuery, details, type DetailsQuery } from './sales-api';
+import {
+  aggregate,
+  details,
+  type AggregateQuery,
+  type DetailsQuery,
+} from './sales-api';
 
-// Keeps a runaway result (e.g. thousands of raw rows) out of the model's context.
 const MAX_RESULT_CHARS = 50_000;
 
 export const executeJavaScript = createTool({
@@ -38,12 +41,10 @@ export const executeJavaScript = createTool({
     needs the user's approval; the snippet then runs again from the start.
   `,
   inputSchema: z.object({
-    code: z
-      .string()
-      .describe(
-        'Module body. Load data with `await aggregate(...)` or `await details(...)`, ' +
-          'transform it, then call `submitResult(result)` exactly once.',
-      ),
+    code: z.string().describe(`
+      Module body. Load data with \`await aggregate(...)\` or \`await details(...)\`,
+      transform it, then call \`submitResult(result)\` exactly once.
+    `),
   }),
   outputSchema: z.union([z.object({ result: z.unknown() }), notExecutedSchema]),
   suspendSchema: approvalSuspendSchema,
@@ -54,14 +55,13 @@ export const executeJavaScript = createTool({
       return DECLINED;
     }
 
-    // Set when a query exceeds MAX_ROWS without approval. The host function
-    // then withholds the data and aborts the snippet; this flag, not the
-    // snippet, decides, so catching the error inside the snippet won't help.
     let tooLarge: number | undefined;
     const checkRowLimit = (rows: number) => {
       if (rows > MAX_ROWS && !approval?.approved) {
         tooLarge = Math.max(tooLarge ?? 0, rows);
-        throw new Error(`The result has ${rows} rows (max. ${MAX_ROWS}) and needs approval.`);
+        throw new Error(
+          `The result has ${rows} rows (max. ${MAX_ROWS}) and needs approval.`,
+        );
       }
     };
     let submitted: { result: unknown } | undefined;
@@ -89,11 +89,12 @@ export const executeJavaScript = createTool({
     }
 
     if (tooLarge !== undefined) {
-      // resuming with approval runs the whole snippet again
       return askForApproval(context, tooLarge);
     }
     if (!submitted) {
-      throw new Error('The snippet finished without calling submitResult(result).');
+      throw new Error(
+        'The snippet finished without calling submitResult(result).',
+      );
     }
     const size = JSON.stringify(submitted.result ?? null).length;
     if (size > MAX_RESULT_CHARS) {

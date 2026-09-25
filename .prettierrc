@@ -1,6 +1,9 @@
 {
-  "printWidth": 100,
+  "printWidth": 80,
   "singleQuote": true,
+  "plugins": ["@ianvs/prettier-plugin-sort-imports"],
+  "importOrderParserPlugins": ["typescript", "decorators-legacy"],
+  "importOrderTypeScriptVersion": "6.0.0",
   "overrides": [
     {
       "files": "*.html",

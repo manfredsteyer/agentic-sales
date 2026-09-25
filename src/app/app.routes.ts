@@ -1,12 +1,11 @@
 import { Routes } from '@angular/router';
-
 import { Dashboard } from './dashboard/dashboard';
-import { Explore } from './explore/explore';
+import { Explorer } from './explorer/explorer';
 import { Home } from './home/home';
 
 export const routes: Routes = [
   { path: '', component: Home },
-  { path: 'explore', component: Explore },
+  { path: 'explorer', component: Explorer },
   { path: 'dashboard', component: Dashboard },
   { path: '**', redirectTo: '' },
 ];

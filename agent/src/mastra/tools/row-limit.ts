@@ -1,9 +1,4 @@
-// Human in the loop for large results: a query with more than MAX_ROWS result
-// rows suspends its tool. The AG-UI adapter turns the suspension into an
-// interrupt, the chat asks the user, and the answer comes back as resumeData
-// when the run is resumed.
 import { z } from 'zod';
-
 import { MAX_ROWS } from '../config';
 
 export const approvalSuspendSchema = z.object({
@@ -11,7 +6,10 @@ export const approvalSuspendSchema = z.object({
   rowCount: z.number(),
   maxRows: z.number(),
   options: z.array(
-    z.object({ label: z.string(), payload: z.object({ approved: z.boolean() }) }),
+    z.object({
+      label: z.string(),
+      payload: z.object({ approved: z.boolean() }),
+    }),
   ),
 });
 
@@ -19,7 +17,6 @@ export const approvalResumeSchema = z.object({
   approved: z.boolean(),
 });
 
-/** Tool result when the query was not (yet) executed. */
 export const notExecutedSchema = z.object({
   status: z.enum(['awaiting-approval', 'declined']),
   message: z.string(),
@@ -41,11 +38,6 @@ export const DECLINED: NotExecuted = {
 
 const numberFormat = new Intl.NumberFormat('en-US');
 
-/**
- * Runs the query and returns its result, unless the result has more than
- * MAX_ROWS rows and the user has not approved it: then the tool suspends and
- * asks. Queries only read, so running one before asking is harmless.
- */
 export async function withRowLimit<T>(
   context: ApprovalContext | undefined,
   query: () => Promise<T>,
@@ -64,7 +56,6 @@ export async function withRowLimit<T>(
   return askForApproval(context, rows);
 }
 
-/** Suspends the tool with the approval question for a result of `rows` rows. */
 export async function askForApproval(
   context: ApprovalContext | undefined,
   rows: number,

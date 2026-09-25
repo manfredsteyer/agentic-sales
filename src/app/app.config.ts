@@ -5,10 +5,9 @@ import {
 } from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideCopilotKit } from '@copilotkit/angular';
-
+import { initDashboardAgent } from './agents/dashboard-agent';
+import { initSalesAgent } from './agents/sales-agent';
 import { routes } from './app.routes';
-import { initDashboardAgent } from './assistant/dashboard-agent';
-import { initSalesAgent } from './assistant/sales-agent';
 
 export const appConfig: ApplicationConfig = {
   providers: [

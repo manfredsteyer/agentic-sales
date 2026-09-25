@@ -1,5 +1,4 @@
 import { Agent } from '@mastra/core/agent';
-
 import { executeJavaScript } from '../tools/execute-javascript';
 import { aggregateSales, getSalesDetails } from '../tools/sales-tools';
 import { salesAgentPrompt } from './sales-agent.prompt';

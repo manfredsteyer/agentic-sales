@@ -1,9 +1,14 @@
-import { type BaseEvent, EventType, type StateSnapshotEvent } from '@ag-ui/client';
+import {
+  EventType,
+  type BaseEvent,
+  type StateSnapshotEvent,
+} from '@ag-ui/client';
 import type { RequestContext } from '@mastra/core/request-context';
-
 import { AG_UI_STATE_KEY } from '../config';
 
-export function stateSnapshots(requestContext: RequestContext): (event: BaseEvent) => BaseEvent[] {
+export function stateSnapshots(
+  requestContext: RequestContext,
+): (event: BaseEvent) => BaseEvent[] {
   let emitted = requestContext.get(AG_UI_STATE_KEY);
   return (event) => {
     const state = requestContext.get(AG_UI_STATE_KEY);
@@ -11,7 +16,10 @@ export function stateSnapshots(requestContext: RequestContext): (event: BaseEven
       return [];
     }
     emitted = state;
-    const snapshot: StateSnapshotEvent = { type: EventType.STATE_SNAPSHOT, snapshot: state };
+    const snapshot: StateSnapshotEvent = {
+      type: EventType.STATE_SNAPSHOT,
+      snapshot: state,
+    };
     return [snapshot];
   };
 }

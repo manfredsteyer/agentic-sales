@@ -1,23 +1,12 @@
 import { Component, inject } from '@angular/core';
-
-import { AssistantChat } from '../assistant/assistant-chat';
-import { SALES_AGENT_ID } from '../assistant/agent-ids';
-import { WidgetOptions } from '../assistant/tools/widget-options';
+import { SALES_AGENT_ID } from '../agents/sales-agent';
+import { WidgetOptions } from '../agents/widgets/widget-options';
+import { AssistantChat } from '../assistant-chat/assistant-chat';
 
 @Component({
   selector: 'app-home',
   imports: [AssistantChat],
   template: `<app-assistant-chat [agentId]="agentId" />`,
-  styles: `
-    :host {
-      display: block;
-      height: 100%;
-    }
-
-    app-assistant-chat {
-      height: 100%;
-    }
-  `,
 })
 export class Home {
   protected readonly agentId = SALES_AGENT_ID;
