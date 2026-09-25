@@ -12,11 +12,11 @@ import { BarChartArgs, barChartSchema } from './bar-chart-schema';
   selector: 'app-bar-chart-widget',
   imports: [BarChart, LoadingIndicator],
   template: `
-    @let figureArgs = args();
-    @let status = toolCall().status;
+    @let call = toolCall();
+    @let status = call.status;
     <div class="not-prose">
-      @if (figureArgs) {
-        <app-bar-chart [data]="figureArgs" />
+      @if (hasValidArgs() && call.status !== 'in-progress') {
+        <app-bar-chart [data]="call.args" />
       } @else if (status === 'complete') {
         <p class="hint">
           Can't show this chart: the agent passed incomplete data.
@@ -30,8 +30,8 @@ import { BarChartArgs, barChartSchema } from './bar-chart-schema';
 export class BarChartWidget implements ToolRenderer<BarChartArgs> {
   readonly toolCall = input.required<AngularToolCall<BarChartArgs>>();
 
-  protected readonly args = computed(() =>
-    toBarChartArgs(this.toolCall().args),
+  protected readonly hasValidArgs = computed(() =>
+    isValid(this.toolCall().args),
   );
 }
 
@@ -46,7 +46,7 @@ export const barChartWidget: RegisterComponentConfig<BarChartArgs> = {
   component: BarChartWidget,
 };
 
-function toBarChartArgs(args: Partial<BarChartArgs>): BarChartArgs | undefined {
+function isValid(args: Partial<BarChartArgs>): boolean {
   const result = barChartSchema.safeParse(args);
-  return result.data;
+  return result.success;
 }

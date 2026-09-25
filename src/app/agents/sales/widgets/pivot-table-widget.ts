@@ -12,11 +12,11 @@ import { PivotTableArgs, pivotTableSchema } from './pivot-table-schema';
   selector: 'app-pivot-table-widget',
   imports: [PivotTable, LoadingIndicator],
   template: `
-    @let figureArgs = args();
-    @let status = toolCall().status;
+    @let call = toolCall();
+    @let status = call.status;
     <div class="not-prose">
-      @if (figureArgs) {
-        <app-pivot-table [data]="figureArgs" />
+      @if (hasValidArgs() && call.status !== 'in-progress') {
+        <app-pivot-table [data]="call.args" />
       } @else if (status === 'complete') {
         <p class="hint">
           Can't show this table: the agent passed incomplete data.
@@ -30,8 +30,8 @@ import { PivotTableArgs, pivotTableSchema } from './pivot-table-schema';
 export class PivotTableWidget implements ToolRenderer<PivotTableArgs> {
   readonly toolCall = input.required<AngularToolCall<PivotTableArgs>>();
 
-  protected readonly args = computed(() =>
-    toPivotTableArgs(this.toolCall().args),
+  protected readonly hasValidArgs = computed(() =>
+    isValid(this.toolCall().args),
   );
 }
 
@@ -45,9 +45,7 @@ export const pivotTableWidget: RegisterComponentConfig<PivotTableArgs> = {
   component: PivotTableWidget,
 };
 
-function toPivotTableArgs(
-  args: Partial<PivotTableArgs>,
-): PivotTableArgs | undefined {
+function isValid(args: Partial<PivotTableArgs>): boolean {
   const result = pivotTableSchema.safeParse(args);
-  return result.data;
+  return result.success;
 }

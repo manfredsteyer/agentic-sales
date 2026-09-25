@@ -12,11 +12,11 @@ import { PieChartArgs, pieChartSchema } from './pie-chart-schema';
   selector: 'app-pie-chart-widget',
   imports: [PieChart, LoadingIndicator],
   template: `
-    @let figureArgs = args();
-    @let status = toolCall().status;
+    @let call = toolCall();
+    @let status = call.status;
     <div class="not-prose">
-      @if (figureArgs) {
-        <app-pie-chart [data]="figureArgs" />
+      @if (hasValidArgs() && call.status !== 'in-progress') {
+        <app-pie-chart [data]="call.args" />
       } @else if (status === 'complete') {
         <p class="hint">
           Can't show this chart: the agent passed incomplete data.
@@ -30,8 +30,8 @@ import { PieChartArgs, pieChartSchema } from './pie-chart-schema';
 export class PieChartWidget implements ToolRenderer<PieChartArgs> {
   readonly toolCall = input.required<AngularToolCall<PieChartArgs>>();
 
-  protected readonly args = computed(() =>
-    toPieChartArgs(this.toolCall().args),
+  protected readonly hasValidArgs = computed(() =>
+    isValid(this.toolCall().args),
   );
 }
 
@@ -45,7 +45,7 @@ export const pieChartWidget: RegisterComponentConfig<PieChartArgs> = {
   component: PieChartWidget,
 };
 
-function toPieChartArgs(args: Partial<PieChartArgs>): PieChartArgs | undefined {
+function isValid(args: Partial<PieChartArgs>): boolean {
   const result = pieChartSchema.safeParse(args);
-  return result.data;
+  return result.success;
 }
