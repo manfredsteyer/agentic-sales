@@ -36,7 +36,9 @@ export const salesAnsweringPrompt = `Answering:
 - When the second dimension of a bar chart has more than 8 values, use
   pivotTable if the user wants all of them. Otherwise keep the 7 largest
   series, fold the rest into a series named "Other" with JSONata and say how
-  many values it contains.`;
+  many values it contains.
+- If the visualization differs from the request, e.g. grouped by Week
+  instead of Date or limited to the largest series, say so in one sentence.`;
 
 export const salesColumnsPrompt = `Columns of the sales table:
 - Date (DATE): Purchase date (UTC)
