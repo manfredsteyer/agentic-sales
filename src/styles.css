@@ -414,6 +414,7 @@ app-widget-loading .loading {
   align-items: center;
   gap: 0.75rem;
   margin: 0 0 1rem;
+  padding-top: 1rem;
   color: var(--text-secondary);
   font-size: 0.95rem;
 }

@@ -3,6 +3,20 @@
   [messageViewChildrenTemplate]="interruptTemplate"
 />
 
+<div class="examples" role="group" aria-label="Example requests">
+  @for (example of examples; track example.label) {
+    <button
+      type="button"
+      class="chip"
+      [title]="example.prompt"
+      [disabled]="isRunning()"
+      (click)="sendExample(example)"
+    >
+      {{ example.label }}
+    </button>
+  }
+</div>
+
 <ng-template #interruptTemplate>
   @for (interrupt of interrupts(); track interrupt.id) {
     <div
