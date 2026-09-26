@@ -12,26 +12,29 @@ export interface ExplorerQuery {
   view: ViewMode;
 }
 
-export function toQueryParams(query: ExplorerQuery): Params {
-  return {
+export function toParams(query: ExplorerQuery): Params {
+  return withoutEmpty({
     agg: query.aggregateFn,
     fact: query.fact,
     dim1: query.dimensions[0],
-    dim2: query.dimensions[1] ?? null,
+    dim2: query.dimensions[1],
     filter: toFilterParam(query.filters),
     view: query.view,
-  };
+  });
 }
 
-export function toFilterParam(filters: FilterSpec[]): string[] | null {
-  return filters.length > 0
-    ? filters.map((f) => `${f.column}:${f.value}`)
-    : null;
+export function withoutEmpty(params: Params): Params {
+  const entries = Object.entries(params).filter(([, value]) => !!value);
+  return Object.fromEntries(entries);
 }
 
-export function toFilters(param: string | string[] | undefined): FilterSpec[] {
-  const values = param === undefined ? [] : [param].flat();
-  return values.map(toFilter);
+export function toFilterParam(filters: FilterSpec[]): string {
+  return filters.map((f) => `${f.column}:${f.value}`).join(',');
+}
+
+export function toFilters(param: string | undefined): FilterSpec[] {
+  // Values may contain commas, so only split before the next "column:"
+  return param ? param.split(/,(?=\w*:)/).map(toFilter) : [];
 }
 
 export function toAggregateFn(param: string | undefined): AggregateFn {

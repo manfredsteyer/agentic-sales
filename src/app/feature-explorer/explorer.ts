@@ -16,6 +16,7 @@ import {
   toFilters,
   toViewMode,
   ViewMode,
+  withoutEmpty,
 } from './explorer-params';
 import { ExplorerTable } from './explorer-table/explorer-table';
 import { FilterRow, FilterSpec } from './filter-row/filter-row';
@@ -35,9 +36,7 @@ export class Explorer {
   readonly factParam = input<string>(undefined, { alias: 'fact' });
   readonly dim1Param = input<string>(undefined, { alias: 'dim1' });
   readonly dim2Param = input<string>(undefined, { alias: 'dim2' });
-  readonly filterParam = input<string | string[]>(undefined, {
-    alias: 'filter',
-  });
+  readonly filterParam = input<string>(undefined, { alias: 'filter' });
   readonly viewParam = input<string>(undefined, { alias: 'view' });
 
   readonly schema = this.salesClient.schema;
@@ -105,10 +104,9 @@ export class Explorer {
   readonly formatValue = formatValue;
 
   update(params: Params) {
-    void this.router.navigate([], {
+    const merged = withoutEmpty({ ...this.route.snapshot.params, ...params });
+    void this.router.navigate([merged], {
       relativeTo: this.route,
-      queryParams: params,
-      queryParamsHandling: 'merge',
       replaceUrl: true,
     });
   }

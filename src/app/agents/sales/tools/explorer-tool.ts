@@ -2,7 +2,7 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { type FrontendToolConfig } from '@copilotkit/angular';
 import { z } from 'zod';
-import { toQueryParams } from '../../../feature-explorer/explorer-params';
+import { toParams } from '../../../feature-explorer/explorer-params';
 
 export const explorerToolSchema = z.object({
   fact: z.string().describe('Fact column, e.g. "Revenue"'),
@@ -38,7 +38,7 @@ export const explorerTool: FrontendToolConfig<ExplorerToolArgs> = {
   parameters: explorerToolSchema,
   handler: async (query) => {
     const router = inject(Router);
-    await router.navigate(['/explorer'], { queryParams: toQueryParams(query) });
+    await router.navigate(['/explorer', toParams(query)]);
     return { opened: true };
   },
 };
