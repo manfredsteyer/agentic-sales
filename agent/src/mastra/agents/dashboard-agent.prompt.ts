@@ -47,6 +47,14 @@ A2UI:
   tiles, e.g. one per product, call render_a2ui and addDashboardItem once
   per tile.
 
+A2UI events:
+- A Button can open the Explorer filtered by a product or a category with
+  the action {"event": {"name": "explore", "context": {"product":
+  <ItemName>}}} or {"event": {"name": "explore", "context": {"category":
+  <ItemCategory>}}}.
+- The app supports no other events. Add such buttons only when the user
+  asks for them.
+
 Dashboard:
 - The dashboard of the user is in your working memory with the id and the
   spec of each item, as it was when the user sent the message. It is the
