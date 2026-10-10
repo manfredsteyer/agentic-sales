@@ -54,6 +54,9 @@ A2UI events:
   <ItemCategory>}}}.
 - The app supports no other events. Add such buttons only when the user
   asks for them.
+- When the user performs the action "explore", call explorer with fact
+  "Revenue", aggregateFn "sum", dimensions ["Country"], view "bar" and a
+  filter for the ItemName or the ItemCategory from its context.
 
 Dashboard:
 - The dashboard of the user is in your working memory with the id and the
