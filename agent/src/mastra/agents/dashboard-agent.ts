@@ -1,4 +1,5 @@
 import { Agent } from '@mastra/core/agent';
+import { AGENT_DEFAULT_OPTIONS, AGENT_MODEL } from '../config';
 import {
   addDashboardItem,
   removeDashboardItem,
@@ -6,6 +7,7 @@ import {
   updateDashboardItem,
 } from '../tools/dashboard/dashboard-tools';
 import { evaluateJsonata } from '../tools/evaluate-jsonata';
+import { render_a2ui } from '../tools/render-a2ui';
 import { runQuery } from '../tools/run-query';
 import { dashboardMemory } from './dashboard-agent.memory';
 import { dashboardAgentPrompt } from './dashboard-agent.prompt';
@@ -14,11 +16,13 @@ export const dashboardAgent = new Agent({
   id: 'dashboard-agent',
   name: 'Dashboard Editor',
   instructions: dashboardAgentPrompt,
-  model: 'openai/gpt-5.6-terra',
+  model: AGENT_MODEL,
+  defaultOptions: AGENT_DEFAULT_OPTIONS,
   memory: dashboardMemory,
   tools: {
     evaluateJsonata,
     runQuery,
+    render_a2ui,
     addDashboardItem,
     updateDashboardItem,
     reorderDashboard,

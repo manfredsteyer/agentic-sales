@@ -83,7 +83,9 @@ export const getSalesDetails = createTool({
     optionally filtered by exact-match values and sorted. Use it to drill down
     behind an aggregate, e.g. the largest orders of a country or what a
     specific order contained. Returns one page (limit/offset) plus totalCount,
-    the number of all matching rows. The approval limit applies to totalCount.
+    the number of all matching rows. The approval limit applies to totalCount. Rows with
+    ItemName or ItemCategory also contain ItemImageUrl or ItemCategoryImageUrl, the URL of
+    the product or category image.
     ${approvalNote}
   `,
   inputSchema: z.object({

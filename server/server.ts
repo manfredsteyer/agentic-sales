@@ -12,9 +12,11 @@ import { aggregateHandler } from './apis/aggregate.ts';
 import { detailsHandler } from './apis/details.ts';
 import { BadRequest } from './apis/request-parsing.ts';
 import { schemaHandler } from './apis/schema.ts';
+import { IMAGES_DIR } from './data/images.ts';
 import { openSalesDal, type SalesDal } from './data/sales-dal.ts';
 
 const PORT = Number(process.env.PORT ?? 3000);
+const IMAGE_BASE_URL = `http://localhost:${PORT}/images`;
 const DB_PATH =
   process.env.DB_PATH ?? join(import.meta.dirname, 'data', 'sales.duckdb');
 
@@ -48,8 +50,9 @@ function configureMiddleware(app: Express) {
 
 function registerRoutes(app: Express, dal: SalesDal) {
   app.get('/schema', schemaHandler(dal));
-  registerQueryRoute(app, '/aggregate', aggregateHandler(dal));
-  registerQueryRoute(app, '/details', detailsHandler(dal));
+  registerQueryRoute(app, '/aggregate', aggregateHandler(dal, IMAGE_BASE_URL));
+  registerQueryRoute(app, '/details', detailsHandler(dal, IMAGE_BASE_URL));
+  app.use('/images', express.static(IMAGES_DIR));
 }
 
 function registerQueryRoute(
