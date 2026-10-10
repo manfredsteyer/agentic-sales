@@ -1,8 +1,11 @@
+import { A2uiSpec } from '../../data/a2ui-model';
 import { Query } from '../../data/query-model';
+
+export type DashboardSpec = Query | A2uiSpec;
 
 export interface DashboardItem {
   id: string;
-  spec: Query;
+  spec: DashboardSpec;
 }
 
 export interface DashboardState {

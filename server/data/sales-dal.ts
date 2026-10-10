@@ -41,6 +41,8 @@ export interface AggregateQuery {
   aggregateFn: AggregateFn;
   dimensions: string[];
   filter: Filter;
+  sort: SortSpec[];
+  limit?: number;
 }
 
 export interface SortSpec {
@@ -188,16 +190,30 @@ async function runAggregate(
 function buildAggregateSql(
   table: string,
   findColumn: FindColumn,
-  { fact, aggregateFn, dimensions, filter }: AggregateQuery,
+  { fact, aggregateFn, dimensions, filter, sort, limit }: AggregateQuery,
 ) {
   const fn = AGGREGATE_SQL[aggregateFn];
   const factSql = quoteColumn(findColumn, fact);
   const dimSql = dimensions.map((d) => quoteColumn(findColumn, d)).join(', ');
   const { whereSql, params } = buildWhereClause(findColumn, filter);
+  const orderSql = sort.length
+    ? sort
+        .map((s) =>
+          orderTermSql(
+            s.column === 'value' ? 'value' : quoteColumn(findColumn, s.column),
+            s.direction,
+          ),
+        )
+        .join(', ')
+    : dimSql;
+  const limitSql = limit === undefined ? '' : ' LIMIT $limit';
   const sql =
     `SELECT ${dimSql}, CAST(${fn}(${factSql}) AS DOUBLE) AS value ` +
-    `FROM ${quoteIdent(table)}${whereSql} GROUP BY ${dimSql} ORDER BY ${dimSql}`;
-  return { sql, params };
+    `FROM ${quoteIdent(table)}${whereSql} GROUP BY ${dimSql} ORDER BY ${orderSql}${limitSql}`;
+  return {
+    sql,
+    params: limit === undefined ? params : { ...params, limit },
+  };
 }
 
 async function runDetails(
@@ -233,7 +249,7 @@ function buildDetailsSql(
     .map((c) => selectColumnSql(findColumn, c))
     .join(', ');
   const orderSql = sort.length
-    ? ` ORDER BY ${sort.map((s) => orderTermSql(findColumn, s)).join(', ')}`
+    ? ` ORDER BY ${sort.map((s) => orderTermSql(quoteColumn(findColumn, s.column), s.direction)).join(', ')}`
     : '';
   return {
     sql: `SELECT ${selectSql} FROM ${quoteIdent(table)}${whereSql}${orderSql} LIMIT $limit OFFSET $offset`,
@@ -242,10 +258,10 @@ function buildDetailsSql(
 }
 
 function orderTermSql(
-  findColumn: FindColumn,
-  { column, direction }: SortSpec,
+  columnSql: string,
+  direction: SortSpec['direction'],
 ): string {
-  return `${quoteColumn(findColumn, column)} ${direction === 'desc' ? 'DESC' : 'ASC'}`;
+  return `${columnSql} ${direction === 'desc' ? 'DESC' : 'ASC'}`;
 }
 
 function buildWhereClause(findColumn: FindColumn, filter: Filter) {
