@@ -1,12 +1,8 @@
 import { A2uiMessage } from '@a2ui/web_core/v0_9';
-import { Component, inject, input, output } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { Router } from '@angular/router';
 import { type A2UIClientEventMessage } from '@copilotkit/angular';
-import {
-  basicCatalog,
-  CopilotA2UICatalog,
-  CopilotA2UISurface,
-} from '@copilotkit/angular/a2ui';
+import { basicCatalog, CopilotA2UISurface } from '@copilotkit/angular/a2ui';
 
 @Component({
   selector: 'app-a2ui-surface',
@@ -15,17 +11,16 @@ import {
     <figure>
       <copilot-a2ui-surface
         [operations]="operations()"
-        [catalog]="catalog()"
+        [catalog]="catalog"
         (action)="handleAction($event)"
-        (rendered)="rendered.emit()"
       />
     </figure>
   `,
 })
 export class A2uiSurface {
   readonly operations = input.required<A2uiMessage[]>();
-  readonly catalog = input<CopilotA2UICatalog>(basicCatalog);
-  readonly rendered = output<void>();
+
+  protected readonly catalog = basicCatalog;
 
   private readonly router = inject(Router);
 
@@ -39,16 +34,6 @@ export class A2uiSurface {
     }
   }
 }
-
-class AppA2uiCatalog extends CopilotA2UICatalog {
-  override readonly surfaceComponent = A2uiSurface;
-}
-
-export const a2uiCatalog = new AppA2uiCatalog(
-  basicCatalog.id,
-  [...basicCatalog.components.values()],
-  [...basicCatalog.functions.values()],
-);
 
 function toExplorerFilter(context: Record<string, unknown>): string {
   const { product, category } = context;
