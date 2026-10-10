@@ -440,6 +440,18 @@ app-a2ui-surface figure {
   box-shadow: var(--shadow-sm);
 }
 
+copilot-a2ui-activity-renderer .copilot-a2ui-surface-scroll {
+  padding: 0 0 0.625rem;
+}
+
+copilot-activity
+  + copilot-chat-assistant-message
+  copilot-chat-assistant-message-renderer
+  > div
+  > :first-child {
+  margin-top: 0.2rem;
+}
+
 app-dashboard-tile app-query-result-view,
 app-dashboard-tile app-bar-chart,
 app-dashboard-tile app-pie-chart,
