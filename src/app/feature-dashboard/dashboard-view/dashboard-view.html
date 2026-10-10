@@ -40,7 +40,7 @@
     @for (item of store.items(); track item.id) {
       @let spec = item.spec;
       @if (spec.kind === 'a2ui') {
-        <app-a2ui-surface [messages]="spec.messages" />
+        <app-a2ui-surface [operations]="spec.messages" />
       } @else {
         <app-dashboard-tile [spec]="spec" />
       }
