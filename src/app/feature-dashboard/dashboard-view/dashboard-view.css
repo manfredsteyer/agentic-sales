@@ -81,6 +81,23 @@ copilot-chat {
   min-height: 0;
 }
 
+.examples {
+  row-gap: 0;
+}
+
+.examples::after {
+  content: '';
+  flex-basis: 100%;
+}
+
+.examples .chip {
+  margin-block: 0.25rem;
+}
+
+.examples .chip:nth-child(n + 4) {
+  order: 1;
+}
+
 @media (max-width: 60rem) {
   :host:has(.chat-panel) {
     grid-template-columns: minmax(0, 1fr);
