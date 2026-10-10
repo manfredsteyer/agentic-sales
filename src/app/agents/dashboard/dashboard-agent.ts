@@ -1,6 +1,10 @@
-import { registerRenderToolCall } from '@copilotkit/angular';
+import {
+  registerFrontendTool,
+  registerRenderToolCall,
+} from '@copilotkit/angular';
 import { initialDashboard } from '@shared/dashboard-schema';
 import { registerAgent } from '../../shared/utils/register-agent';
+import { explorerTool } from '../sales/tools/explorer-tool';
 import { dashboardWidget } from './widgets/dashboard-widget';
 
 export const DASHBOARD_AGENT_ID = 'dashboardAgent';
@@ -18,4 +22,5 @@ export function initDashboardAgent(): void {
     ...dashboardWidget,
     agentId: DASHBOARD_AGENT_ID,
   });
+  registerFrontendTool({ ...explorerTool, agentId: DASHBOARD_AGENT_ID });
 }
