@@ -25,10 +25,12 @@ const TIMEOUT_MS = 30_000;
 
 export const jsonataDescription = `
     Functions:
-      \`$aggregate({ "fact", "aggregateFn", "dimensions", "filter" })\` returns rows like
-        \`{ "Country": "Germany", "value": 123.4 }\`
+      \`$aggregate({ "fact", "aggregateFn", "dimensions", "filter", "sort", "limit" })\`
+        returns rows like \`{ "Country": "Germany", "value": 123.4 }\`; \`dimensions\` lists
+        1 or 2 columns, for a grand total sum these rows, e.g.
+        \`$sum($aggregate({ ..., "dimensions": ["ItemName"] }).value)\`
       \`$details({ "columns", "filter", "sort", "limit", "offset" })\` returns
-        \`{ "rows", "totalCount" }\`, limit up to 1000
+        \`{ "rows", "totalCount" }\`
     Here, \`filter\` is a plain object with a single value per column, e.g.
     \`{ "Country": "Germany" }\`, not a list like
     \`[{ "column": "Country", "value": "Germany" }]\`. For several values, add the column
@@ -36,6 +38,19 @@ export const jsonataDescription = `
     Only "fact", "aggregateFn" and "dimensions" of $aggregate are required. Leave out the
     keys you don't need instead of passing empty values: \`{ "ItemName": "" }\` selects
     the rows with an empty ItemName, i.e. none.
+    \`sort\` is like \`[{ "column": "Price", "direction": "desc" }]\`; $aggregate sorts by
+    a dimension or by "value". \`limit\` is up to 1000 and silently drops further rows.
+    For the top items of each group, e.g. the 3 best products per continent, call
+    $aggregate once per group with a filter, a sort by "value" and a limit, all groups
+    in a single expression:
+      ["Africa", "Europe"].{ "continent": $, "rows": $aggregate({ "fact": "Revenue",
+        "aggregateFn": "sum", "dimensions": ["ItemName"], "filter": { "Continent": $ },
+        "sort": [{ "column": "value", "direction": "desc" }], "limit": 3 })[] }
+    Rows of both functions with ItemName or ItemCategory also contain ItemImageUrl or
+    ItemCategoryImageUrl, the URL of the image. Don't request these URLs as columns or
+    dimensions.
+    Compute sums, averages and counts with \`$aggregate\`, never from \`$details\` rows.
+    Use \`$details\` only for values of single rows, e.g. prices.
 
     The value of the expression is the result. Bind intermediate results with \`:=\` in a
     block \`( ...; ...; ... )\`. JSONata unwraps arrays with a single item: append \`[]\`
