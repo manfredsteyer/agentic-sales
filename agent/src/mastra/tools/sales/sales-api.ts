@@ -2,17 +2,24 @@ const BASE_URL = process.env.AGG_SERVER_URL ?? 'http://localhost:3000';
 
 export type FilterValue = string | number | boolean;
 
+export interface SortQuery {
+  column: string;
+  direction?: 'asc' | 'desc';
+}
+
 export interface AggregateQuery {
   fact: string;
   aggregateFn: 'avg' | 'sum' | 'count';
   dimensions: string[];
   filter?: Record<string, FilterValue>;
+  sort?: SortQuery[];
+  limit?: number;
 }
 
 export interface DetailsQuery {
   columns?: string[];
   filter?: Record<string, FilterValue>;
-  sort?: { column: string; direction?: 'asc' | 'desc' }[];
+  sort?: SortQuery[];
   limit?: number;
   offset?: number;
 }
@@ -22,12 +29,16 @@ export function aggregate({
   aggregateFn,
   dimensions,
   filter,
+  sort,
+  limit,
 }: AggregateQuery) {
   return callServer('/aggregate', 'QUERY', {
     Fact: fact,
     AggregateFn: aggregateFn,
     Dimensions: dimensions,
     Filter: filter ?? {},
+    Sort: toSort(sort),
+    Limit: limit,
   });
 }
 
@@ -41,13 +52,17 @@ export function details({
   return callServer('/details', 'QUERY', {
     Columns: columns,
     Filter: filter ?? {},
-    Sort: sort?.map((s) => ({
-      Column: s.column,
-      Direction: s.direction ?? 'asc',
-    })),
+    Sort: toSort(sort),
     Limit: limit,
     Offset: offset,
   });
+}
+
+function toSort(sort: SortQuery[] | undefined) {
+  return sort?.map((s) => ({
+    Column: s.column,
+    Direction: s.direction ?? 'asc',
+  }));
 }
 
 async function callServer(path: string, method: string, body?: unknown) {
