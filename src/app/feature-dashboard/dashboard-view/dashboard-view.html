@@ -38,7 +38,12 @@
   </header>
   <div class="tiles">
     @for (item of store.items(); track item.id) {
-      <app-dashboard-tile [spec]="item.spec" />
+      @let spec = item.spec;
+      @if (spec.kind === 'a2ui') {
+        <app-a2ui-surface [messages]="spec.messages" />
+      } @else {
+        <app-dashboard-tile [spec]="spec" />
+      }
     } @empty {
       <div class="empty card">
         <span class="empty-icon" aria-hidden="true">

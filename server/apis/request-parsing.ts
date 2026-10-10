@@ -3,11 +3,14 @@ import type {
   Filter,
   FilterValue,
   SalesDal,
+  SortSpec,
 } from '../data/sales-dal.ts';
 
 export class BadRequest extends Error {}
 
 export type Schema = Pick<SalesDal, 'columns' | 'findColumn'>;
+
+export type ColumnResolver = (input: unknown, what: string) => string;
 
 export function assertPlainObject(
   value: unknown,
@@ -98,4 +101,37 @@ export function parseInteger(
     );
   }
   return value;
+}
+
+export function parseSort(
+  input: unknown,
+  resolveColumnName: ColumnResolver,
+): SortSpec[] {
+  if (input === undefined || input === null) return [];
+  const entries: unknown[] = Array.isArray(input) ? input : [input];
+  return entries.map((entry) => parseSortEntry(entry, resolveColumnName));
+}
+
+function parseSortEntry(
+  entry: unknown,
+  resolveColumnName: ColumnResolver,
+): SortSpec {
+  if (typeof entry === 'string') {
+    return { column: resolveColumnName(entry, 'Sort'), direction: 'asc' };
+  }
+  assertPlainObject(
+    entry,
+    'Sort entries must be a column name or { "Column": "Revenue", "Direction": "desc" }',
+  );
+  const field = caseInsensitiveField(entry);
+  const column = resolveColumnName(field('Column'), 'Sort Column');
+  return { column, direction: parseDirection(field('Direction')) };
+}
+
+function parseDirection(input: unknown): SortSpec['direction'] {
+  const direction = String(input ?? 'asc').toLowerCase();
+  if (direction !== 'asc' && direction !== 'desc') {
+    throw new BadRequest("Sort Direction must be 'asc' or 'desc'");
+  }
+  return direction;
 }

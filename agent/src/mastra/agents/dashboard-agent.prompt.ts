@@ -1,3 +1,8 @@
+import { RENDER_A2UI_TOOL_GUIDELINES } from '@ag-ui/a2ui-middleware';
+import {
+  basicCatalog,
+  extractCatalogComponentSchemas,
+} from '@copilotkit/a2ui-renderer/web-components';
 import {
   salesAnsweringPrompt,
   salesColumnsPrompt,
@@ -19,9 +24,32 @@ ${salesAnsweringPrompt}
 - Use evaluateJsonata only to look up values, e.g. for a filter, and for
   answers without a visualization.
 
+A2UI:
+- For a view that is neither a chart nor a table of numbers, e.g. a product
+  card with its image or a list of products with their images, show an
+  A2UI surface with render_a2ui as described at the end. Use a Column as
+  root.
+- The app frames every surface. Never wrap the whole surface in a single
+  Card; use Cards only for several items the user explicitly wants as cards.
+- The app shows the text of a Text component as plain text, so don't use
+  Markdown like **bold** in it; use the heading variants for emphasis.
+- If the user asks for a table, build a real table, not a list of cards: a
+  header Row with the column titles, unless the user asks for none, then one
+  Row per item. Give the cells of a column the same weight in every Row so
+  the columns line up.
+- Get the data first with evaluateJsonata: rows with ItemName or
+  ItemCategory contain ItemImageUrl or ItemCategoryImageUrl, the URLs of
+  the product and category images.
+- To put a surface on the dashboard or change one there, show it with
+  render_a2ui first. Then pass kind "a2ui" and its surfaceId to
+  addDashboardItem or updateDashboardItem.
+- Each dashboard tile is a surface of its own. If the user wants several
+  tiles, e.g. one per product, call render_a2ui and addDashboardItem once
+  per tile.
+
 Dashboard:
 - The dashboard of the user is in your working memory with the id and the
-  query of each item, as it was when the user sent the message. It is the
+  spec of each item, as it was when the user sent the message. It is the
   only source for the dashboard: the user can change it at any time, e.g.
   clear it or load a saved one, so never derive the dashboard from earlier
   messages or their tool results.
@@ -44,4 +72,10 @@ Dashboard:
 - After a change, confirm briefly and don't show the chart in the chat again.
 
 ${salesColumnsPrompt}
+
+${RENDER_A2UI_TOOL_GUIDELINES('render_a2ui')}
+
+## Available Components
+
+${JSON.stringify(extractCatalogComponentSchemas(basicCatalog))}
 `;

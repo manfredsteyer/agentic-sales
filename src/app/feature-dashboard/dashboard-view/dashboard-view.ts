@@ -1,6 +1,7 @@
 import { Component, inject, signal, viewChild } from '@angular/core';
 import { CopilotChat } from '@copilotkit/angular';
 import { DASHBOARD_AGENT_ID } from '../../agents/dashboard/dashboard-agent';
+import { A2uiSurface } from '../../shared/a2ui-surface';
 import { InterruptList } from '../../shared/interrupt-list';
 import { ExamplePrompt } from '../../shared/utils/example-prompt';
 import { DashboardStore } from '../dashboard-store/dashboard-store';
@@ -9,7 +10,7 @@ import { examplePrompts } from './example-prompts';
 
 @Component({
   selector: 'app-dashboard-view',
-  imports: [CopilotChat, DashboardTile, InterruptList],
+  imports: [CopilotChat, DashboardTile, A2uiSurface, InterruptList],
   templateUrl: './dashboard-view.html',
   styleUrl: './dashboard-view.css',
 })
