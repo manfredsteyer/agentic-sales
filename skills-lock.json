@@ -13,6 +13,18 @@
       "skillPath": "skills/dev-skills/angular-new-app/SKILL.md",
       "computedHash": "49bd84ab08bd3498c52f476bed48fbb942dc6dbc0925607e84549adbed34bccf"
     },
+    "copilotkit": {
+      "source": "CopilotKit/CopilotKit",
+      "sourceType": "github",
+      "skillPath": "skills/copilotkit/SKILL.md",
+      "computedHash": "09461ac92734801e380b4b13826eb48d992c537411aa45228c4e895f873bfff5"
+    },
+    "copilotkit-cli": {
+      "source": "CopilotKit/CopilotKit",
+      "sourceType": "github",
+      "skillPath": "skills/copilotkit-cli/SKILL.md",
+      "computedHash": "bb8e23a8213587578f2801ca5420084cc5bc69f10f5ee7ee4a49f851fbabca53"
+    },
     "mastra": {
       "source": "mastra-ai/skills",
       "sourceType": "github",

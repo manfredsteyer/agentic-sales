@@ -24,6 +24,24 @@ const pieChart: DashboardItem = {
   },
 };
 
+const productCard: DashboardItem = {
+  id: 'card',
+  spec: {
+    kind: 'a2ui',
+    messages: [
+      {
+        version: 'v0.9',
+        updateComponents: {
+          surfaceId: 'product-card',
+          components: [
+            { id: 'root', component: 'Text', text: 'Google Camp Mug Ivory' },
+          ],
+        },
+      },
+    ],
+  },
+};
+
 describe('DashboardStore', () => {
   let store: DashboardStore;
 
@@ -44,6 +62,14 @@ describe('DashboardStore', () => {
     store.addItem(pieChart);
     await vi.waitFor(() =>
       expect(store.items().map((item) => item.id)).toEqual(['bar', 'pie']),
+    );
+  });
+
+  it('appends an A2UI item to the dashboard', async () => {
+    store.addItem(barChart);
+    store.addItem(productCard);
+    await vi.waitFor(() =>
+      expect(store.items()).toEqual([barChart, productCard]),
     );
   });
 
