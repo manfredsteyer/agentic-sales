@@ -7,6 +7,7 @@ import {
   updateDashboardItem,
 } from '../tools/dashboard/dashboard-tools';
 import { evaluateJsonata } from '../tools/evaluate-jsonata';
+import { render_a2ui } from '../tools/render-a2ui';
 import { runQuery } from '../tools/run-query';
 import { dashboardMemory } from './dashboard-agent.memory';
 import { dashboardAgentPrompt } from './dashboard-agent.prompt';
@@ -21,6 +22,7 @@ export const dashboardAgent = new Agent({
   tools: {
     evaluateJsonata,
     runQuery,
+    render_a2ui,
     addDashboardItem,
     updateDashboardItem,
     reorderDashboard,

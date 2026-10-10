@@ -1,3 +1,4 @@
+import { A2UIMiddleware } from '@ag-ui/a2ui-middleware';
 import type { RunAgentInput } from '@ag-ui/client';
 import { MastraAgent as AgUiAgent } from '@ag-ui/mastra';
 import type { Agent, AgentExecutionOptionsBase } from '@mastra/core/agent';
@@ -92,7 +93,7 @@ export function toAgUiAgent({
 }: AgUiAgentOptions): AgUiAgent {
   const base = withoutMemoryArgs(mastraAgent);
   const agent = abortSignal ? withAbortSignal(base, abortSignal) : base;
-  return new AgUiAgent({
+  const agUiAgent = new AgUiAgent({
     agentId,
     agent,
     resourceId: input.threadId,
@@ -101,4 +102,5 @@ export function toAgUiAgent({
     initialState: input.state,
     streamServerToolCalls: true,
   });
+  return agUiAgent.use(new A2UIMiddleware({ a2uiToolNames: ['render_a2ui'] }));
 }
