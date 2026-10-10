@@ -422,7 +422,8 @@ app-pie-chart,
 app-pivot-table,
 app-query-result-view,
 app-dashboard-tile,
-app-a2ui-surface {
+app-a2ui-surface,
+copilot-a2ui-activity-renderer copilot-a2ui-surface {
   display: block;
   min-width: 0;
 }
@@ -431,7 +432,8 @@ app-bar-chart figure,
 app-pie-chart figure,
 app-pivot-table figure,
 app-dashboard-tile figure,
-app-a2ui-surface figure {
+app-a2ui-surface figure,
+copilot-a2ui-activity-renderer copilot-a2ui-surface {
   margin: 0;
   padding: 1rem;
   border: 1px solid var(--border-color);
