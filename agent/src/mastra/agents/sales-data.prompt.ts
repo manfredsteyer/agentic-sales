@@ -7,6 +7,8 @@ Data:
   order. The columns are listed at the end.
 - Revenue and Price are in USD.
 - "(not set)" and "<Other>" are placeholders for unknown or rare values.
+  When the user wants one visualization or tile per value, e.g. one chart
+  per continent, leave them out unless the user asks for them.
 - Band values start with a number for sorting ("2 1-7 days"); leave it out
   when answering.
 - From 2021-01-26 on, the sample barely contains item data: the drop in late

@@ -455,6 +455,15 @@ app-a2ui-surface figure {
   height: 100%;
 }
 
+copilot-a2ui-row copilot-a2ui-image {
+  min-width: 55px;
+}
+
+copilot-a2ui-row copilot-a2ui-image img {
+  min-width: 55px;
+  min-height: 55px;
+}
+
 copilot-a2ui-text :is(h1, h2, h3, h4, h5) {
   font-size: revert;
   font-weight: revert;
