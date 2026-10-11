@@ -1,41 +1,34 @@
+import { RENDER_A2UI_TOOL } from '@ag-ui/a2ui-middleware';
+import { buildA2UIEnvelope } from '@ag-ui/a2ui-toolkit';
 import { createTool, type ToolExecutionContext } from '@mastra/core/tools';
-import { dashboardSchema, type DashboardSpec } from '@shared/dashboard-schema';
-import { querySchema } from '@shared/query-schema';
+import { dashboardSchema, type DashboardItem } from '@shared/dashboard-schema';
 import { z } from 'zod';
-import { renderedSurface } from '../render-a2ui';
-import { evaluateQuery } from '../run-query';
+import { validateSurface, type RenderA2uiArgs } from '../validate-surface';
 import { readDashboard, writeDashboard, type MemoryIds } from './dashboard-api';
 
-const idSchema = z
+const surfaceIdSchema = z
   .string()
-  .describe('Id of the dashboard item, see the dashboard list');
+  .describe('The surfaceId of the dashboard item, see the dashboard list');
 
-const a2uiSpecInputSchema = z.object({
-  kind: z.literal('a2ui'),
-  surfaceId: z
-    .string()
-    .describe('The surfaceId of a surface shown with render_a2ui'),
-});
-
-const dashboardSpecInputSchema = z.union([querySchema, a2uiSpecInputSchema]);
-
-type DashboardSpecInput = z.infer<typeof dashboardSpecInputSchema>;
-
+// strict: false, as strict mode would turn the free-form A2UI args into {}
 export const addDashboardItem = createTool({
   id: 'add-dashboard-item',
   description: `
-    Adds a visualization or an A2UI surface to the user's dashboard. A visualization item
-    stores its query, not its data: the dashboard runs the query whenever it shows the item.
+    Adds an A2UI surface to the user's dashboard. Takes the same args as render_a2ui;
+    the surfaceId identifies the item.
   `,
-  inputSchema: z.object({ spec: dashboardSpecInputSchema }),
+  strict: false,
+  inputSchema: RENDER_A2UI_TOOL.parameters,
   outputSchema: dashboardSchema,
-  execute: async ({ spec }, context) => {
-    const item = {
-      id: crypto.randomUUID(),
-      spec: await toDashboardSpec(spec, context),
-    };
+  execute: async (input, context) => {
+    const item = toDashboardItem(input as RenderA2uiArgs);
     const memoryIds = getMemoryIds(context);
     const items = await readDashboard(memoryIds);
+    if (items.some(({ surfaceId }) => surfaceId === item.surfaceId)) {
+      throw new Error(
+        `The dashboard already has a surface ${item.surfaceId}. Use another surfaceId.`,
+      );
+    }
     const updatedItems = [...items, item];
     await writeDashboard(memoryIds, updatedItems);
     return { items: updatedItems };
@@ -45,19 +38,19 @@ export const addDashboardItem = createTool({
 export const updateDashboardItem = createTool({
   id: 'update-dashboard-item',
   description: `
-    Replaces the spec of a dashboard item, e.g. to change its kind, title, filter or
-    dimensions. Pass the complete new spec.
+    Replaces the dashboard item with the same surfaceId. Takes the same args as
+    render_a2ui: pass the complete new surface.
   `,
-  inputSchema: z.object({ id: idSchema, spec: dashboardSpecInputSchema }),
+  strict: false,
+  inputSchema: RENDER_A2UI_TOOL.parameters,
   outputSchema: dashboardSchema,
-  execute: async ({ id, spec }, context) => {
-    const changed = {
-      id,
-      spec: await toDashboardSpec(spec, context),
-    };
+  execute: async (input, context) => {
+    const changed = toDashboardItem(input as RenderA2uiArgs);
     const memoryIds = getMemoryIds(context);
     const items = await readDashboard(memoryIds);
-    const updatedItems = items.map((item) => (item.id === id ? changed : item));
+    const updatedItems = items.map((item) =>
+      item.surfaceId === changed.surfaceId ? changed : item,
+    );
     await writeDashboard(memoryIds, updatedItems);
     return { items: updatedItems };
   },
@@ -67,16 +60,18 @@ export const reorderDashboard = createTool({
   id: 'reorder-dashboard',
   description: "Changes the order of the user's dashboard items.",
   inputSchema: z.object({
-    ids: z
+    surfaceIds: z
       .array(z.string())
-      .describe('The ids of all dashboard items in their new order'),
+      .describe('The surfaceIds of all dashboard items in their new order'),
   }),
   outputSchema: dashboardSchema,
-  execute: async (input, context) => {
+  execute: async ({ surfaceIds }, context) => {
     const memoryIds = getMemoryIds(context);
     const items = await readDashboard(memoryIds);
     const updatedItems = [...items].sort(
-      (a, b) => indexOrEnd(input.ids, a.id) - indexOrEnd(input.ids, b.id),
+      (a, b) =>
+        indexOrEnd(surfaceIds, a.surfaceId) -
+        indexOrEnd(surfaceIds, b.surfaceId),
     );
     await writeDashboard(memoryIds, updatedItems);
     return { items: updatedItems };
@@ -86,31 +81,26 @@ export const reorderDashboard = createTool({
 export const removeDashboardItem = createTool({
   id: 'remove-dashboard-item',
   description: "Removes an item from the user's dashboard.",
-  inputSchema: z.object({ id: idSchema }),
+  inputSchema: z.object({ surfaceId: surfaceIdSchema }),
   outputSchema: dashboardSchema,
-  execute: async ({ id }, context) => {
+  execute: async ({ surfaceId }, context) => {
     const memoryIds = getMemoryIds(context);
     const items = await readDashboard(memoryIds);
-    const updatedItems = items.filter((item) => item.id !== id);
+    const updatedItems = items.filter((item) => item.surfaceId !== surfaceId);
     await writeDashboard(memoryIds, updatedItems);
     return { items: updatedItems };
   },
 });
 
-async function toDashboardSpec(
-  spec: DashboardSpecInput,
-  context: ToolExecutionContext | undefined,
-): Promise<DashboardSpec> {
-  if (spec.kind !== 'a2ui') {
-    await evaluateQuery(spec);
-    return spec;
-  }
-  return { kind: 'a2ui', messages: renderedSurface(spec.surfaceId, context) };
+function toDashboardItem(args: RenderA2uiArgs): DashboardItem {
+  validateSurface(args);
+  const envelope = JSON.parse(buildA2UIEnvelope({ args, isUpdate: false }));
+  return { surfaceId: args.surfaceId, messages: envelope.a2ui_operations };
 }
 
-function indexOrEnd(ids: string[], id: string): number {
-  const index = ids.indexOf(id);
-  return index < 0 ? ids.length : index;
+function indexOrEnd(surfaceIds: string[], surfaceId: string): number {
+  const index = surfaceIds.indexOf(surfaceId);
+  return index < 0 ? surfaceIds.length : index;
 }
 
 function getMemoryIds(context: ToolExecutionContext | undefined): MemoryIds {
