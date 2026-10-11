@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 export const dashboardItemSchema = z.object({
   surfaceId: z.string(),
+  expression: z.string().optional(),
   messages: z.array(z.custom<A2uiMessage>()),
 });
 

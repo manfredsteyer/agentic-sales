@@ -21,6 +21,8 @@ import {
 const MAX_RESULT_CHARS = 50_000;
 const TIMEOUT_MS = 30_000;
 
+const dataModelSchema = z.record(z.string(), z.unknown());
+
 export const jsonataDescription = `
     Functions:
       \`$aggregate({ "fact", "aggregateFn", "dimensions", "filter", "sort", "limit" })\`
@@ -148,6 +150,22 @@ export async function evaluateExpression(
     );
   }
   return { result };
+}
+
+export async function evaluateDataModel(
+  expression: string,
+): Promise<Record<string, unknown>> {
+  const evaluated = await evaluateExpression(expression);
+  if (!('result' in evaluated)) {
+    throw new Error(evaluated.message);
+  }
+  const dataModel = dataModelSchema.safeParse(evaluated.result);
+  if (!dataModel.success) {
+    throw new Error(
+      'The expression must return an object: the data model of the surface.',
+    );
+  }
+  return dataModel.data;
 }
 
 function toError(error: unknown): Error {

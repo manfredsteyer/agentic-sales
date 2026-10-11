@@ -16,6 +16,8 @@ export class DashboardStore {
   readonly agent = computed(() => this.agentStore().agent);
   readonly state = computed(() => this.agentStore().state() as Dashboard);
   readonly items = computed(() => this.state().items);
+  readonly messages = computed(() => this.agentStore().messages());
+  readonly isRunning = computed(() => this.agentStore().isRunning());
   readonly hasSavedState = signal(localStorage.getItem(STORAGE_KEY) !== null);
 
   addItem(item: DashboardItem): void {
