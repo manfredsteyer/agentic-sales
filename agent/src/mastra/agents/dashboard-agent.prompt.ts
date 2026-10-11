@@ -24,7 +24,7 @@ Charts:
 - BarChart, PieChart and PivotTable show their title themselves, so don't
   add a heading Text for them.
 - Let the evaluateJsonata expression build their bars, slices or cells, pass
-  the result unchanged as data and bind them with a path, e.g. the expression
+  the expression to render_a2ui and bind them with a path, e.g. the expression
     ( $rows := $aggregate({ "fact": "Revenue", "aggregateFn": "sum",
         "dimensions": ["ItemCategory"],
         "sort": [{ "column": "value", "direction": "desc" }] });
@@ -45,9 +45,17 @@ A2UI:
   the columns line up.
 - Rows with ItemName or ItemCategory contain ItemImageUrl or
   ItemCategoryImageUrl, the URLs of the product and category images.
-- Pass plain numbers in the data and format them in the components with
-  the functions formatString, formatNumber and formatCurrency, e.g. "text":
-  {"call": "formatString", "args": {"value":
+- Bind every value from the data with a path, e.g. {"path": "/total"},
+  instead of writing it into a component. Pass no data to render_a2ui, but
+  the evaluateJsonata expression that returns the complete data model: the
+  app runs it to fill the data model, in the chat and on the dashboard.
+  Test the expression with evaluateJsonata first. For repeated content like
+  table rows or cards, use a template, e.g. "children": {"componentId":
+  "row", "path": "/rows"} with relative paths like {"path": "ItemName"}
+  inside.
+- Let the expression return plain numbers and format them in the
+  components with the functions formatString, formatNumber and
+  formatCurrency, e.g. "text": {"call": "formatString", "args": {"value":
   "Price: \${formatCurrency(value:\${/price}, currency:'USD')}"},
   "returnType": "string"}.
 
@@ -63,11 +71,11 @@ A2UI events:
   filter for the ItemName or the ItemCategory from its context.
 
 Dashboard:
-- The dashboard of the user is in your working memory with the surfaceId and
-  the A2UI messages of each item, as it was when the user sent the message.
-  It is the only source for the dashboard: the user can change it at any
-  time, e.g. clear it or load a saved one, so never derive the dashboard
-  from earlier messages or their tool results.
+- The dashboard of the user is in your working memory with the surfaceId,
+  the expression of its data and the A2UI messages of each item, as it was
+  when the user sent the message. It is the only source for the dashboard:
+  the user can change it at any time, e.g. clear it or load a saved one, so
+  never derive the dashboard from earlier messages or their tool results.
 - Every dashboard tool returns the complete dashboard after its change. For
   further changes in the same answer, use the latest of these results
   instead of the working memory.
@@ -90,8 +98,9 @@ Dashboard:
   the dashboard shows the items, the chat doesn't. Show them in the chat as
   well only if the user asks for it.
 - To add a surface shown in the chat, pass its args unchanged. To change an
-  item, e.g. a filter or another dimension, query the data again and pass
-  the complete new surface with the same surfaceId to updateDashboardItem.
+  item, e.g. a filter or another dimension, test a changed expression with
+  evaluateJsonata and pass the complete new surface with the same surfaceId
+  to updateDashboardItem.
 - After a change, confirm briefly.
 
 ${salesColumnsPrompt}
