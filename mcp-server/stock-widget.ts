@@ -11,8 +11,13 @@ const totalEl = document.getElementById('total')!;
 
 const app = new App({ name: 'Stock Widget', version: '1.0.0' });
 
-app.ontoolresult = ({ structuredContent }) =>
-  render(structuredContent as StockResult);
+app.ontoolinput = async ({ arguments: toolInput }) => {
+  const result = await app.callServerTool({
+    name: 'get-stock',
+    arguments: toolInput,
+  });
+  render(result.structuredContent as StockResult);
+};
 
 await app.connect();
 
