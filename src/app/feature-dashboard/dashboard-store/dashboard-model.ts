@@ -1,11 +1,8 @@
-import { A2uiSpec } from '../../data/a2ui-model';
-import { Query } from '../../data/query-model';
-
-export type DashboardSpec = Query | A2uiSpec;
+import { A2uiMessage } from '@a2ui/web_core/v0_9';
 
 export interface DashboardItem {
-  id: string;
-  spec: DashboardSpec;
+  surfaceId: string;
+  messages: A2uiMessage[];
 }
 
 export interface DashboardState {
