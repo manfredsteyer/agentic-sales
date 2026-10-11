@@ -1,8 +1,5 @@
 import { RENDER_A2UI_TOOL_GUIDELINES } from '@ag-ui/a2ui-middleware';
-import {
-  basicCatalog,
-  extractCatalogComponentSchemas,
-} from '@copilotkit/a2ui-renderer/web-components';
+import { salesCatalogSchema } from '../tools/sales-catalog';
 import {
   salesAnsweringPrompt,
   salesColumnsPrompt,
@@ -103,5 +100,5 @@ ${RENDER_A2UI_TOOL_GUIDELINES('render_a2ui')}
 
 ## Available Components
 
-${JSON.stringify(extractCatalogComponentSchemas(basicCatalog))}
+${JSON.stringify(salesCatalogSchema)}
 `;
