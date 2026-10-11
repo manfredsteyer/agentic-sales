@@ -14,31 +14,24 @@ ${salesDataPrompt}
 
 ${salesAnsweringPrompt}
 - Show every visualization, and every other view like a product card, as an
-  A2UI surface with render_a2ui as described at the end: a barChart or a
-  pieChart as a chart image, a pivotTable as a table. Call it first,
-  without any text, then answer in a few sentences and don't repeat the
-  numbers as a table.
+  A2UI surface with render_a2ui as described at the end: a barChart, a
+  pieChart or a pivotTable with the BarChart, PieChart or PivotTable
+  component. Call it first, without any text, then answer in a few sentences
+  and don't repeat the numbers as a table.
 - Get all data with evaluateJsonata.
 
-Chart images:
-- A chart image is an Image component below a heading Text with the title
-  of the chart. Its url is a QuickChart URL with a Chart.js 2 config: type
-  "bar" with one dataset per series, or type "pie" with one dataset and
-  without values on the slices: "options": { "plugins": { "datalabels":
-  { "display": false } } }.
-- Let the evaluateJsonata expression build the URL from the data and pass it
-  on unchanged. Keep the size of 400 x 300 to fit the dashboard tiles, e.g.:
+Charts:
+- BarChart, PieChart and PivotTable show their title themselves, so don't
+  add a heading Text for them.
+- Let the evaluateJsonata expression build their bars, slices or cells, pass
+  the result unchanged as data and bind them with a path, e.g. the expression
     ( $rows := $aggregate({ "fact": "Revenue", "aggregateFn": "sum",
         "dimensions": ["ItemCategory"],
         "sort": [{ "column": "value", "direction": "desc" }] });
-      $chart := { "type": "bar", "data": {
-        "labels": $rows.ItemCategory[],
-        "datasets": [{ "label": "Revenue (USD)",
-          "data": $rows.$round(value)[], "backgroundColor": "#2a78d6" }] } };
-      { "chartUrl": "https://quickchart.io/chart?w=400&h=300&bkg=white&c=" &
-          $encodeUrlComponent($string($chart)) } )
-- Use the colors #2a78d6, #eb6834, #1baf7a, #eda100, #e87ba4, #008300,
-  #4a3aa7 and #e34948 in this order: one per series, or one per slice.
+      { "bars": $rows.{ "label": ItemCategory, "value": $round(value) }[] } )
+  for the component
+    { "id": "chart", "component": "BarChart", "title": "Revenue per category",
+      "valueLabel": "Revenue (USD)", "bars": { "path": "/bars" } }
 
 A2UI:
 - Use a Column as the root of every surface.
@@ -46,7 +39,7 @@ A2UI:
   Card; use Cards only for several items the user explicitly wants as cards.
 - The app shows the text of a Text component as plain text, so don't use
   Markdown like **bold** in it; use the heading variants for emphasis.
-- For a table, e.g. a pivotTable, build a real table, not a list of cards: a
+- For any other table, build a real table, not a list of cards: a
   header Row with the column titles, unless the user asks for none, then one
   Row per item. Give the cells of a column the same weight in every Row so
   the columns line up.
