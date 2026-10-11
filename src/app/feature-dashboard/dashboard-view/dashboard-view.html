@@ -38,7 +38,7 @@
   </header>
   <div class="tiles">
     @for (item of store.items(); track item.surfaceId) {
-      <app-a2ui-surface [operations]="item.messages" />
+      <app-dashboard-tile [item]="item" />
     } @empty {
       <div class="empty card">
         <span class="empty-icon" aria-hidden="true">

@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 export const dashboardItemSchema = z.object({
   surfaceId: z.string(),
+  expression: z.string().optional(),
   messages: z.array(z.record(z.string(), z.unknown())),
 });
 
