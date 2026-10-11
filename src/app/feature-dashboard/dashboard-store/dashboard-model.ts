@@ -2,6 +2,7 @@ import { A2uiMessage } from '@a2ui/web_core/v0_9';
 
 export interface DashboardItem {
   surfaceId: string;
+  expression?: string;
   messages: A2uiMessage[];
 }
 
