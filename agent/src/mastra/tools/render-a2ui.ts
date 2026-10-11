@@ -1,10 +1,11 @@
+import { randomUUID } from 'node:crypto';
 import {
   assembleOps,
   wrapAsOperationsEnvelope,
   type A2UIOperation,
 } from '@ag-ui/a2ui-toolkit';
-import type { ToolCallChunk } from '@mastra/core/stream';
-import { createTool } from '@mastra/core/tools';
+import { A2UI_RENDER_STREAM_TYPE } from '@ag-ui/mastra';
+import { createTool, type ToolStream } from '@mastra/core/tools';
 import { SALES_CATALOG_ID } from '@shared/a2ui/sales-catalog-definitions';
 import { z } from 'zod';
 import { a2uiDesigner } from '../agents/a2ui-designer';
@@ -45,24 +46,42 @@ export const render_a2ui = createTool({
     result contains the data models.
   `,
   inputSchema: renderA2uiSchema,
-  execute: async ({ surfaces }) => {
-    const operations = await generateSurfaces(surfaces);
+  execute: async ({ surfaces }, context) => {
+    const operations = await generateSurfaces(surfaces, context?.writer);
     return wrapAsOperationsEnvelope(operations.flat());
   },
 });
 
 export async function generateSurfaces(
   surfaces: SurfaceRequest[],
+  writer?: ToolStream,
 ): Promise<A2UIOperation[][]> {
   const models = await Promise.all(surfaces.map(evaluateModel));
   const prompt = surfaces
     .map((surface, i) => describeSurface(surface, models[i]))
     .join('\n\n---\n\n');
-  const designed = await a2uiDesigner.generate(prompt);
-  const calls = designed.toolCalls;
-  return surfaces.map((surface, i) =>
-    toOperations(surface.surfaceId, models[i], calls),
-  );
+  const callIds = surfaces.map(() => randomUUID());
+  await showBuilding(writer, callIds);
+
+  const designed = await a2uiDesigner.stream(prompt);
+  const built = new Map<string, A2UIOperation[]>();
+  for await (const chunk of designed.fullStream) {
+    if (chunk.type !== 'tool-call') {
+      continue;
+    }
+    const design = chunk.payload.args as GenerateA2uiArgs;
+    const index = surfaces.findIndex(
+      ({ surfaceId }) => surfaceId === design.surfaceId,
+    );
+    if (index < 0) {
+      continue;
+    }
+    const args = { ...design, data: models[index] } as GenerateA2uiArgs;
+    validateSurface(args);
+    built.set(args.surfaceId, toOperations(args));
+    await showSurface(writer, callIds[index], args);
+  }
+  return surfaces.map(({ surfaceId }) => builtSurface(built, surfaceId));
 }
 
 async function evaluateModel({ expression }: SurfaceRequest): Promise<unknown> {
@@ -78,25 +97,64 @@ function describeSurface(
   return `Surface ${surfaceId}: ${request}\n\nData model:\n${json}`;
 }
 
-function toOperations(
-  surfaceId: string,
-  data: unknown,
-  calls: ToolCallChunk[],
-): A2UIOperation[] {
-  const designs = calls.map((call) => call.payload.args as GenerateA2uiArgs);
-  const design = designs.find((candidate) => candidate.surfaceId === surfaceId);
-  if (!design) {
-    throw new Error(`The designer built no surface ${surfaceId}.`);
-  }
-
-  const args = { ...design, surfaceId, data } as GenerateA2uiArgs;
-  validateSurface(args);
-
+function toOperations({
+  surfaceId,
+  components,
+  data,
+}: GenerateA2uiArgs): A2UIOperation[] {
   return assembleOps({
     intent: 'create',
     surfaceId,
     catalogId: SALES_CATALOG_ID,
-    components: args.components,
-    data: args.data,
+    components,
+    data,
   });
+}
+
+function builtSurface(
+  built: Map<string, A2UIOperation[]>,
+  surfaceId: string,
+): A2UIOperation[] {
+  const operations = built.get(surfaceId);
+  if (!operations) {
+    throw new Error(`The designer built no surface ${surfaceId}.`);
+  }
+  return operations;
+}
+
+async function showBuilding(
+  writer: ToolStream | undefined,
+  callIds: string[],
+): Promise<void> {
+  for (const toolCallId of callIds) {
+    await emitRender(writer, {
+      phase: 'start',
+      toolCallId,
+      toolName: 'generate_a2ui',
+    });
+  }
+}
+
+async function showSurface(
+  writer: ToolStream | undefined,
+  toolCallId: string,
+  args: GenerateA2uiArgs,
+): Promise<void> {
+  const argsTextDelta = JSON.stringify(args);
+  await emitRender(writer, { phase: 'delta', toolCallId, argsTextDelta });
+  await emitRender(writer, { phase: 'end', toolCallId });
+}
+
+async function emitRender(
+  writer: ToolStream | undefined,
+  payload: Record<string, unknown>,
+): Promise<void> {
+  // the AG-UI bridge reads payload, Mastra's chunk type wants data
+  const chunk = {
+    type: A2UI_RENDER_STREAM_TYPE,
+    data: payload,
+    payload,
+    transient: true,
+  };
+  await writer?.custom(chunk);
 }
