@@ -101,8 +101,9 @@ export const evaluateJsonata = createTool({
   outputSchema: z.union([z.object({ result: z.unknown() }), notExecutedSchema]),
   suspendSchema: approvalSuspendSchema,
   resumeSchema: approvalResumeSchema,
-  execute: async ({ expression }, context) =>
-    evaluateExpression(expression, context),
+  execute: async ({ expression }, context) => {
+    return evaluateExpression(expression, context);
+  },
 });
 
 export async function evaluateExpression(
