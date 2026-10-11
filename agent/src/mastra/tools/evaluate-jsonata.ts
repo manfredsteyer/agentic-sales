@@ -16,7 +16,7 @@ import {
   details,
   type AggregateQuery,
   type DetailsQuery,
-} from './sales-api';
+} from './sales/sales-api';
 
 const MAX_RESULT_CHARS = 50_000;
 const TIMEOUT_MS = 30_000;

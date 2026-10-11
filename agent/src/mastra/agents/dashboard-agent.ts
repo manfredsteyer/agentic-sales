@@ -4,7 +4,7 @@ import {
   removeDashboardItem,
   reorderDashboard,
   updateDashboardItem,
-} from '../tools/dashboard-tools';
+} from '../tools/dashboard/dashboard-tools';
 import { evaluateJsonata } from '../tools/evaluate-jsonata';
 import { runQuery } from '../tools/run-query';
 import { dashboardMemory } from './dashboard-agent.memory';

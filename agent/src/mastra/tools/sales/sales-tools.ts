@@ -1,12 +1,12 @@
 import { createTool } from '@mastra/core/tools';
 import { z } from 'zod';
-import { MAX_ROWS } from '../config';
+import { MAX_ROWS } from '../../config';
 import {
   approvalResumeSchema,
   approvalSuspendSchema,
   notExecutedSchema,
   withRowLimit,
-} from './row-limit';
+} from '../row-limit';
 import { aggregate, details } from './sales-api';
 
 const filterSchema = z

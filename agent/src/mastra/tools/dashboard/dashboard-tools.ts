@@ -1,27 +1,13 @@
-import { createTool } from '@mastra/core/tools';
+import { createTool, type ToolExecutionContext } from '@mastra/core/tools';
 import { z } from 'zod';
-import { dashboardMemory } from '../agents/dashboard-agent.memory';
-import {
-  dashboardSchema,
-  type Dashboard,
-  type DashboardItem,
-} from './dashboard-schema';
-import { querySchema } from './query-schema';
-import { evaluateQuery } from './run-query';
+import { querySchema } from '../query-schema';
+import { evaluateQuery } from '../run-query';
+import { readDashboard, writeDashboard, type MemoryIds } from './dashboard-api';
+import { dashboardSchema } from './dashboard-schema';
 
 const idSchema = z
   .string()
   .describe('Id of the dashboard item, see the dashboard list');
-
-interface MemoryIds {
-  threadId?: string;
-  resourceId?: string;
-}
-
-function toDashboard(workingMemory: string | null): Dashboard {
-  const result = dashboardSchema.safeParse(JSON.parse(workingMemory ?? '{}'));
-  return result.data ?? { items: [] };
-}
 
 export const addDashboardItem = createTool({
   id: 'add-dashboard-item',
@@ -33,10 +19,11 @@ export const addDashboardItem = createTool({
   outputSchema: dashboardSchema,
   execute: async ({ spec }, context) => {
     await evaluateQuery(spec);
-    return updateDashboard(context?.agent, (items) => [
-      ...items,
-      { id: crypto.randomUUID(), spec },
-    ]);
+    const memoryIds = getMemoryIds(context);
+    const items = await readDashboard(memoryIds);
+    const updatedItems = [...items, { id: crypto.randomUUID(), spec }];
+    await writeDashboard(memoryIds, updatedItems);
+    return { items: updatedItems };
   },
 });
 
@@ -50,9 +37,13 @@ export const updateDashboardItem = createTool({
   outputSchema: dashboardSchema,
   execute: async ({ id, spec }, context) => {
     await evaluateQuery(spec);
-    return updateDashboard(context?.agent, (items) =>
-      items.map((item) => (item.id === id ? { id, spec } : item)),
+    const memoryIds = getMemoryIds(context);
+    const items = await readDashboard(memoryIds);
+    const updatedItems = items.map((item) =>
+      item.id === id ? { id, spec } : item,
     );
+    await writeDashboard(memoryIds, updatedItems);
+    return { items: updatedItems };
   },
 });
 
@@ -65,10 +56,15 @@ export const reorderDashboard = createTool({
       .describe('The ids of all dashboard items in their new order'),
   }),
   outputSchema: dashboardSchema,
-  execute: async ({ ids }, context) =>
-    updateDashboard(context?.agent, (items) =>
-      [...items].sort((a, b) => indexOrEnd(ids, a.id) - indexOrEnd(ids, b.id)),
-    ),
+  execute: async (input, context) => {
+    const memoryIds = getMemoryIds(context);
+    const items = await readDashboard(memoryIds);
+    const updatedItems = [...items].sort(
+      (a, b) => indexOrEnd(input.ids, a.id) - indexOrEnd(input.ids, b.id),
+    );
+    await writeDashboard(memoryIds, updatedItems);
+    return { items: updatedItems };
+  },
 });
 
 export const removeDashboardItem = createTool({
@@ -76,32 +72,23 @@ export const removeDashboardItem = createTool({
   description: "Removes an item from the user's dashboard.",
   inputSchema: z.object({ id: idSchema }),
   outputSchema: dashboardSchema,
-  execute: async ({ id }, context) =>
-    updateDashboard(context?.agent, (items) =>
-      items.filter((item) => item.id !== id),
-    ),
+  execute: async ({ id }, context) => {
+    const memoryIds = getMemoryIds(context);
+    const items = await readDashboard(memoryIds);
+    const updatedItems = items.filter((item) => item.id !== id);
+    await writeDashboard(memoryIds, updatedItems);
+    return { items: updatedItems };
+  },
 });
-
-async function updateDashboard(
-  ids: MemoryIds | undefined,
-  update: (items: DashboardItem[]) => DashboardItem[],
-) {
-  const threadId = ids?.threadId ?? '';
-  const resourceId = ids?.resourceId;
-  const workingMemory = await dashboardMemory.getWorkingMemory({
-    threadId,
-    resourceId,
-  });
-  const dashboard = { items: update(toDashboard(workingMemory).items) };
-  await dashboardMemory.updateWorkingMemory({
-    threadId,
-    resourceId,
-    workingMemory: JSON.stringify(dashboard),
-  });
-  return dashboard;
-}
 
 function indexOrEnd(ids: string[], id: string): number {
   const index = ids.indexOf(id);
   return index < 0 ? ids.length : index;
+}
+
+function getMemoryIds(context: ToolExecutionContext | undefined): MemoryIds {
+  return {
+    threadId: context?.agent?.threadId ?? '',
+    resourceId: context?.agent?.resourceId,
+  };
 }

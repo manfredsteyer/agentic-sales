@@ -8,7 +8,6 @@ export async function agUiRouteHandler(
 ): Promise<Response> {
   const agentId = c.req.param('agentId') ?? '';
   const mastraInstance = c.get('mastra');
-  const requestContext = c.get('requestContext');
 
   const parsed = await parseRunAgentInput(c);
   if (!parsed.ok) {
@@ -29,7 +28,6 @@ export async function agUiRouteHandler(
     agentId,
     mastraAgent,
     input,
-    requestContext,
     abortSignal: c.req.raw.signal,
   });
 

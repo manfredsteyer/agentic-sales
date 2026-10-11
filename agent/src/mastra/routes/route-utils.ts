@@ -1,7 +1,6 @@
 import type { RunAgentInput } from '@ag-ui/client';
 import { MastraAgent as AgUiAgent } from '@ag-ui/mastra';
 import type { Agent, AgentExecutionOptionsBase } from '@mastra/core/agent';
-import type { RequestContext } from '@mastra/core/request-context';
 import type { ContextWithMastra } from '@mastra/core/server';
 
 type StreamMessages = Parameters<Agent['stream']>[0];
@@ -79,7 +78,6 @@ export interface AgUiAgentOptions {
   agentId: string;
   mastraAgent: Agent;
   input: RunAgentInput;
-  requestContext: RequestContext;
   abortSignal?: AbortSignal;
 }
 
@@ -87,7 +85,6 @@ export function toAgUiAgent({
   agentId,
   mastraAgent,
   input,
-  requestContext,
   abortSignal,
 }: AgUiAgentOptions): AgUiAgent {
   const base = withoutMemoryArgs(mastraAgent);
@@ -96,7 +93,6 @@ export function toAgUiAgent({
     agentId,
     agent,
     resourceId: input.threadId,
-    requestContext,
     threadId: input.threadId,
     initialMessages: input.messages,
     initialState: input.state,
