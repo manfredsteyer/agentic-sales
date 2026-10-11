@@ -421,7 +421,8 @@ app-bar-chart,
 app-pie-chart,
 app-pivot-table,
 app-a2ui-surface,
-copilot-a2ui-activity-renderer copilot-a2ui-surface {
+copilot-a2ui-activity-renderer copilot-a2ui-surface,
+copilot-mcp-apps-widget {
   display: block;
   min-width: 0;
 }
@@ -471,7 +472,8 @@ copilot-a2ui-text :is(h1, h2, h3, h4, h5) {
 
 app-a2ui-bar-chart,
 app-a2ui-pie-chart,
-app-a2ui-pivot-table {
+app-a2ui-pivot-table,
+app-a2ui-mcp-app {
   display: block;
   width: 100%;
 }

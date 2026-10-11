@@ -78,6 +78,8 @@ Dashboard:
   same args as render_a2ui, and the surfaceId identifies the item.
 - Each tile is a surface of its own. If the user wants several tiles, e.g.
   one per product, call addDashboardItem once per tile.
+- To add an MCP App, e.g. the stock of a product, add a surface with an
+  McpApp component instead of calling the tool of the MCP App.
 - For a request that only changes the dashboard, don't call render_a2ui:
   the dashboard shows the items, the chat doesn't. Show them in the chat as
   well only if the user asks for it.

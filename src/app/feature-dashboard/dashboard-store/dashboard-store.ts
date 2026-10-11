@@ -13,6 +13,7 @@ const STORAGE_KEY = 'dashboard';
 export class DashboardStore {
   private readonly agentStore = injectAgentStore(DASHBOARD_AGENT_ID);
 
+  readonly agent = computed(() => this.agentStore().agent);
   readonly state = computed(() => this.agentStore().state() as DashboardState);
   readonly items = computed(() => this.state().items);
   readonly hasSavedState = signal(localStorage.getItem(STORAGE_KEY) !== null);
