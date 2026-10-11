@@ -6,6 +6,7 @@ export const AGENT_MODEL = 'openai/gpt-5.6-terra';
 
 export const AGENT_DEFAULT_OPTIONS: AgentExecutionOptions = {
   maxSteps: 10,
+  toolCallConcurrency: { strategy: 'called' },
   providerOptions: {
     openai: { serviceTier: 'priority', reasoningEffort: 'low' },
   },
