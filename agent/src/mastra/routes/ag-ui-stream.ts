@@ -6,29 +6,17 @@ import {
 } from '@ag-ui/client';
 import type { SseWriter } from './route-utils';
 
-export interface CreateAgUiEventStreamOptions {
-  onEvent?: (
-    event: BaseEvent,
-  ) => Promise<readonly BaseEvent[] | void> | readonly BaseEvent[] | void;
-}
-
 export async function streamAgentEvents(
   sse: SseWriter,
   agent: AbstractAgent,
   input: RunAgentInput,
-  options: CreateAgUiEventStreamOptions = {},
 ): Promise<void> {
   const send = (event: BaseEvent): Promise<void> =>
     sse.writeSSE({ data: JSON.stringify(event) });
 
   try {
     await agent.runAgent(input, {
-      onEvent: async ({ event }) => {
-        await send(event);
-        for (const extra of (await options.onEvent?.(event)) ?? []) {
-          await send(extra);
-        }
-      },
+      onEvent: ({ event }) => send(event),
     });
   } catch (err) {
     await send({

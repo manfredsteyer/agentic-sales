@@ -1,23 +1,21 @@
 import { Agent } from '@mastra/core/agent';
-import { AG_UI_STATE_KEY } from '../config';
 import {
   addDashboardItem,
   removeDashboardItem,
   reorderDashboard,
-  toDashboard,
   updateDashboardItem,
 } from '../tools/dashboard-tools';
 import { evaluateJsonata } from '../tools/evaluate-jsonata';
 import { runQuery } from '../tools/run-query';
+import { dashboardMemory } from './dashboard-agent.memory';
 import { dashboardAgentPrompt } from './dashboard-agent.prompt';
 
 export const dashboardAgent = new Agent({
   id: 'dashboard-agent',
   name: 'Dashboard Editor',
-  instructions: ({ requestContext }) =>
-    dashboardAgentPrompt +
-    toDashboardSection(requestContext.get(AG_UI_STATE_KEY)),
+  instructions: dashboardAgentPrompt,
   model: 'openai/gpt-5.6-terra',
+  memory: dashboardMemory,
   tools: {
     evaluateJsonata,
     runQuery,
@@ -27,15 +25,3 @@ export const dashboardAgent = new Agent({
     removeDashboardItem,
   },
 });
-
-function toDashboardSection(state: unknown): string {
-  const { items } = toDashboard(state);
-  if (items.length === 0) {
-    return '\nDashboard of the user: empty\n';
-  }
-  const lines = items.map(
-    (item, index) =>
-      `${index + 1}. id ${item.id}: ${JSON.stringify(item.spec)}`,
-  );
-  return `\nDashboard of the user, in order:\n${lines.join('\n')}\n`;
-}

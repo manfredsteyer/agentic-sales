@@ -36,6 +36,8 @@
     "@copilotkit/angular": "^0.5.2",
     "@duckdb/node-api": "^1.5.5-r.4",
     "@mastra/core": "^1.61.0",
+    "@mastra/libsql": "^1.25.1",
+    "@mastra/memory": "^1.36.0",
     "chart.js": "^4.5.1",
     "cors": "^2.8.6",
     "express": "^5.2.1",

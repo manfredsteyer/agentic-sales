@@ -1,9 +1,7 @@
 import type { ContextWithMastra } from '@mastra/core/server';
 import { streamSSE } from 'hono/streaming';
-import { AG_UI_STATE_KEY } from '../config';
 import { streamAgentEvents } from './ag-ui-stream';
 import { parseRunAgentInput, toAgUiAgent } from './route-utils';
-import { stateSnapshots } from './state-snapshots';
 
 export async function agUiRouteHandler(
   c: ContextWithMastra,
@@ -18,7 +16,6 @@ export async function agUiRouteHandler(
   }
 
   const { input } = parsed;
-  requestContext.set(AG_UI_STATE_KEY, input.state);
 
   const mastraAgent = mastraInstance.listAgents()[agentId];
   if (!mastraAgent) {
@@ -39,9 +36,7 @@ export async function agUiRouteHandler(
   return streamSSE(
     c as unknown as Parameters<typeof streamSSE>[0],
     async (sse) => {
-      await streamAgentEvents(sse, agUiAgent, input, {
-        onEvent: stateSnapshots(requestContext),
-      });
+      await streamAgentEvents(sse, agUiAgent, input);
     },
   );
 }

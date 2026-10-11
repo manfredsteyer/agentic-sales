@@ -1,11 +1,13 @@
 import { Mastra } from '@mastra/core';
 import { registerApiRoute } from '@mastra/core/server';
+import { LibSQLStore } from '@mastra/libsql';
 import { dashboardAgent } from './agents/dashboard-agent';
 import { salesAgent } from './agents/sales-agent';
 import { agUiRouteHandler } from './routes/ag-ui-route';
 
 export const mastra = new Mastra({
   agents: { salesAgent, dashboardAgent },
+  storage: new LibSQLStore({ id: 'mastra-storage', url: ':memory:' }),
   server: {
     cors: {
       origin: ['http://localhost:4200', 'http://localhost:4111'],
