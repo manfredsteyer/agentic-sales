@@ -30,4 +30,8 @@ export const examplePrompts: ExamplePrompt[] = [
     prompt:
       'Find the 6 best-selling products worldwide and add one tile per product to the dashboard. Each tile should show the product name, image, revenue and quantity sold.',
   },
+  {
+    label: 'Example 7',
+    prompt: 'Show me the stock of the best-selling product.',
+  },
 ];
