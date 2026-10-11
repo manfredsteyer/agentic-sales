@@ -2,10 +2,7 @@ import {
   formatValidationErrors,
   validateA2UIComponents,
 } from '@ag-ui/a2ui-toolkit';
-import {
-  basicCatalog,
-  extractCatalogComponentSchemas,
-} from '@copilotkit/a2ui-renderer/web-components';
+import { salesCatalogSchema } from './sales-catalog';
 
 export interface RenderA2uiArgs extends Record<string, unknown> {
   surfaceId: string;
@@ -17,7 +14,7 @@ export function validateSurface(args: RenderA2uiArgs): void {
   const { valid, errors } = validateA2UIComponents({
     components: args.components,
     data: args.data,
-    catalog: extractCatalogComponentSchemas(basicCatalog),
+    catalog: salesCatalogSchema,
   });
   if (!valid) {
     throw new Error(formatValidationErrors(errors));

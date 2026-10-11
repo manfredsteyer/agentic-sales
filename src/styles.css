@@ -469,6 +469,116 @@ copilot-a2ui-text :is(h1, h2, h3, h4, h5) {
   font-weight: revert;
 }
 
+app-product-carousel {
+  display: block;
+  width: 100%;
+}
+
+app-product-carousel section {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+app-product-carousel .viewport {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+app-product-carousel ul {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  transition: transform 0.4s ease;
+}
+
+app-product-carousel li {
+  display: flex;
+  flex: 0 0 100%;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+app-product-carousel li img {
+  width: 10rem;
+  height: 10rem;
+  margin: 0 0 0.5rem;
+  object-fit: contain;
+}
+
+app-product-carousel h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+app-product-carousel p {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+app-product-carousel .timer {
+  --fill: color-mix(in srgb, var(--text-muted) 65%, var(--surface-1));
+  width: 6rem;
+  height: 3px;
+  margin-top: 0.75rem;
+  border-radius: 2px;
+  background: linear-gradient(var(--fill), var(--fill)) 0 / 0 no-repeat
+    var(--surface-3);
+}
+
+app-product-carousel li:not([inert]) .timer {
+  animation: carousel-timer 3s linear;
+}
+
+@keyframes carousel-timer {
+  to {
+    background-size: 100%;
+  }
+}
+
+app-product-carousel button {
+  display: inline-flex;
+  flex: none;
+  padding: 0.4rem;
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  background: var(--surface-1);
+  cursor: pointer;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s;
+}
+
+app-product-carousel button:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-2);
+}
+
+app-product-carousel button:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+app-product-carousel .position {
+  margin-top: 0.75rem;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  app-product-carousel ul {
+    transition: none;
+  }
+}
+
 app-bar-chart figcaption,
 app-pie-chart figcaption,
 app-pivot-table figcaption {
