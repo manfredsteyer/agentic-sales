@@ -10,7 +10,7 @@ export const examplePrompts: ExamplePrompt[] = [
   {
     label: 'Example 3',
     prompt:
-      'Add one pie chart per continent to the dashboard. Each chart should show the revenue of the products in the Bags category.',
+      'Add one pie chart per continent to the dashboard. Each chart should show the revenue of the 3 best-selling products of the continent in the Bags category.',
   },
   {
     label: 'Example 4',
