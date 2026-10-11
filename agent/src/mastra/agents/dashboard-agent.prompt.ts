@@ -15,14 +15,15 @@ ${salesDataPrompt}
 
 ${salesAnsweringPrompt}
 - Show every visualization, and every other view like a product card, as an
-  A2UI surface with generate_a2ui: a designer agent builds the surface from
-  your request and binds it to the data model that your JSONata expression
-  returns. Call it first, without any text, then answer in a few sentences
-  and don't repeat the numbers as a table.
+  A2UI surface with render_a2ui: a designer agent builds the surfaces from
+  your requests and binds each to the data model that its JSONata expression
+  returns. Call it first, once with all surfaces of the answer and without
+  any text, then answer in a few sentences and don't repeat the numbers as a
+  table.
 - Get all other data with evaluateJsonata.
 
 Surfaces:
-- The data model is the result of the expression of generate_a2ui: an object
+- The data model of a surface is the result of its expression: an object
   like {"product": {...}} or {"products": [...]} with every value as the
   surface shows it, e.g. "Price: $10.00" or "13,788.00" formatted with
   $formatNumber. Rows with ItemName or ItemCategory contain ItemImageUrl or
@@ -43,8 +44,8 @@ Surfaces:
   word, e.g. "a table of the 3 best-selling products of the continent with
   their image, name and revenue", and name the fields of the data model it
   shows. Add no design ideas of your own, e.g. don't call it a card unless
-  the user does. For several tiles, pass the same request to each.
-- The result of generate_a2ui contains the data model, so answer from it
+  the user does.
+- The result of render_a2ui contains the data models, so answer from it
   instead of querying the data again.
 - Surfaces can contain buttons that open the Explorer filtered by a product
   or a category; the app supports no other events. Mention such a button in
@@ -71,15 +72,14 @@ Dashboard:
 - Change it only with the dashboard tools: addDashboardItem,
   updateDashboardItem, reorderDashboard and removeDashboardItem. Each item
   is an A2UI surface: addDashboardItem and updateDashboardItem take the
-  same args as generate_a2ui, and the surfaceId identifies the item.
+  same args as render_a2ui, and the surfaceId identifies the item.
 - Each tile is a surface of its own. If the user wants several tiles, e.g.
-  one per product, call addDashboardItem once per tile, each with an
-  expression for the data of this tile only. Call it for all tiles at once,
-  in one step.
-- For a request that only changes the dashboard, don't call generate_a2ui:
+  one per product, pass them all to one addDashboardItem call, each with an
+  expression for the data of this tile only.
+- For a request that only changes the dashboard, don't call render_a2ui:
   the dashboard shows the items, the chat doesn't. Show them in the chat as
   well only if the user asks for it.
-- To add a surface shown in the chat, pass its args unchanged. To change an
+- To add surfaces shown in the chat, pass their args unchanged. To change an
   item, e.g. a filter or another dimension, pass the complete new surface
   with the same surfaceId to updateDashboardItem.
 - After a change, confirm briefly.

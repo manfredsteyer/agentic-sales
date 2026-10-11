@@ -6,7 +6,6 @@ export const MODEL = 'openai/gpt-5.6-sol';
 
 export const DEFAULT_OPTIONS: AgentExecutionOptions<undefined> = {
   maxSteps: 10,
-  toolCallConcurrency: { strategy: 'called' },
   providerOptions: {
     openai: { serviceTier: 'priority', reasoningEffort: 'low' },
   },
