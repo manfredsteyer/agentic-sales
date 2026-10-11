@@ -444,6 +444,22 @@ copilot-a2ui-activity-renderer .copilot-a2ui-surface-scroll {
   padding: 0 0 0.625rem;
 }
 
+app-surface-widget,
+app-mcp-app-widget,
+app-add-to-dashboard-button {
+  display: block;
+}
+
+.add-to-dashboard {
+  display: flex;
+  width: fit-content;
+  margin: 0 0 0.625rem auto;
+}
+
+app-mcp-app-widget app-add-to-dashboard-button {
+  margin-top: 0.625rem;
+}
+
 copilot-activity
   + copilot-chat-assistant-message
   copilot-chat-assistant-message-renderer

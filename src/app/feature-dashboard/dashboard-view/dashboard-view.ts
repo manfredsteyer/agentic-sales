@@ -1,15 +1,15 @@
 import { Component, inject, signal, viewChild } from '@angular/core';
 import { CopilotChat, injectInterrupt } from '@copilotkit/angular';
 import { DASHBOARD_AGENT_ID } from '../../agents/dashboard/dashboard-agent';
-import { A2uiSurface } from '../../shared/a2ui-surface';
 import { InterruptList } from '../../shared/interrupt-list';
 import { ExamplePrompt } from '../../shared/utils/example-prompt';
 import { DashboardStore } from '../dashboard-store/dashboard-store';
+import { DashboardTile } from '../dashboard-tile/dashboard-tile';
 import { examplePrompts } from './example-prompts';
 
 @Component({
   selector: 'app-dashboard-view',
-  imports: [CopilotChat, A2uiSurface, InterruptList],
+  imports: [CopilotChat, DashboardTile, InterruptList],
   templateUrl: './dashboard-view.html',
   styleUrl: './dashboard-view.css',
 })
