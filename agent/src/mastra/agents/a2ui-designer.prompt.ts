@@ -2,10 +2,13 @@ import { RENDER_A2UI_TOOL_GUIDELINES } from '@ag-ui/a2ui-middleware';
 import { buildSubagentPrompt } from '@ag-ui/a2ui-toolkit';
 import { salesCatalogSchema } from '../tools/sales-catalog';
 
-const designGuidelines = `The message describes a surface and contains its data model.
+const designGuidelines = `The message describes one or more surfaces, each with its data model.
+Call generate_a2ui once per surface. Give surfaces that the message
+describes alike, e.g. one tile per continent, the same layout: the same
+components, variants and weights.
 
 Data:
-- The app sets the data model, so never pass data to render_a2ui.
+- The app sets the data model, so never pass data to generate_a2ui.
 - Bind the components to the data model with paths, e.g. "text": {"path":
   "/product/name"}, and never copy its values into the components. Only
   fixed labels like column titles are literal text.
@@ -45,7 +48,7 @@ Store.
 ${buildSubagentPrompt({
   contextPrompt: `## Available Components\n${JSON.stringify(salesCatalogSchema)}`,
   guidelines: {
-    generationGuidelines: RENDER_A2UI_TOOL_GUIDELINES('render_a2ui'),
+    generationGuidelines: RENDER_A2UI_TOOL_GUIDELINES('generate_a2ui'),
     designGuidelines,
   },
 })}`;
