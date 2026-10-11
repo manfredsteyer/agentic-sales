@@ -6,6 +6,7 @@ const a2uiMessageSchema = z.any() as z.ZodType<A2uiMessage>;
 
 export const dashboardItemSchema = z.object({
   surfaceId: z.string(),
+  expression: z.string().optional(),
   messages: z.array(a2uiMessageSchema),
 });
 

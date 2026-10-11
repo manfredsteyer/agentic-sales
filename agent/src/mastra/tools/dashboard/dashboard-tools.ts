@@ -1,9 +1,11 @@
-import { RENDER_A2UI_TOOL } from '@ag-ui/a2ui-middleware';
-import { buildA2UIEnvelope } from '@ag-ui/a2ui-toolkit';
 import { createTool, type ToolExecutionContext } from '@mastra/core/tools';
 import { dashboardSchema, type DashboardItem } from '@shared/dashboard-schema';
 import { z } from 'zod';
-import { validateSurface, type RenderA2uiArgs } from '../validate-surface';
+import {
+  buildSurfaceEnvelope,
+  surfaceInputSchema,
+  type SurfaceArgs,
+} from '../render-a2ui';
 import { readDashboard, writeDashboard, type MemoryIds } from './dashboard-api';
 
 const surfaceIdSchema = z
@@ -18,10 +20,10 @@ export const addDashboardItem = createTool({
     the surfaceId identifies the item.
   `,
   strict: false,
-  inputSchema: RENDER_A2UI_TOOL.parameters,
+  inputSchema: surfaceInputSchema,
   outputSchema: dashboardSchema,
   execute: async (input, context) => {
-    const item = toDashboardItem(input as RenderA2uiArgs);
+    const item = await toDashboardItem(input as SurfaceArgs);
     const memoryIds = getMemoryIds(context);
     const items = await readDashboard(memoryIds);
     if (items.some(({ surfaceId }) => surfaceId === item.surfaceId)) {
@@ -42,10 +44,10 @@ export const updateDashboardItem = createTool({
     render_a2ui: pass the complete new surface.
   `,
   strict: false,
-  inputSchema: RENDER_A2UI_TOOL.parameters,
+  inputSchema: surfaceInputSchema,
   outputSchema: dashboardSchema,
   execute: async (input, context) => {
-    const changed = toDashboardItem(input as RenderA2uiArgs);
+    const changed = await toDashboardItem(input as SurfaceArgs);
     const memoryIds = getMemoryIds(context);
     const items = await readDashboard(memoryIds);
     const updatedItems = items.map((item) =>
@@ -92,10 +94,13 @@ export const removeDashboardItem = createTool({
   },
 });
 
-function toDashboardItem(args: RenderA2uiArgs): DashboardItem {
-  validateSurface(args);
-  const envelope = JSON.parse(buildA2UIEnvelope({ args, isUpdate: false }));
-  return { surfaceId: args.surfaceId, messages: envelope.a2ui_operations };
+async function toDashboardItem(args: SurfaceArgs): Promise<DashboardItem> {
+  const envelope = JSON.parse(await buildSurfaceEnvelope(args));
+  return {
+    surfaceId: args.surfaceId,
+    expression: args.expression,
+    messages: envelope.a2ui_operations,
+  };
 }
 
 function indexOrEnd(surfaceIds: string[], surfaceId: string): number {
