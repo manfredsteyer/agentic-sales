@@ -1,10 +1,10 @@
 import { createTool, type ToolExecutionContext } from '@mastra/core/tools';
 import { z } from 'zod';
 import {
-  generateA2uiSchema,
-  generateSurface,
-  type GenerateA2uiArgs,
-} from '../generate-a2ui';
+  generateSurfaces,
+  renderA2uiSchema,
+  type SurfaceRequest,
+} from '../render-a2ui';
 import { updateDashboard, type MemoryIds } from './dashboard-api';
 import { dashboardSchema, type DashboardItem } from './dashboard-schema';
 
@@ -15,21 +15,22 @@ const surfaceIdSchema = z
 export const addDashboardItem = createTool({
   id: 'add-dashboard-item',
   description: `
-    Adds an A2UI surface to the user's dashboard. Takes the same args as generate_a2ui;
-    the surfaceId identifies the item.
+    Adds A2UI surfaces to the user's dashboard, one item per surface. Takes the same args
+    as render_a2ui; the surfaceId identifies the item.
   `,
-  inputSchema: generateA2uiSchema,
+  inputSchema: renderA2uiSchema,
   outputSchema: dashboardSchema,
-  execute: async (args, context) => {
-    const item = await toDashboardItem(args);
+  execute: async ({ surfaces }, context) => {
+    const added = await toDashboardItems(surfaces);
     const memoryIds = getMemoryIds(context);
     const items = await updateDashboard(memoryIds, (items) => {
-      if (items.some(({ surfaceId }) => surfaceId === item.surfaceId)) {
+      const duplicate = added.find((item) => hasItem(items, item.surfaceId));
+      if (duplicate) {
         throw new Error(
-          `The dashboard already has a surface ${item.surfaceId}. Use another surfaceId.`,
+          `The dashboard already has a surface ${duplicate.surfaceId}. Use another surfaceId.`,
         );
       }
-      return [...items, item];
+      return [...items, ...added];
     });
     return { items };
   },
@@ -38,18 +39,16 @@ export const addDashboardItem = createTool({
 export const updateDashboardItem = createTool({
   id: 'update-dashboard-item',
   description: `
-    Replaces the dashboard item with the same surfaceId. Takes the same args as
-    generate_a2ui: pass the complete new surface.
+    Replaces the dashboard items with the same surfaceIds. Takes the same args as
+    render_a2ui: pass the complete new surfaces.
   `,
-  inputSchema: generateA2uiSchema,
+  inputSchema: renderA2uiSchema,
   outputSchema: dashboardSchema,
-  execute: async (args, context) => {
-    const changed = await toDashboardItem(args);
+  execute: async ({ surfaces }, context) => {
+    const changed = await toDashboardItems(surfaces);
     const memoryIds = getMemoryIds(context);
     const items = await updateDashboard(memoryIds, (items) =>
-      items.map((item) =>
-        item.surfaceId === changed.surfaceId ? changed : item,
-      ),
+      items.map((item) => findItem(changed, item.surfaceId) ?? item),
     );
     return { items };
   },
@@ -91,9 +90,25 @@ export const removeDashboardItem = createTool({
   },
 });
 
-async function toDashboardItem(args: GenerateA2uiArgs): Promise<DashboardItem> {
-  const messages = await generateSurface(args);
-  return { surfaceId: args.surfaceId, messages };
+async function toDashboardItems(
+  surfaces: SurfaceRequest[],
+): Promise<DashboardItem[]> {
+  const generated = await generateSurfaces(surfaces);
+  return surfaces.map(({ surfaceId }, i) => ({
+    surfaceId,
+    messages: generated[i],
+  }));
+}
+
+function findItem(
+  items: DashboardItem[],
+  surfaceId: string,
+): DashboardItem | undefined {
+  return items.find((item) => item.surfaceId === surfaceId);
+}
+
+function hasItem(items: DashboardItem[], surfaceId: string): boolean {
+  return findItem(items, surfaceId) !== undefined;
 }
 
 function indexOrEnd(surfaceIds: string[], surfaceId: string): number {

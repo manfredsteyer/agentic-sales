@@ -99,7 +99,5 @@ export function toAgUiAgent({
     initialState: input.state,
     streamServerToolCalls: true,
   });
-  return agUiAgent.use(
-    new A2UIMiddleware({ a2uiToolNames: ['generate_a2ui'] }),
-  );
+  return agUiAgent.use(new A2UIMiddleware({ a2uiToolNames: ['render_a2ui'] }));
 }

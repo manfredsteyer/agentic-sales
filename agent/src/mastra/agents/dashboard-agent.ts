@@ -7,7 +7,7 @@ import {
   updateDashboardItem,
 } from '../tools/dashboard/dashboard-tools';
 import { evaluateJsonata } from '../tools/evaluate-jsonata';
-import { generate_a2ui } from '../tools/generate-a2ui';
+import { render_a2ui } from '../tools/render-a2ui';
 import { dashboardMemory } from './dashboard-agent.memory';
 import { dashboardAgentPrompt } from './dashboard-agent.prompt';
 
@@ -20,7 +20,7 @@ export const dashboardAgent = new Agent({
   memory: dashboardMemory,
   tools: {
     evaluateJsonata,
-    generate_a2ui,
+    render_a2ui,
     addDashboardItem,
     updateDashboardItem,
     reorderDashboard,
