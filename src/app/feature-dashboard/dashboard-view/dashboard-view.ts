@@ -5,12 +5,11 @@ import { A2uiSurface } from '../../shared/a2ui-surface';
 import { InterruptList } from '../../shared/interrupt-list';
 import { ExamplePrompt } from '../../shared/utils/example-prompt';
 import { DashboardStore } from '../dashboard-store/dashboard-store';
-import { DashboardTile } from '../dashboard-tile';
 import { examplePrompts } from './example-prompts';
 
 @Component({
   selector: 'app-dashboard-view',
-  imports: [CopilotChat, DashboardTile, A2uiSurface, InterruptList],
+  imports: [CopilotChat, A2uiSurface, InterruptList],
   templateUrl: './dashboard-view.html',
   styleUrl: './dashboard-view.css',
 })
