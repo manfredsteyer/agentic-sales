@@ -1,37 +1,41 @@
-import { RENDER_A2UI_TOOL } from '@ag-ui/a2ui-middleware';
-import { buildA2UIEnvelope } from '@ag-ui/a2ui-toolkit';
 import { createTool, type ToolExecutionContext } from '@mastra/core/tools';
-import { dashboardSchema, type DashboardItem } from '@shared/dashboard-schema';
+import {
+  dashboardItemSchema,
+  dashboardSchema,
+  type DashboardItem,
+} from '@shared/dashboard-schema';
 import { z } from 'zod';
-import { validateSurface, type RenderA2uiArgs } from '../validate-surface';
-import { readDashboard, writeDashboard, type MemoryIds } from './dashboard-api';
+import {
+  generateA2uiSchema,
+  generateSurface,
+  type GenerateA2uiArgs,
+} from '../generate-a2ui';
+import { updateDashboard, type MemoryIds } from './dashboard-api';
 
 const surfaceIdSchema = z
   .string()
   .describe('The surfaceId of the dashboard item, see the dashboard list');
 
-// strict: false, as strict mode would turn the free-form A2UI args into {}
 export const addDashboardItem = createTool({
   id: 'add-dashboard-item',
   description: `
-    Adds an A2UI surface to the user's dashboard. Takes the same args as render_a2ui;
+    Adds an A2UI surface to the user's dashboard. Takes the same args as generate_a2ui;
     the surfaceId identifies the item.
   `,
-  strict: false,
-  inputSchema: RENDER_A2UI_TOOL.parameters,
+  inputSchema: generateA2uiSchema,
   outputSchema: dashboardSchema,
-  execute: async (input, context) => {
-    const item = toDashboardItem(input as RenderA2uiArgs);
+  execute: async (args, context) => {
+    const item = await toDashboardItem(args);
     const memoryIds = getMemoryIds(context);
-    const items = await readDashboard(memoryIds);
-    if (items.some(({ surfaceId }) => surfaceId === item.surfaceId)) {
-      throw new Error(
-        `The dashboard already has a surface ${item.surfaceId}. Use another surfaceId.`,
-      );
-    }
-    const updatedItems = [...items, item];
-    await writeDashboard(memoryIds, updatedItems);
-    return { items: updatedItems };
+    const items = await updateDashboard(memoryIds, (items) => {
+      if (items.some(({ surfaceId }) => surfaceId === item.surfaceId)) {
+        throw new Error(
+          `The dashboard already has a surface ${item.surfaceId}. Use another surfaceId.`,
+        );
+      }
+      return [...items, item];
+    });
+    return { items };
   },
 });
 
@@ -39,20 +43,19 @@ export const updateDashboardItem = createTool({
   id: 'update-dashboard-item',
   description: `
     Replaces the dashboard item with the same surfaceId. Takes the same args as
-    render_a2ui: pass the complete new surface.
+    generate_a2ui: pass the complete new surface.
   `,
-  strict: false,
-  inputSchema: RENDER_A2UI_TOOL.parameters,
+  inputSchema: generateA2uiSchema,
   outputSchema: dashboardSchema,
-  execute: async (input, context) => {
-    const changed = toDashboardItem(input as RenderA2uiArgs);
+  execute: async (args, context) => {
+    const changed = await toDashboardItem(args);
     const memoryIds = getMemoryIds(context);
-    const items = await readDashboard(memoryIds);
-    const updatedItems = items.map((item) =>
-      item.surfaceId === changed.surfaceId ? changed : item,
+    const items = await updateDashboard(memoryIds, (items) =>
+      items.map((item) =>
+        item.surfaceId === changed.surfaceId ? changed : item,
+      ),
     );
-    await writeDashboard(memoryIds, updatedItems);
-    return { items: updatedItems };
+    return { items };
   },
 });
 
@@ -67,14 +70,14 @@ export const reorderDashboard = createTool({
   outputSchema: dashboardSchema,
   execute: async ({ surfaceIds }, context) => {
     const memoryIds = getMemoryIds(context);
-    const items = await readDashboard(memoryIds);
-    const updatedItems = [...items].sort(
-      (a, b) =>
-        indexOrEnd(surfaceIds, a.surfaceId) -
-        indexOrEnd(surfaceIds, b.surfaceId),
+    const items = await updateDashboard(memoryIds, (items) =>
+      [...items].sort(
+        (a, b) =>
+          indexOrEnd(surfaceIds, a.surfaceId) -
+          indexOrEnd(surfaceIds, b.surfaceId),
+      ),
     );
-    await writeDashboard(memoryIds, updatedItems);
-    return { items: updatedItems };
+    return { items };
   },
 });
 
@@ -85,17 +88,16 @@ export const removeDashboardItem = createTool({
   outputSchema: dashboardSchema,
   execute: async ({ surfaceId }, context) => {
     const memoryIds = getMemoryIds(context);
-    const items = await readDashboard(memoryIds);
-    const updatedItems = items.filter((item) => item.surfaceId !== surfaceId);
-    await writeDashboard(memoryIds, updatedItems);
-    return { items: updatedItems };
+    const items = await updateDashboard(memoryIds, (items) =>
+      items.filter((item) => item.surfaceId !== surfaceId),
+    );
+    return { items };
   },
 });
 
-function toDashboardItem(args: RenderA2uiArgs): DashboardItem {
-  validateSurface(args);
-  const envelope = JSON.parse(buildA2UIEnvelope({ args, isUpdate: false }));
-  return { surfaceId: args.surfaceId, messages: envelope.a2ui_operations };
+async function toDashboardItem(args: GenerateA2uiArgs): Promise<DashboardItem> {
+  const messages = await generateSurface(args);
+  return dashboardItemSchema.parse({ surfaceId: args.surfaceId, messages });
 }
 
 function indexOrEnd(surfaceIds: string[], surfaceId: string): number {
