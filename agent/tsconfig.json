@@ -8,8 +8,10 @@
     "strict": true,
     "skipLibCheck": true,
     "noEmit": true,
-    "outDir": "dist",
-    "types": ["node"]
+    "types": ["node"],
+    "paths": {
+      "@shared/*": ["../src/app/shared/*"]
+    }
   },
   "include": ["src/**/*"]
 }
