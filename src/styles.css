@@ -420,8 +420,6 @@ copilot-chat-user-message-renderer {
 app-bar-chart,
 app-pie-chart,
 app-pivot-table,
-app-query-result-view,
-app-dashboard-tile,
 app-a2ui-surface,
 copilot-a2ui-activity-renderer copilot-a2ui-surface {
   display: block;
@@ -431,7 +429,6 @@ copilot-a2ui-activity-renderer copilot-a2ui-surface {
 app-bar-chart figure,
 app-pie-chart figure,
 app-pivot-table figure,
-app-dashboard-tile figure,
 app-a2ui-surface figure,
 copilot-a2ui-activity-renderer copilot-a2ui-surface {
   margin: 0;
@@ -454,24 +451,8 @@ copilot-activity
   margin-top: 0.2rem;
 }
 
-app-dashboard-tile app-query-result-view,
-app-dashboard-tile app-bar-chart,
-app-dashboard-tile app-pie-chart,
-app-dashboard-tile app-pivot-table,
-app-dashboard-tile figure,
 app-a2ui-surface figure {
   height: 100%;
-}
-
-app-dashboard-tile figure {
-  display: flex;
-  flex-direction: column;
-}
-
-app-dashboard-tile app-chart {
-  flex: 1;
-  min-height: var(--chart-height, 24rem);
-  contain: size;
 }
 
 copilot-a2ui-text :is(h1, h2, h3, h4, h5) {
@@ -481,8 +462,7 @@ copilot-a2ui-text :is(h1, h2, h3, h4, h5) {
 
 app-bar-chart figcaption,
 app-pie-chart figcaption,
-app-pivot-table figcaption,
-app-dashboard-tile figcaption {
+app-pivot-table figcaption {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -510,21 +490,14 @@ app-chart {
 
 app-bar-chart-widget,
 app-pie-chart-widget,
-app-pivot-table-widget,
-app-dashboard-widget {
+app-pivot-table-widget {
   display: block;
   margin: 1.25rem 0 0.5rem;
 }
 
 app-bar-chart-widget .hint,
 app-pie-chart-widget .hint,
-app-pivot-table-widget .hint,
-app-dashboard-widget .hint {
-  margin: 0;
-}
-
-app-dashboard-tile .hint {
-  min-height: var(--chart-height, 24rem);
+app-pivot-table-widget .hint {
   margin: 0;
 }
 
@@ -609,10 +582,4 @@ app-view-toggle button:hover {
 app-view-toggle button:focus-visible {
   outline: none;
   box-shadow: var(--focus-ring);
-}
-
-.add-to-dashboard {
-  display: flex;
-  width: fit-content;
-  margin: 0.75rem 0 0 auto;
 }
