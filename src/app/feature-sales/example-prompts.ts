@@ -12,4 +12,8 @@ export const examplePrompts: ExamplePrompt[] = [
     prompt:
       'Show me one pie chart per continent. Each chart should show the revenue of the products in the Bags category.',
   },
+  {
+    label: 'Example 4',
+    prompt: 'Show me the stock of the best-selling product.',
+  },
 ];
