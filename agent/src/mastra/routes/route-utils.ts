@@ -1,6 +1,7 @@
 import { A2UIMiddleware } from '@ag-ui/a2ui-middleware';
 import type { RunAgentInput } from '@ag-ui/client';
 import { MastraAgent as AgUiAgent } from '@ag-ui/mastra';
+import { MCPAppsMiddleware } from '@ag-ui/mcp-apps-middleware';
 import type { Agent, AgentExecutionOptionsBase } from '@mastra/core/agent';
 import type { ContextWithMastra } from '@mastra/core/server';
 
@@ -102,5 +103,12 @@ export function toAgUiAgent({
     initialState: input.state,
     streamServerToolCalls: true,
   });
-  return agUiAgent.use(new A2UIMiddleware({ a2uiToolNames: ['render_a2ui'] }));
+  return agUiAgent.use(
+    new A2UIMiddleware({ a2uiToolNames: ['render_a2ui'] }),
+    new MCPAppsMiddleware({
+      mcpServers: [
+        { type: 'http', url: 'http://localhost:3001/mcp', serverId: 'stock' },
+      ],
+    }),
+  );
 }
