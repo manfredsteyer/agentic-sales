@@ -469,6 +469,19 @@ copilot-a2ui-text :is(h1, h2, h3, h4, h5) {
   font-weight: revert;
 }
 
+app-a2ui-bar-chart,
+app-a2ui-pie-chart,
+app-a2ui-pivot-table {
+  display: block;
+  width: 100%;
+}
+
+:is(app-a2ui-bar-chart, app-a2ui-pie-chart, app-a2ui-pivot-table) figure {
+  padding: 0;
+  border: none;
+  box-shadow: none;
+}
+
 app-product-carousel {
   display: block;
   width: 100%;
