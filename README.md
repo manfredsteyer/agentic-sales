@@ -27,10 +27,12 @@ npm install
 npm start
 ```
 
-`npm start` runs three processes side by side:
+`npm start` runs five processes side by side:
 
-| Process            | Port | Command          |
-| ------------------ | ---- | ---------------- |
-| Aggregation server | 3000 | `npm run server` |
-| Mastra agent       | 4111 | `npm run agent`  |
-| Angular dev server | 4200 | `npm run client` |
+| Process                     | Port | Command                     |
+| --------------------------- | ---- | --------------------------- |
+| Aggregation server          | 3000 | `npm run server`            |
+| MCP server (stock, MCP App) | 3001 | `npm run mcp-server`        |
+| MCP App build (Vite, watch) | –    | `npm run mcp-server:widget` |
+| Mastra agent                | 4111 | `npm run agent`             |
+| Angular dev server          | 4200 | `npm run client`            |
