@@ -1,4 +1,5 @@
 import { barChartSchema } from './bar-chart-schema';
+import { mcpAppSchema } from './mcp-app-schema';
 import { pieChartSchema } from './pie-chart-schema';
 import { pivotTableSchema } from './pivot-table-schema';
 import { productCarouselSchema } from './product-carousel-schema';
@@ -12,4 +13,5 @@ export const salesCatalogDefinitions = {
   BarChart: { props: barChartSchema as never },
   PieChart: { props: pieChartSchema as never },
   PivotTable: { props: pivotTableSchema as never },
+  McpApp: { props: mcpAppSchema as never },
 };

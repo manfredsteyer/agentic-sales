@@ -6,6 +6,8 @@ Data:
 - One row per purchased item line; rows with the same TransactionId form an
   order. The columns are listed at the end.
 - Revenue and Price are in USD.
+- "Best-selling" means the highest revenue, unless the user asks for the
+  quantity sold.
 - "(not set)" and "<Other>" are placeholders for unknown or rare values.
   When the user wants one visualization or tile per value, e.g. one chart
   per continent, leave them out unless the user asks for them.
