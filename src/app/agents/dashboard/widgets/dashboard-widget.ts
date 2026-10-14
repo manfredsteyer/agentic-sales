@@ -4,14 +4,14 @@ import {
   type RenderToolCallConfig,
   type ToolRenderer,
 } from '@copilotkit/angular';
+import { DashboardStore } from '../../../feature-dashboard/dashboard-store/dashboard-store';
+import { QueryResultView } from '../../../feature-dashboard/query-result-view';
+import { LoadingIndicator } from '../../../shared/loading-indicator';
 import {
   Query,
   QueryResult,
   queryResultSchema,
-} from '../../../data/query-model';
-import { DashboardStore } from '../../../feature-dashboard/dashboard-store/dashboard-store';
-import { QueryResultView } from '../../../feature-dashboard/query-result-view';
-import { LoadingIndicator } from '../../../shared/loading-indicator';
+} from '../../../shared/query-schema';
 import { RunQueryArgs, runQuerySchema } from './dashboard-widget-schema';
 
 @Component({

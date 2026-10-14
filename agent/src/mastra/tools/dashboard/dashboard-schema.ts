@@ -1,5 +1,5 @@
+import { querySchema } from '@shared/query-schema';
 import { z } from 'zod';
-import { querySchema } from '../query-schema';
 
 export const dashboardItemSchema = z.object({
   id: z.string(),

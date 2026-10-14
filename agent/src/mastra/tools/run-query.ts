@@ -1,10 +1,4 @@
 import { createTool } from '@mastra/core/tools';
-import { z } from 'zod';
-import {
-  evaluateExpression,
-  jsonataDescription,
-  jsonataLimitsDescription,
-} from './evaluate-jsonata';
 import {
   barsSchema,
   cellsSchema,
@@ -13,7 +7,13 @@ import {
   slicesSchema,
   type Query,
   type QueryResult,
-} from './query-schema';
+} from '@shared/query-schema';
+import { z } from 'zod';
+import {
+  evaluateExpression,
+  jsonataDescription,
+  jsonataLimitsDescription,
+} from './evaluate-jsonata';
 import {
   approvalResumeSchema,
   approvalSuspendSchema,
@@ -32,9 +32,10 @@ export const runQuery = createTool({
   outputSchema: queryResultSchema,
   suspendSchema: approvalSuspendSchema,
   resumeSchema: approvalResumeSchema,
-  execute: async ({ spec }, context) => {
+  execute: async (input, context) => {
     try {
-      return await evaluateQuery(spec, context);
+      const result = await evaluateQuery(input.spec, context);
+      return result;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       return { kind: 'message' as const, status: 'failed' as const, message };

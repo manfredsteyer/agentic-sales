@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { querySchema } from '../../../data/query-model';
+import { querySchema } from '../../../shared/query-schema';
 
 export const runQuerySchema = z.object({
   spec: querySchema,

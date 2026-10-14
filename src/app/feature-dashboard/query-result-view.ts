@@ -1,8 +1,8 @@
 import { Component, input } from '@angular/core';
-import { QueryResult } from '../data/query-model';
 import { BarChart } from '../shared/charts/bar-chart';
 import { PieChart } from '../shared/charts/pie-chart';
 import { PivotTable } from '../shared/charts/pivot-table';
+import { QueryResult } from '../shared/query-schema';
 
 @Component({
   selector: 'app-query-result-view',

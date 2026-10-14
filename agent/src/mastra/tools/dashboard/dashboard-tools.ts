@@ -1,6 +1,6 @@
 import { createTool, type ToolExecutionContext } from '@mastra/core/tools';
+import { querySchema } from '@shared/query-schema';
 import { z } from 'zod';
-import { querySchema } from '../query-schema';
 import { evaluateQuery } from '../run-query';
 import { readDashboard, writeDashboard, type MemoryIds } from './dashboard-api';
 import { dashboardSchema } from './dashboard-schema';

@@ -1,4 +1,4 @@
-import { Query } from '../../data/query-model';
+import { Query } from '../../shared/query-schema';
 
 export interface DashboardItem {
   id: string;

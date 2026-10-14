@@ -1,8 +1,8 @@
 import { httpResource, HttpResourceRef } from '@angular/common/http';
 import { computed, Service, Signal } from '@angular/core';
 import { RUN_QUERY_URL } from '../agents/dashboard/dashboard-agent';
+import { Query, QueryResult } from '../shared/query-schema';
 import { deepEqual } from '../shared/utils/deep-equal';
-import { Query, QueryResult } from './query-model';
 
 @Service()
 export class QueryClient {

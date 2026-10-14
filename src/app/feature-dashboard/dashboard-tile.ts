@@ -1,6 +1,6 @@
 import { Component, inject, input } from '@angular/core';
 import { QueryClient } from '../data/query-client';
-import { Query } from '../data/query-model';
+import { Query } from '../shared/query-schema';
 import { QueryResultView } from './query-result-view';
 
 @Component({
