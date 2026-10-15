@@ -1,7 +1,4 @@
-<copilot-chat
-  [agentId]="agentId"
-  [messageViewChildrenTemplate]="interruptTemplate"
-/>
+<!-- TODO #5: Add copilot chat widget -->
 
 <div class="examples" role="group" aria-label="Example requests">
   @for (example of examples; track example.label) {
@@ -16,6 +13,7 @@
   }
 </div>
 
+<!-- messageViewChildrenTemplate -->
 <ng-template #interruptTemplate>
   <app-interrupt-list [agentId]="agentId" />
 </ng-template>

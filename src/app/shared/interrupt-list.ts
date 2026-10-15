@@ -1,6 +1,5 @@
 import { type Interrupt } from '@ag-ui/core';
 import { Component, computed, input, signal } from '@angular/core';
-import { injectInterrupt } from '@copilotkit/angular';
 
 interface ApprovalOption {
   label: string;
@@ -53,17 +52,18 @@ interface ApprovalRequest {
 export class InterruptList {
   readonly agentId = input.required<string>();
 
-  private readonly controller = injectInterrupt(this.agentId);
+  // TODO #6: Inject interrupt controller
   private readonly answered = signal(new Set<string>());
 
-  protected readonly interrupts = computed(() =>
-    findOpen(this.controller.interrupts(), this.answered()),
-  );
+  // TODO #6: Calculate open interrupts
+  protected readonly interrupts = computed(() => [] as any[]);
 
   protected resolve(interruptId: string, payload: unknown): void {
     this.answered.update((ids) => new Set(ids).add(interruptId));
-    void this.controller.resolve(payload, interruptId);
+    // TODO #6: Resolve interrupt
   }
+
+  // TODO #6: Register template with InterruptList in sales-chat.html
 }
 
 function findOpen(
