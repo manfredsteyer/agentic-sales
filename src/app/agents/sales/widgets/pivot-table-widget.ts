@@ -13,11 +13,10 @@ import { PivotTableArgs, pivotTableSchema } from './pivot-table-schema';
   imports: [PivotTable, LoadingIndicator],
   template: `
     @let call = toolCall();
-    @let status = call.status;
     <div class="not-prose">
       @if (hasValidArgs() && call.status !== 'in-progress') {
         <app-pivot-table [data]="call.args" />
-      } @else if (status === 'complete') {
+      } @else if (call.status === 'complete') {
         <p class="hint">
           Can't show this table: the agent passed incomplete data.
         </p>

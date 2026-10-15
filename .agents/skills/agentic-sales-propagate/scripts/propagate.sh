@@ -7,6 +7,7 @@ CHAIN=(
   "a2ui-subagent:a2ui-custom"
   "mcp-apps:a2ui-custom"
   "bonus:mcp-apps"
+  "ag-ui-starter:main"
 )
 TSCONFIGS=(agent/tsconfig.json tsconfig.app.json server/tsconfig.json mcp-server/tsconfig.json)
 

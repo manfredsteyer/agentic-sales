@@ -2,13 +2,14 @@
 name: agentic-sales-propagate
 description: >-
   Propagate a change through the stacked branches of the agentic-sales repo
-  (main → a2ui → a2ui-custom → a2ui-subagent / mcp-apps → bonus) by rebasing each
-  branch onto its parent in a separate worktree, resolving conflicts, typechecking
-  every branch and verifying the result against backup refs. Use this whenever the
-  user changed main (or any branch in the chain) and wants the branches on top
-  updated, asks to rebase a2ui, a2ui-custom, a2ui-subagent, mcp-apps or bonus, or says
-  "die anderen Branches rebasen", "Branches nachziehen", "auf main rebasen", "Kette
-  rebasen", "main hat sich geändert" — even when only one branch is named.
+  (main → a2ui → a2ui-custom → a2ui-subagent / mcp-apps → bonus, plus the lab
+  starter main → ag-ui-starter) by rebasing each branch onto its parent in a separate
+  worktree, resolving conflicts, typechecking every branch and verifying the result
+  against backup refs. Use this whenever the user changed main (or any branch in the
+  chain) and wants the branches on top updated, asks to rebase a2ui, a2ui-custom,
+  a2ui-subagent, mcp-apps, bonus or ag-ui-starter, or says "die anderen Branches
+  rebasen", "Branches nachziehen", "auf main rebasen", "Kette rebasen", "Starter
+  nachziehen", "main hat sich geändert" — even when only one branch is named.
 ---
 
 # agentic-sales branch propagation
@@ -23,9 +24,18 @@ description: >-
 | `a2ui-subagent` | `a2ui-custom` | Designer subagent: `a2ui-designer.ts` + prompt, `generate-a2ui.ts`, `render_a2ui` delegates; `updateDashboard` in `dashboard-api.ts`                                  |
 | `mcp-apps`      | `a2ui-custom` | MCP apps: `mcp-server/` (sources only, `dist` is ignored), A2UI MCP app bridge, `mcp-apps.config.ts`                                                                   |
 | `bonus`         | `mcp-apps`    | Tiles stay up to date: add-to-dashboard button, surface/MCP-app widgets, `a2ui-data-model.ts`, `dashboard-tile/`                                                      |
+| `ag-ui-starter` | `main`        | Lab starter, one commit "feat: prepare starter": solution code in `bar-chart-schema.ts` and `bar-chart-widget.ts` replaced by `// TODO #n` stubs, Peacock colors in `.vscode/settings.json` |
 
 `a2ui-subagent` and `mcp-apps` are siblings, so `bonus` does not contain the designer
 subagent. Never bring subagent code into `mcp-apps` or `bonus` while resolving.
+
+`ag-ui-starter` is a sibling of `a2ui`; `main` is its solution. Its `// TODO #n`
+comments are deliberate (the exception to the no-comments rule in `AGENTS.md`), and so
+are the leftovers the stubs cause (unused imports, unused helpers, a placeholder like
+`computed(() => true)`). Keep the stubs. If upstream changes code the starter stubs
+out, keep the stub and update the TODO text so it still describes the solution on
+`main`; if it changes code next to a stub (e.g. the widget template), take the upstream
+version.
 
 The commit "refactor: simplify a2ui solution by not using ag-ui based components" on
 `a2ui` deliberately deletes the query path: `run-query.ts`, `shared/query-schema.ts`,

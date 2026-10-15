@@ -13,11 +13,10 @@ import { PieChartArgs, pieChartSchema } from './pie-chart-schema';
   imports: [PieChart, LoadingIndicator],
   template: `
     @let call = toolCall();
-    @let status = call.status;
     <div class="not-prose">
       @if (hasValidArgs() && call.status !== 'in-progress') {
         <app-pie-chart [data]="call.args" />
-      } @else if (status === 'complete') {
+      } @else if (call.status === 'complete') {
         <p class="hint">
           Can't show this chart: the agent passed incomplete data.
         </p>
