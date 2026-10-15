@@ -1,7 +1,4 @@
-import { registerRenderToolCall } from '@copilotkit/angular';
-import { initialDashboard } from '@shared/dashboard-schema';
 import { registerAgent } from '../../shared/utils/register-agent';
-import { dashboardWidget } from './widgets/dashboard-widget';
 
 export const DASHBOARD_AGENT_ID = 'dashboardAgent';
 
@@ -11,11 +8,8 @@ export function initDashboardAgent(): void {
   registerAgent({
     agentId: DASHBOARD_AGENT_ID,
     url: `http://localhost:4111/ag-ui/${DASHBOARD_AGENT_ID}`,
-    initialState: initialDashboard,
+    // TODO #10: assign initialDashboard
   });
 
-  registerRenderToolCall({
-    ...dashboardWidget,
-    agentId: DASHBOARD_AGENT_ID,
-  });
+  // TODO #8: register toolCall renderer dashboardWidget
 }
