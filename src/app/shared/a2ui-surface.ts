@@ -10,11 +10,8 @@ import { salesCatalog } from './a2ui/sales-catalog';
   imports: [CopilotA2UISurface],
   template: `
     <figure>
-      <copilot-a2ui-surface
-        [operations]="operations()"
-        [catalog]="catalog"
-        (action)="handleAction($event)"
-      />
+      <!-- TODO #3: Call copilot-a2ui-surface -->
+      <!--    and pass operations, catalog, action -->
     </figure>
   `,
 })
@@ -26,13 +23,8 @@ export class A2uiSurface {
   private readonly router = inject(Router);
 
   protected handleAction(message: A2UIClientEventMessage): void {
-    const { name, context } = message.userAction;
-    if (name === 'explore') {
-      void this.router.navigate([
-        '/explorer',
-        { filter: toExplorerFilter(context) },
-      ]);
-    }
+    // TODO #3: Check for explore event
+    //    and navigate to /explorer;filter=...
   }
 }
 

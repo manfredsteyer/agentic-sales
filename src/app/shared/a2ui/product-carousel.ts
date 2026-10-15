@@ -1,5 +1,11 @@
 import { CurrencyPipe } from '@angular/common';
-import { Component, computed, input, linkedSignal } from '@angular/core';
+import {
+  Component,
+  computed,
+  input,
+  linkedSignal,
+  signal,
+} from '@angular/core';
 import { Product } from '@shared/a2ui/product-carousel-schema';
 
 @Component({
@@ -32,7 +38,8 @@ import { Product } from '@shared/a2ui/product-carousel-schema';
   `,
 })
 export class ProductCarousel {
-  readonly products = input<Product[]>();
+  // TODO #4: Make products an input
+  readonly products = signal<Product[]>([]);
 
   protected readonly index = linkedSignal({
     source: this.products,
