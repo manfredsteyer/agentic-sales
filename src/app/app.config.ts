@@ -8,7 +8,6 @@ import { provideCopilotKit } from '@copilotkit/angular';
 import { initDashboardAgent } from './agents/dashboard/dashboard-agent';
 import { initSalesAgent } from './agents/sales/sales-agent';
 import { routes } from './app.routes';
-import { salesCatalog } from './shared/a2ui/sales-catalog';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -18,7 +17,7 @@ export const appConfig: ApplicationConfig = {
     provideCopilotKit({
       defaultToolRendering: true,
       enableInspector: false,
-      a2ui: { catalog: salesCatalog, includeSchema: false },
+      // TODO #1: activate a2ui with basic catalog
     }),
     provideAppInitializer(initSalesAgent),
     provideAppInitializer(initDashboardAgent),
