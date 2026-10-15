@@ -12,7 +12,7 @@ export const appConfig: ApplicationConfig = {
 
     // TODO #4: provideCopilotKit
 
-    // TODO: #4: provide initSalesAgent
+    // TODO #4: provide initSalesAgent
 
     // TODO #8: provide initDashboardAgent
   ],
