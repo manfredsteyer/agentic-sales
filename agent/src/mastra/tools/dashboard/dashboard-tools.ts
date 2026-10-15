@@ -1,9 +1,9 @@
 import { createTool, type ToolExecutionContext } from '@mastra/core/tools';
+import { dashboardSchema } from '@shared/dashboard-schema';
 import { querySchema } from '@shared/query-schema';
 import { z } from 'zod';
 import { evaluateQuery } from '../run-query';
 import { readDashboard, writeDashboard, type MemoryIds } from './dashboard-api';
-import { dashboardSchema } from './dashboard-schema';
 
 const idSchema = z
   .string()

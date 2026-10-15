@@ -17,9 +17,9 @@ description: >-
 
 | Branch          | Parent        | What it adds                                                                                                                                                        |
 | --------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `main`          | —             | Base app: sales and dashboard agents (Mastra), query path (`runQuery`, `src/app/shared/query-schema.ts` shared with the agent via `@shared`), tiles as `{ id, spec }` |
+| `main`          | —             | Base app: sales and dashboard agents (Mastra), query path (`runQuery`); code shared by Angular and the agent lives in the top-level `shared/` (`@shared/*`), tiles as `{ id, spec }` in `shared/dashboard-schema.ts` |
 | `a2ui`          | `main`        | A2UI-only variant: `render_a2ui`, `validate-surface.ts`, A2UI surfaces in chat and dashboard, tiles as `{ surfaceId, messages }`                                     |
-| `a2ui-custom`   | `a2ui`        | Custom catalog: product carousel, bar/pie chart and pivot table as A2UI components in `src/app/shared/a2ui/`, agent-side `sales-catalog.ts`                            |
+| `a2ui-custom`   | `a2ui`        | Custom catalog: product carousel, bar/pie chart and pivot table as A2UI components in `src/app/shared/a2ui/`, their schemas and catalog definitions in `shared/a2ui/`, agent-side `sales-catalog.ts`                            |
 | `a2ui-subagent` | `a2ui-custom` | Designer subagent: `a2ui-designer.ts` + prompt, `generate-a2ui.ts`, `render_a2ui` delegates; `updateDashboard` in `dashboard-api.ts`                                  |
 | `mcp-apps`      | `a2ui-custom` | MCP apps: `mcp-server/` (sources only, `dist` is ignored), A2UI MCP app bridge, `mcp-apps.config.ts`                                                                   |
 | `bonus`         | `mcp-apps`    | Tiles stay up to date: add-to-dashboard button, surface/MCP-app widgets, `a2ui-data-model.ts`, `dashboard-tile/`                                                      |
@@ -28,7 +28,7 @@ description: >-
 subagent. Never bring subagent code into `mcp-apps` or `bonus` while resolving.
 
 The commit "refactor: simplify a2ui solution by not using ag-ui based components" on
-`a2ui` deliberately deletes the query path: `run-query.ts`, `src/app/shared/query-schema.ts`,
+`a2ui` deliberately deletes the query path: `run-query.ts`, `shared/query-schema.ts`,
 `query-client.ts`, `dashboard-widget.ts`, `dashboard-widget-schema.ts`,
 `dashboard-tile.ts`, `query-result-view.ts`, `a2ui-model.ts`, `deep-equal.ts` and
 `public/icons/plus.svg` (`bonus` re-adds `plus.svg`). These deletions must survive.
@@ -97,7 +97,7 @@ the code it touches still exists on the branch.
 - Additive files (`app.config.ts`, `styles.css`, `example-prompts.ts`,
   `route-utils.ts`, `dashboard-agent.ts` tool registrations): keep both sides'
   additions.
-- Usual hotspots: `dashboard-tools.ts`, `dashboard-schema.ts`, `dashboard-model.ts`
+- Usual hotspots: `dashboard-tools.ts`, `shared/dashboard-schema.ts`
   (main uses `{ id, spec }`, the a2ui chain `{ surfaceId, messages }`; take the branch's
   version and re-apply only the upstream edits that still make sense),
   `dashboard-agent.prompt.ts` (touched by every branch), `render-a2ui.ts`,

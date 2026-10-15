@@ -1,5 +1,5 @@
+import { dashboardSchema, type DashboardItem } from '@shared/dashboard-schema';
 import { dashboardMemory } from '../../agents/dashboard-agent.memory';
-import { dashboardSchema, type DashboardItem } from './dashboard-schema';
 
 export interface MemoryIds {
   threadId: string;

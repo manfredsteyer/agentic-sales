@@ -1,11 +1,11 @@
 import { computed, Service, signal } from '@angular/core';
 import { injectAgentStore } from '@copilotkit/angular';
-import { DASHBOARD_AGENT_ID } from '../../agents/dashboard/dashboard-agent';
 import {
+  Dashboard,
   DashboardItem,
-  DashboardState,
-  initialDashboardState,
-} from './dashboard-model';
+  initialDashboard,
+} from '@shared/dashboard-schema';
+import { DASHBOARD_AGENT_ID } from '../../agents/dashboard/dashboard-agent';
 
 const STORAGE_KEY = 'dashboard';
 
@@ -13,18 +13,18 @@ const STORAGE_KEY = 'dashboard';
 export class DashboardStore {
   private readonly agentStore = injectAgentStore(DASHBOARD_AGENT_ID);
 
-  readonly state = computed(() => this.agentStore().state() as DashboardState);
+  readonly state = computed(() => this.agentStore().state() as Dashboard);
   readonly items = computed(() => this.state().items);
   readonly hasSavedState = signal(localStorage.getItem(STORAGE_KEY) !== null);
 
   addItem(item: DashboardItem): void {
     const agent = this.agentStore().agent;
-    const state: DashboardState = agent.state;
+    const state: Dashboard = agent.state;
     agent.setState({ items: [...state.items, item] });
   }
 
   clear(): void {
-    this.agentStore().agent.setState(initialDashboardState);
+    this.agentStore().agent.setState(initialDashboard);
   }
 
   save(): void {
@@ -35,7 +35,7 @@ export class DashboardStore {
   load(): void {
     const json = localStorage.getItem(STORAGE_KEY);
     if (json) {
-      const state: DashboardState = JSON.parse(json);
+      const state: Dashboard = JSON.parse(json);
       this.agentStore().agent.setState(state);
     }
   }

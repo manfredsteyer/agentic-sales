@@ -1,5 +1,5 @@
-import { querySchema } from '@shared/query-schema';
 import { z } from 'zod';
+import { querySchema } from './query-schema';
 
 export const dashboardItemSchema = z.object({
   id: z.string(),
@@ -12,3 +12,5 @@ export const dashboardSchema = z.object({
 
 export type Dashboard = z.infer<typeof dashboardSchema>;
 export type DashboardItem = z.infer<typeof dashboardItemSchema>;
+
+export const initialDashboard: Dashboard = { items: [] };

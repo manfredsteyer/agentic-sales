@@ -1,5 +1,5 @@
 import { Memory } from '@mastra/memory';
-import { dashboardSchema } from '../tools/dashboard/dashboard-schema';
+import { dashboardSchema } from '@shared/dashboard-schema';
 
 export const dashboardMemory = new Memory({
   options: {

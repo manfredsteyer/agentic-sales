@@ -1,7 +1,7 @@
 import { ApplicationInitStatus } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { DashboardItem } from '@shared/dashboard-schema';
 import { appConfig } from '../../app.config';
-import { DashboardItem } from './dashboard-model';
 import { DashboardStore } from './dashboard-store';
 
 const barChart: DashboardItem = {

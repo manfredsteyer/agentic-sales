@@ -10,7 +10,7 @@
     "noEmit": true,
     "types": ["node"],
     "paths": {
-      "@shared/*": ["../src/app/shared/*"]
+      "@shared/*": ["../shared/*"]
     }
   },
   "include": ["src/**/*"]
