@@ -63,17 +63,15 @@ export class InterruptList {
   private readonly answered = signal(new Set<string>());
   protected readonly resuming = signal(false);
 
-  protected readonly interrupts = computed(() =>
-    findOpen(this.controller().interrupts(), this.answered()),
-  );
+  // TODO #6: Calculate open interrupts
+  protected readonly interrupts = computed(() => [] as any[]);
 
   protected resolve(interruptId: string, payload: unknown): void {
     this.answered.update((ids) => new Set(ids).add(interruptId));
-    this.resuming.set(true);
-    void this.controller()
-      .resolve(payload, interruptId)
-      .finally(() => this.resuming.set(false));
+    // TODO #6: Resolve interrupt
   }
+
+  // TODO #6: Register template with InterruptList in sales-chat.html
 }
 
 function findOpen(
