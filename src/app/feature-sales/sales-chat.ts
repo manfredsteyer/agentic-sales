@@ -1,5 +1,5 @@
 import { Component, viewChild } from '@angular/core';
-import { CopilotChat, injectInterrupt } from '@copilotkit/angular';
+import { CopilotChat } from '@copilotkit/angular';
 import { SALES_AGENT_ID } from '../agents/sales/sales-agent';
 import { InterruptList } from '../shared/interrupt-list';
 import { ExamplePrompt } from '../shared/utils/example-prompt';
@@ -13,7 +13,7 @@ import { examplePrompts } from './example-prompts';
 })
 export class SalesChat {
   protected readonly agentId = SALES_AGENT_ID;
-  protected readonly interruptController = injectInterrupt(this.agentId);
+  // TODO #6: Inject interrupt controller
   protected readonly examples = examplePrompts;
 
   private readonly chat = viewChild.required(CopilotChat);
