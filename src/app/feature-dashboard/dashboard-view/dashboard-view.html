@@ -37,19 +37,7 @@
     </div>
   </header>
   <div class="tiles">
-    @for (item of store.items(); track item.surfaceId) {
-      <app-a2ui-surface [operations]="item.messages" />
-    } @empty {
-      <div class="empty card">
-        <span class="empty-icon" aria-hidden="true">
-          <img src="icons/grid-plus.svg" width="22" height="22" alt="" />
-        </span>
-        <p class="empty-title">No tiles yet</p>
-        <p class="hint">
-          Ask the assistant to add a chart or a table to the dashboard.
-        </p>
-      </div>
-    }
+    <!-- TODO #2: iterate items and delegate to app-a2ui-surface -->
   </div>
 </section>
 @if (chatVisible()) {

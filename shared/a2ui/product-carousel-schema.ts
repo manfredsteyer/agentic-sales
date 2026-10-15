@@ -11,10 +11,12 @@ const productsBindingSchema = z.object({
 });
 
 export const productCarouselSchema = z.object({
-  products: z.union([z.array(productSchema), productsBindingSchema]).describe(`
-    Products the carousel shows one after another with their image, name and revenue,
-    together with the total revenue of all of them
-  `),
+  // TODO #5: Define prop products as union of:
+  //    - array of productSchema
+  //    - productsBindingSchema
+  // TODO #5: Use the description
+  //  Products the carousel shows one after another with their image, name and revenue,
+  //  together with the total revenue of all of them
 });
 
 export type Product = z.infer<typeof productSchema>;
