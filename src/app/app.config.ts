@@ -4,9 +4,7 @@ import {
   provideBrowserGlobalErrorListeners,
 } from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
-import { provideCopilotKit } from '@copilotkit/angular';
 import { initDashboardAgent } from './agents/dashboard/dashboard-agent';
-import { initSalesAgent } from './agents/sales/sales-agent';
 import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
@@ -14,11 +12,10 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes, withComponentInputBinding()),
 
-    provideCopilotKit({
-      defaultToolRendering: true,
-      enableInspector: false,
-    }),
-    provideAppInitializer(initSalesAgent),
+    // TODO #4: provideCopilotKit
+
+    // TODO: #4: provide initSalesAgent
+
     provideAppInitializer(initDashboardAgent),
   ],
 };
