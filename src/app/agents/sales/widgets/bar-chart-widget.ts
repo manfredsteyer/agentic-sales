@@ -1,4 +1,4 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, signal } from '@angular/core';
 import {
   type AngularToolCall,
   type RegisterComponentConfig,
@@ -26,12 +26,12 @@ import { BarChartArgs, barChartSchema } from './bar-chart-schema';
     </div>
   `,
 })
-export class BarChartWidget implements ToolRenderer<BarChartArgs> {
-  readonly toolCall = input.required<AngularToolCall<BarChartArgs>>();
+export class BarChartWidget {
+  // TODO #2: Implement ToolRenderer<BarChartArgs>
+  // TODO #2: Add required input for toolCall, AngularToolCall<BarChartArgs>
 
-  protected readonly hasValidArgs = computed(() =>
-    isValid(this.toolCall().args),
-  );
+  // TODO #2: Check for valid args
+  protected readonly hasValidArgs = computed(() => true);
 }
 
 export const barChartWidget: RegisterComponentConfig<BarChartArgs> = {

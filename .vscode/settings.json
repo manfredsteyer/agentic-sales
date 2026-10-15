@@ -22,5 +22,35 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "prettier.requireConfig": true,
-  "eslint.validate": ["typescript", "html"]
+  "eslint.validate": ["typescript", "html"],
+  "workbench.colorCustomizations": {
+    "activityBar.activeBackground": "#658bc8",
+    "activityBar.activeBorder": "#15202b",
+    "activityBar.background": "#658bc8",
+    "activityBar.foreground": "#15202b",
+    "activityBar.inactiveForeground": "#15202b99",
+    "activityBarBadge.background": "#8d3255",
+    "activityBarBadge.foreground": "#e7e7e7",
+    "activityBarTop.activeBackground": "#658bc8",
+    "activityBarTop.activeBorder": "#15202b",
+    "activityBarTop.background": "#658bc8",
+    "activityBarTop.foreground": "#15202b",
+    "activityBarTop.inactiveForeground": "#15202b99",
+    "commandCenter.border": "#e7e7e799",
+    "commandCenter.foreground": "#e7e7e7",
+    "sash.hoverBorder": "#658bc8",
+    "statusBar.background": "#426fb8",
+    "statusBar.debuggingBackground": "#426fb8",
+    "statusBar.debuggingForeground": "#e7e7e7",
+    "statusBar.foreground": "#e7e7e7",
+    "statusBar.inactiveBackground": "#426fb8",
+    "statusBarItem.hoverBackground": "#658bc8",
+    "statusBarItem.remoteBackground": "#dda1b8",
+    "statusBarItem.remoteForeground": "#e7e7e7",
+    "titleBar.activeBackground": "#426fb8",
+    "titleBar.activeForeground": "#e7e7e7",
+    "titleBar.inactiveBackground": "#426fb899",
+    "titleBar.inactiveForeground": "#e7e7e799"
+  },
+  "peacock.color": "#426fb8"
 }
