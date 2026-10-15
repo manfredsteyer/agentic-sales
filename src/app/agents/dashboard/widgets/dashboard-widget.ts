@@ -40,8 +40,11 @@ import { RunQueryArgs, runQuerySchema } from './dashboard-widget-schema';
     </div>
   `,
 })
-export class DashboardWidget implements ToolRenderer<RunQueryArgs> {
-  readonly toolCall = input.required<AngularToolCall<RunQueryArgs>>();
+export class DashboardWidget {
+  // TODO #7 implement ToolRenderer<RunQueryArgs>
+
+  // TODO #7: Type with AngularToolCall<RunQueryArgs>
+  readonly toolCall = input.required<any>();
 
   private readonly dashboardStore = inject(DashboardStore);
 
@@ -56,12 +59,6 @@ export class DashboardWidget implements ToolRenderer<RunQueryArgs> {
   }
 }
 
-export const dashboardWidget: RenderToolCallConfig<RunQueryArgs> = {
-  name: 'runQuery',
-  args: runQuerySchema,
-  component: DashboardWidget,
-};
-
 function toQuery(args: Partial<RunQueryArgs>): Query | undefined {
   const result = runQuerySchema.safeParse(args);
   return result.data?.spec;
@@ -74,3 +71,9 @@ function parseResult(json: string | undefined): QueryResult | undefined {
   const result = queryResultSchema.safeParse(JSON.parse(json));
   return result.data;
 }
+
+// TODO #7: Provide RenderToolCallConfig<RunQueryArgs>
+//    toolName: runQuery
+//    component: DashboardWidget
+//    schema: runQuerySchema
+export const dashboardWidget = {};

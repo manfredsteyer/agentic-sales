@@ -5,30 +5,6 @@
       <p>Charts and tables you pinned from the assistant.</p>
     </div>
     <div class="actions">
-      <button
-        type="button"
-        class="btn"
-        [disabled]="!store.hasSavedState()"
-        (click)="store.load()"
-      >
-        Load
-      </button>
-      <button
-        type="button"
-        class="btn"
-        [disabled]="store.items().length === 0"
-        (click)="store.save()"
-      >
-        Save
-      </button>
-      <button
-        type="button"
-        class="btn btn-danger"
-        [disabled]="store.items().length === 0"
-        (click)="store.clear()"
-      >
-        Clear
-      </button>
       @if (!chatVisible()) {
         <button type="button" class="btn btn-primary" (click)="toggleChat()">
           Show chat
@@ -37,19 +13,7 @@
     </div>
   </header>
   <div class="tiles">
-    @for (item of store.items(); track item.id) {
-      <app-dashboard-tile [spec]="item.spec" />
-    } @empty {
-      <div class="empty card">
-        <span class="empty-icon" aria-hidden="true">
-          <img src="icons/grid-plus.svg" width="22" height="22" alt="" />
-        </span>
-        <p class="empty-title">No tiles yet</p>
-        <p class="hint">
-          Ask the assistant for a chart or table and click “Add to dashboard”.
-        </p>
-      </div>
-    }
+    <!-- TODO #11: iterate (dashboard) items and call app-dashboard-tile -->
   </div>
 </section>
 @if (chatVisible()) {
@@ -60,10 +24,9 @@
         Hide
       </button>
     </div>
-    <copilot-chat
-      [agentId]="agentId"
-      [messageViewChildrenTemplate]="interruptTemplate"
-    />
+
+    <!-- TODO #9: Call copilot-chat and assign messageViewChildrenTemplate -->
+
     <div class="examples" role="group" aria-label="Example requests">
       @for (example of examples; track example.label) {
         <button
