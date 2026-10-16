@@ -1,6 +1,9 @@
 import { type Interrupt } from '@ag-ui/core';
 import { Component, computed, input, signal } from '@angular/core';
-import { type InterruptController } from '@copilotkit/angular';
+import {
+  CopilotChatMessageViewCursor,
+  type InterruptController,
+} from '@copilotkit/angular';
 
 interface ApprovalOption {
   label: string;
@@ -21,6 +24,7 @@ interface ApprovalRequest {
 
 @Component({
   selector: 'app-interrupt-list',
+  imports: [CopilotChatMessageViewCursor],
   template: `
     @for (interrupt of interrupts(); track interrupt.id) {
       <div
@@ -48,12 +52,16 @@ interface ApprovalRequest {
         </div>
       </div>
     }
+    @if (resuming()) {
+      <copilot-chat-message-view-cursor />
+    }
   `,
 })
 export class InterruptList {
   readonly controller = input.required<InterruptController>();
 
   private readonly answered = signal(new Set<string>());
+  protected readonly resuming = signal(false);
 
   protected readonly interrupts = computed(() =>
     findOpen(this.controller().interrupts(), this.answered()),
@@ -61,7 +69,10 @@ export class InterruptList {
 
   protected resolve(interruptId: string, payload: unknown): void {
     this.answered.update((ids) => new Set(ids).add(interruptId));
-    void this.controller().resolve(payload, interruptId);
+    this.resuming.set(true);
+    void this.controller()
+      .resolve(payload, interruptId)
+      .finally(() => this.resuming.set(false));
   }
 }
 

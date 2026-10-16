@@ -7,7 +7,10 @@ import { agUiRouteHandler } from './routes/ag-ui-route';
 
 export const mastra = new Mastra({
   agents: { salesAgent, dashboardAgent },
-  storage: new LibSQLStore({ id: 'mastra-storage', url: ':memory:' }),
+  storage: new LibSQLStore({
+    id: 'mastra-storage',
+    url: new URL('../../mastra.db', import.meta.url).href,
+  }),
   server: {
     cors: {
       origin: ['http://localhost:4200', 'http://localhost:4111'],

@@ -20,6 +20,8 @@ Querying:
 - "count" counts item lines. To count orders, count distinct TransactionIds
   with JSONata. Count a total over all rows, not by adding up the
   counts per Month: some orders appear in two months.
+- When an answer needs JSONata, e.g. for an "Other" series, let the
+  expression load the data: don't query them with another tool first.
 - If the user declines a large query, suggest a narrower one, e.g. with a
   filter or grouped by Month instead of Date.`;
 
@@ -37,6 +39,9 @@ export const salesAnsweringPrompt = `Answering:
   pivotTable if the user wants all of them. Otherwise keep the 7 largest
   series, fold the rest into a series named "Other" with JSONata and say how
   many values it contains.
+- Leave out the value "(not set)" of Continent, Country, ItemCategory and
+  ItemName unless the user asks for it, and don't mention it. In JSONata,
+  filter it out before ranking, e.g. $rows[Continent != "(not set)"].
 - If the visualization differs from the request, e.g. grouped by Week
   instead of Date or limited to the largest series, say so in one sentence.`;
 

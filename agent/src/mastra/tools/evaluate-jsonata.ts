@@ -29,7 +29,8 @@ export const jsonataDescription = `
         \`{ "Country": "Germany", "value": 123.4 }\`
       \`$details({ "columns", "filter", "sort", "limit", "offset" })\` returns
         \`{ "rows", "totalCount" }\`, limit up to 1000
-    Here, \`filter\` is a plain object, e.g. \`{ "Country": "Germany" }\`.
+    Here, \`filter\` is a plain object, e.g. \`{ "Country": "Germany" }\`, not a list like
+    \`[{ "column": "Country", "value": "Germany" }]\`.
 
     The value of the expression is the result. Bind intermediate results with \`:=\` in a
     block \`( ...; ...; ... )\`. JSONata unwraps arrays with a single item: append \`[]\`
@@ -40,11 +41,22 @@ export const jsonataDescription = `
       \`$sort\` comparator returns a boolean: true if the two items need to be swapped.
       Select by position with a range in double brackets, e.g. \`$rows[[0..6]]\`.
       Functions like \`$sum\` return nothing, not 0, for an empty selection.
+      \`and\` and \`or\` return booleans: \`$v or 0\` is no fallback, write \`$exists($v) ? $v : 0\`.
+      Inside a filter \`[...]\`, \`$\` is the filtered item: bind an outer value to a variable,
+        e.g. \`$map($cats, function($c) { $sum($rows[ItemCategory = $c].value) })\`.
 
     The 7 largest items plus "Other" for the rest:
       ( $slices := $rows.{ "label": ItemName, "value": value }^(>value);
         $rest := $slices[[7..$count($slices)]];
         $append($slices[[0..6]], $rest ? { "label": "Other", "value": $sum($rest.value) } : []) )
+
+    The 7 largest series plus "Other" per label, as bars of a bar chart:
+      ( $rows := $aggregate({ "fact": "Revenue", "aggregateFn": "sum", "dimensions": ["Continent", "ItemCategory"] });
+        $totals := $each($rows{ ItemCategory: $sum(value) }, function($v, $k) { { "series": $k, "value": $v } })^(>value);
+        $top := $totals[[0..6]].series;
+        $other := $rows[$not(ItemCategory in $top)]{ Continent: $sum(value) };
+        $append($rows[ItemCategory in $top].{ "label": Continent, "series": ItemCategory, "value": value },
+          $each($other, function($v, $k) { { "label": $k, "series": "Other", "value": $v } })) )
 `;
 
 export const jsonataLimitsDescription = `
