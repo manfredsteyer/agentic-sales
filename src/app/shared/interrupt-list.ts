@@ -1,6 +1,6 @@
 import { type Interrupt } from '@ag-ui/core';
 import { Component, computed, input, signal } from '@angular/core';
-import { injectInterrupt } from '@copilotkit/angular';
+import { type InterruptController } from '@copilotkit/angular';
 
 interface ApprovalOption {
   label: string;
@@ -51,18 +51,17 @@ interface ApprovalRequest {
   `,
 })
 export class InterruptList {
-  readonly agentId = input.required<string>();
+  readonly controller = input.required<InterruptController>();
 
-  private readonly controller = injectInterrupt(this.agentId);
   private readonly answered = signal(new Set<string>());
 
   protected readonly interrupts = computed(() =>
-    findOpen(this.controller.interrupts(), this.answered()),
+    findOpen(this.controller().interrupts(), this.answered()),
   );
 
   protected resolve(interruptId: string, payload: unknown): void {
     this.answered.update((ids) => new Set(ids).add(interruptId));
-    void this.controller.resolve(payload, interruptId);
+    void this.controller().resolve(payload, interruptId);
   }
 }
 
