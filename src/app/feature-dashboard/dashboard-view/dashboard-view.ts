@@ -1,4 +1,4 @@
-import { Component, inject, signal, viewChild } from '@angular/core';
+import { Component, computed, inject, signal, viewChild } from '@angular/core';
 import { CopilotChat } from '@copilotkit/angular';
 import { DASHBOARD_AGENT_ID } from '../../agents/dashboard/dashboard-agent';
 import { A2uiSurface } from '../../shared/a2ui-surface';
@@ -17,6 +17,8 @@ export class DashboardView {
   protected readonly agentId = DASHBOARD_AGENT_ID;
   protected readonly examples = examplePrompts;
   protected readonly store = inject(DashboardStore);
+
+  protected readonly items = computed(() => this.store.items());
 
   protected readonly chatVisible = signal(true);
 
