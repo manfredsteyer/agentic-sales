@@ -7,7 +7,9 @@ import {
   approvalSuspendSchema,
   askForApproval,
   DECLINED,
+  isApproved,
   notExecutedSchema,
+  rememberApproval,
   type ApprovalContext,
   type NotExecuted,
 } from './row-limit';
@@ -83,10 +85,16 @@ export async function evaluateExpression(
   if (approval && !approval.approved) {
     return DECLINED;
   }
+  rememberApproval(context);
 
   let tooLarge: number | undefined;
   const checkRowLimit = (rows: number) => {
-    if (agent && rows > MAX_ROWS && !approval?.approved) {
+    if (
+      agent &&
+      rows > MAX_ROWS &&
+      !approval?.approved &&
+      !isApproved(context, rows)
+    ) {
       tooLarge = Math.max(tooLarge ?? 0, rows);
       throw new Error(
         `The result has ${rows} rows (max. ${MAX_ROWS}) and needs approval.`,
