@@ -12,7 +12,7 @@ export const barChartSchema = z.object({
   title: z.string().describe('Short title, e.g. "Revenue per week"'),
   valueLabel: z.string().describe('What the values are, e.g. "Revenue (USD)"'),
 
-  // TODO #1: Add bars (array of bars)
+  // TODO #1: Add bars (array of bars, 1 bar min)
   //   Description: One bar per aggregate row, e.g. { "label": "2020-W50", "value": 59842 }. With a second
   //   dimension, add its value as series: { "label": "Apparel", "series": "Europe", "value": 21530 }
 });
