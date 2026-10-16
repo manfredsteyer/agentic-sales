@@ -8,6 +8,7 @@ CHAIN=(
   "mcp-apps:a2ui-custom"
   "bonus:mcp-apps"
   "ag-ui-starter:main"
+  "a2ui-starter:a2ui-custom"
 )
 TSCONFIGS=(agent/tsconfig.json tsconfig.app.json server/tsconfig.json mcp-server/tsconfig.json)
 
@@ -16,13 +17,16 @@ usage() {
 usage: propagate.sh <plan|run|verify> <topic>
 
   plan    print the chain, each branch's own commits and a merge-tree dry run
-          (no refs are touched)
+          (no refs are touched); for starters the lab files the upstream change
+          touches
   run     back up every chain branch as backup/<branch>-pre-<topic>, then rebase
           parent before child in the worktree .worktrees/propagate and typecheck
           each branch right after its rebase; stops at a conflict or at new type
-          errors and can be re-run with the same topic
+          errors and can be re-run with the same topic; for starters it prints the
+          TODO check and the lab files changed upstream
   verify  per branch: files changed vs backup, range-diff of the own commits,
-          conflict markers, new type errors, topology; removes the worktree
+          conflict markers, new type errors, topology, for starters the TODO
+          check and the lab files changed upstream; removes the worktree
 USAGE
   exit 2
 }
@@ -58,6 +62,7 @@ parent_of() {
   done
 }
 in_chain() { [ -n "$(parent_of "$1")" ]; }
+is_starter() { [[ "$1" == *-starter ]]; }
 backup_of() { echo "backup/$1-pre-$TOPIC"; }
 
 old_tip() {
@@ -112,11 +117,43 @@ dry_run_merge() {
 
 sim_of() { if in_chain "$1"; then cat "$WORK/sim/$1"; else git rev-parse "$1"; fi; }
 
+lab_files_changed() {
+  local base="$1" upstream="$2" starter="$3"
+  git diff --name-only "$base" "$starter" | sort >"$WORK/lab"
+  git diff --name-only "$base" "$upstream" | sort >"$WORK/upstream"
+  comm -12 "$WORK/lab" "$WORK/upstream" | tr '\n' ' '
+}
+
+todo_markers() {
+  local sha
+  sha="$(git rev-parse "$1^{commit}")"
+  { git grep -o -E 'TODO #[0-9]+' "$sha" -- ':!*.md' || true; } | cut -d: -f2- | sed 's/:TODO #/:#/' | sort
+}
+
+starter_report() {
+  local b="$1" p bk base missing added lab
+  p="$(parent_of "$b")"
+  bk="$(backup_of "$b")"
+  base="$(old_base "$b")"
+  todo_markers "$bk" >"$WORK/todo-old"
+  todo_markers "$b" >"$WORK/todo-new"
+  missing="$(comm -23 "$WORK/todo-old" "$WORK/todo-new" | uniq -c | awk '{ printf "%s%s ", $2, ($1 > 1 ? "(" $1 "x)" : "") }')"
+  added="$(comm -13 "$WORK/todo-old" "$WORK/todo-new" | uniq -c | awk '{ printf "%s%s ", $2, ($1 > 1 ? "(" $1 "x)" : "") }')"
+  if [ -z "$missing$added" ]; then
+    echo "    todo markers: OK ($(wc -l <"$WORK/todo-new" | tr -d ' '), same as backup)"
+  else
+    echo "    todo markers: CHECK missing=[$missing] new=[$added]"
+  fi
+  lab="$(lab_files_changed "$base" "$p" "$bk")"
+  echo "    lab files changed upstream: ${lab:-none}"
+  [ -z "$lab" ] || echo "      review each with: git diff $(short "$base") $p -- <file>"
+}
+
 cmd_plan() {
   print_chain
   echo
   echo "== dry run (merge-tree, refs untouched)"
-  local entry b p ours tip
+  local entry b p ours tip lab
   for entry in "${CHAIN[@]}"; do
     b="$(branch_of "$entry")"
     p="$(parent_of_entry "$entry")"
@@ -127,6 +164,10 @@ cmd_plan() {
       echo "$tip" >"$WORK/sim/$b"
     else
       dry_run_merge "$(old_base "$b")" "$ours" "$tip" "$b -> $p" >"$WORK/sim/$b"
+      if is_starter "$b"; then
+        lab="$(lab_files_changed "$(old_base "$b")" "$ours" "$tip")"
+        echo "    lab files the upstream change touches: ${lab:-none}"
+      fi
     fi
   done
 }
@@ -204,6 +245,9 @@ rebase_branch() {
       git -C "$WT" log -1 --format='  %h %s' REBASE_HEAD 2>/dev/null || true
       echo "Unmerged files (relative to $WT):"
       git -C "$WT" diff --name-only --diff-filter=U | sed 's/^/  /'
+      if is_starter "$b"; then
+        echo "$b is a lab starter: keep every stub and TODO (see \"Starter branches\" in SKILL.md)"
+      fi
       echo
       echo "Resolve them in $WT, 'git -C $WT add/rm' each, 'GIT_EDITOR=true git -C $WT rebase --continue', then re-run:"
       echo "  $0 run $TOPIC"
@@ -223,6 +267,9 @@ rebase_branch() {
     exit 1
   fi
   echo "  $b: typecheck ok (no new errors)"
+  if is_starter "$b"; then
+    starter_report "$b"
+  fi
 }
 
 cmd_run() {
@@ -295,6 +342,9 @@ cmd_verify() {
     else
       echo "    typecheck: NEW ERRORS"
       echo "$errors" | sed 's/^/      /'
+    fi
+    if is_starter "$b"; then
+      starter_report "$b"
     fi
     echo "    contains $p tip: $(git merge-base --is-ancestor "$p" "$b" && echo yes || echo NO)"
     if git rev-parse --verify -q "$b@{upstream}" >/dev/null 2>&1; then
