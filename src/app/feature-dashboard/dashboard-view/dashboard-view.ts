@@ -1,5 +1,5 @@
 import { Component, computed, signal, viewChild } from '@angular/core';
-import { CopilotChat } from '@copilotkit/angular';
+import { CopilotChat, injectInterrupt } from '@copilotkit/angular';
 import { DASHBOARD_AGENT_ID } from '../../agents/dashboard/dashboard-agent';
 import { InterruptList } from '../../shared/interrupt-list';
 import { ExamplePrompt } from '../../shared/utils/example-prompt';
@@ -14,12 +14,14 @@ import { examplePrompts } from './example-prompts';
 })
 export class DashboardView {
   protected readonly agentId = DASHBOARD_AGENT_ID;
-  // TODO #9: Inject interrupt controller
+
+  protected readonly controller = injectInterrupt(this.agentId);
+
   protected readonly examples = examplePrompts;
 
-  // TODO #10: inject DashboardStore
+  // TODO #12: inject DashboardStore
 
-  // TODO #10: project to items in store
+  // TODO #12: project to items in store
   protected readonly items = computed(() => []);
 
   protected readonly chatVisible = signal(true);
