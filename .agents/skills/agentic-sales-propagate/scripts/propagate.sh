@@ -18,15 +18,16 @@ usage: propagate.sh <plan|run|verify> <topic>
 
   plan    print the chain, each branch's own commits and a merge-tree dry run
           (no refs are touched); for starters the lab files the upstream change
-          touches
+          touches and the solution.md lines it outdates
   run     back up every chain branch as backup/<branch>-pre-<topic>, then rebase
           parent before child in the worktree .worktrees/propagate and typecheck
           each branch right after its rebase; stops at a conflict or at new type
           errors and can be re-run with the same topic; for starters it prints the
-          TODO check and the lab files changed upstream
+          TODO check, the solution.md check and the lab files changed upstream
   verify  per branch: files changed vs backup, range-diff of the own commits,
           conflict markers, new type errors, topology, for starters the TODO
-          check and the lab files changed upstream; removes the worktree
+          check, the solution.md check and the lab files changed upstream;
+          removes the worktree
 USAGE
   exit 2
 }
@@ -35,6 +36,7 @@ USAGE
 CMD="$1"
 TOPIC="$2"
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 COMMON="$(git rev-parse --path-format=absolute --git-common-dir)"
 ROOT="$(dirname "$COMMON")"
 cd "$ROOT"
@@ -130,8 +132,15 @@ todo_markers() {
   { git grep -o -E 'TODO #[0-9]+' "$sha" -- ':!*.md' || true; } | cut -d: -f2- | sed 's/:TODO #/:#/' | sort
 }
 
+solution_drift() {
+  local old_starter="$1" old_parent="$2" new_starter="$3" new_parent="$4"
+  node "$SCRIPT_DIR/solution-drift.mjs" "$old_starter" "$old_parent" | sort -u >"$WORK/drift-old"
+  node "$SCRIPT_DIR/solution-drift.mjs" "$new_starter" "$new_parent" | sort -u >"$WORK/drift-new"
+  comm -13 "$WORK/drift-old" "$WORK/drift-new"
+}
+
 starter_report() {
-  local b="$1" p bk base missing added lab
+  local b="$1" p bk base missing added drift lab
   p="$(parent_of "$b")"
   bk="$(backup_of "$b")"
   base="$(old_base "$b")"
@@ -144,6 +153,13 @@ starter_report() {
   else
     echo "    todo markers: CHECK missing=[$missing] new=[$added]"
   fi
+  drift="$(solution_drift "$bk" "$base" "$b" "$p")"
+  if [ -z "$drift" ]; then
+    echo "    solution.md: OK (no code line that matched before is missing on $p)"
+  else
+    echo "    solution.md: CHECK code lines no longer found on $p:"
+    echo "$drift" | sed 's/^/      /'
+  fi
   lab="$(lab_files_changed "$base" "$p" "$bk")"
   echo "    lab files changed upstream: ${lab:-none}"
   [ -z "$lab" ] || echo "      review each with: git diff $(short "$base") $p -- <file>"
@@ -153,7 +169,7 @@ cmd_plan() {
   print_chain
   echo
   echo "== dry run (merge-tree, refs untouched)"
-  local entry b p ours tip lab
+  local entry b p ours tip lab drift
   for entry in "${CHAIN[@]}"; do
     b="$(branch_of "$entry")"
     p="$(parent_of_entry "$entry")"
@@ -167,6 +183,13 @@ cmd_plan() {
       if is_starter "$b"; then
         lab="$(lab_files_changed "$(old_base "$b")" "$ours" "$tip")"
         echo "    lab files the upstream change touches: ${lab:-none}"
+        drift="$(solution_drift "$tip" "$(old_base "$b")" "$tip" "$ours")"
+        if [ -z "$drift" ]; then
+          echo "    solution.md lines the upstream change outdates: none"
+        else
+          echo "    solution.md lines the upstream change outdates:"
+          echo "$drift" | sed 's/^/      /'
+        fi
       fi
     fi
   done

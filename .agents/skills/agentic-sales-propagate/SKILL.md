@@ -48,7 +48,10 @@ is committed on `main` (`.agents/skills/agentic-sales-propagate`, linked from
 deliberately lack code. Their own commits replace parts of the parent with stubs marked
 `// TODO #n` (`<!-- TODO #n -->` in templates), and `solution.md` shows the code for
 each TODO. The parent is the solution: `main` for `ag-ui-starter`, `a2ui-custom` for
-`a2ui-starter`. A rebase must never fill a gap: afterwards the starter lacks exactly
+`a2ui-starter`. In a few places the starter's solution deliberately differs from the
+parent, e.g. `ag-ui-starter` projects `items` and `hasSavedState` in
+`dashboard-view.ts`, and TODO #1 of `a2ui-starter` starts with the basic catalog; keep
+these variants. A rebase must never fill a gap: afterwards the starter lacks exactly
 what it lacked before, only on top of the new parent.
 
 - Keep every stub and TODO comment, and the leftovers the stubs cause: unused imports
@@ -87,7 +90,7 @@ and ties the three steps together. Use a new topic for every propagation.
    contains a parent's commits means the topology changed; stop and ask. Dry-run
    results below a conflicting branch are approximate. For each starter it also lists
    the lab files (files the starter's own commits change) that the upstream change
-   touches.
+   touches and the `solution.md` lines it outdates.
 3. `run` and `verify` refuse to start while a chain branch is checked out in the
    user's worktree (they typically sit on one with `npm run dev` running). Ask the user
    to switch to `main` (or check out nothing from the chain); never switch it for them.
@@ -101,21 +104,27 @@ and ties the three steps together. Use a new topic for every propagation.
    problem (see below) and re-run `run` with the same topic; finished branches are
    skipped.
 5. Review every starter before `verify`, while the worktree still exists. `run` prints
-   its TODO check and the lab files changed upstream. For each of these files, compare
-   `git diff <old base> <parent> -- <file>` with the starter's version and apply the
-   rules in "Starter branches", including the conflict-free leaks. Skim the rest of the
-   upstream change for code that belongs to an exercise, too. Fix the starter as
-   described in "Fixing a branch after a rebase".
+   its TODO check, the `solution.md` check and the lab files changed upstream. For each
+   of these files, compare `git diff <old base> <parent> -- <file>` with the starter's
+   version and apply the rules in "Starter branches", including the conflict-free
+   leaks. Skim the rest of the upstream change for code that belongs to an exercise,
+   too. Fix the starter as described in "Fixing a branch after a rebase".
 6. `bash <skill-dir>/scripts/propagate.sh verify <topic>` prints per branch: files
    changed vs backup, the range-diff of the own commits, conflict markers, new type
-   errors and whether the parent tip is contained; for starters also the TODO check
-   and the lab files changed upstream. Then it removes the worktree.
+   errors and whether the parent tip is contained; for starters also the TODO check,
+   the `solution.md` check and the lab files changed upstream. Then it removes the
+   worktree.
    Expect `OK`, 0 markers, no new errors, `yes`. `!` in the range-diff marks commits
    changed by a resolution; explain each one. `CHECK unexpected=[…]` means a file
    changed that the parent did not touch; inspect it, it is usually a mistake. On a
    starter, `solution.md` and hint comments you adapted show up there; that is
    expected. `todo markers: CHECK missing=[…]` means a TODO marker is gone: a stub was
    overwritten with solution code or dropped. Restore it.
+   `solution.md: CHECK` lists code lines of `solution.md` that the old parent
+   contained and the new one does not, with their TODO and file. Update that section
+   and the matching hint comments in the code to the new parent. The check compares
+   single lines against the backup, so deliberate variants stay quiet; it finds
+   neither leaked solution code nor outdated TODO texts.
 
 ## Resolving conflicts
 
