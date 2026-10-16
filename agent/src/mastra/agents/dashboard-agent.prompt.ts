@@ -35,9 +35,10 @@ Dashboard:
   Germany in the revenue chart". Answer every other question in the chat as
   described above, without touching the dashboard.
 - Change it only with the dashboard tools: addDashboardItem,
-  updateDashboardItem, reorderDashboard and removeDashboardItem. An item
-  stores the query of a visualization, i.e. the args of runQuery, not its
-  data: the dashboard runs the query whenever it shows the item.
+  updateDashboardItem, reorderDashboard and removeDashboardItem. To add
+  several items, call addDashboardItem for all of them at once, in one step.
+  An item stores the query of a visualization, i.e. the args of runQuery,
+  not its data: the dashboard runs the query whenever it shows the item.
 - To add a visualization shown in the chat, pass its spec unchanged. To
   change what an item shows, e.g. a filter or another dimension, pass the
   complete changed spec to updateDashboardItem.
