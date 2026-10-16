@@ -35,17 +35,17 @@ export const explorerTool: FrontendToolConfig<ExplorerToolArgs> = {
     Not suitable for order counts.
   `,
   parameters: explorerToolSchema,
-  handler: async (query) => {
+  handler: async (input) => {
     const router = inject(Router);
     await router.navigate([
       '/explorer',
       {
-        agg: query.aggregateFn,
-        fact: query.fact,
-        dim1: query.dimensions[0],
-        dim2: query.dimensions[1] ?? '',
-        filter: query.filters.map((f) => `${f.column}:${f.value}`).join(','),
-        view: query.view,
+        agg: input.aggregateFn,
+        fact: input.fact,
+        dim1: input.dimensions[0],
+        dim2: input.dimensions[1] ?? '',
+        filter: input.filters.map((f) => `${f.column}:${f.value}`).join(','),
+        view: input.view,
       },
     ]);
     return { opened: true };
