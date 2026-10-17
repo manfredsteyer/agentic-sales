@@ -10,11 +10,12 @@ import { salesCatalog } from './a2ui/sales-catalog';
   imports: [CopilotA2UISurface],
   template: `
     <figure>
-      <copilot-a2ui-surface
-        [operations]="operations()"
-        [catalog]="catalog"
-        (action)="handleAction($event)"
-      />
+      <!-- TODO #2: Call copilot-a2ui-surface with 
+          - operations
+          - catalog
+          - action  
+      -->
+      Not implemented yet!
     </figure>
   `,
 })
