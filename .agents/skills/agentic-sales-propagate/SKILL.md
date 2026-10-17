@@ -3,12 +3,13 @@ name: agentic-sales-propagate
 description: >-
   Propagate a change through the stacked branches of the agentic-sales repo
   (main → a2ui → a2ui-custom → a2ui-subagent / mcp-apps → bonus, plus the lab
-  starters main → ag-ui-starter and a2ui-custom → a2ui-starter, which keep their TODO
-  stubs) by rebasing each branch onto its parent in a separate worktree, resolving
-  conflicts, typechecking every branch and verifying the result against backup refs.
-  Use this whenever the user changed main (or any branch in the chain) and wants the
-  branches on top updated, asks to rebase a2ui, a2ui-custom, a2ui-subagent, mcp-apps,
-  bonus, ag-ui-starter or a2ui-starter, or says "die anderen Branches rebasen",
+  starters main → ag-ui-starter and a2ui-custom → a2ui-starter / a2ui-intro-starter,
+  which keep their TODO stubs) by rebasing each branch onto its parent in a separate
+  worktree, resolving conflicts, typechecking every branch and verifying the result
+  against backup refs. Use this whenever the user changed main (or any branch in the
+  chain) and wants the branches on top updated, asks to rebase a2ui, a2ui-custom,
+  a2ui-subagent, mcp-apps, bonus, ag-ui-starter, a2ui-starter or a2ui-intro-starter,
+  or says "die anderen Branches rebasen",
   "Branches nachziehen", "auf main rebasen", "Kette rebasen", "Starter nachziehen",
   "Starter rebasen", "main hat sich geändert" — even when only one branch is named.
 ---
@@ -27,6 +28,7 @@ description: >-
 | `bonus`         | `mcp-apps`    | Tiles stay up to date: add-to-dashboard button, surface/MCP-app widgets, `a2ui-data-model.ts`, `dashboard-tile/`                                                      |
 | `ag-ui-starter` | `main`        | Lab starter for the AG-UI labs, TODO #1–#11: bar chart schema and widget, component and tool registration, CopilotKit providers, chat widgets, interrupts, dashboard widget and agent state stubbed out; `solution.md`; Peacock colors in `.vscode/settings.json` |
 | `a2ui-starter`  | `a2ui-custom` | Lab starter for the A2UI labs, TODO #1–#8: A2UI activation in `app.config.ts`, dashboard tiles, `a2ui-surface.ts`, product carousel input, schema, catalog entry and registration stubbed out; `solution.md` |
+| `a2ui-intro-starter` | `a2ui-custom` | Short starter for the A2UI intro, TODO #1–#3: A2UI activation with the basic catalog in `app.config.ts`, `copilot-a2ui-surface` in `a2ui-surface.ts` stubbed out, switch to `salesCatalog`; no `solution.md` |
 
 `a2ui-subagent` and `mcp-apps` are siblings, so `bonus` does not contain the designer
 subagent. Never bring subagent code into `mcp-apps` or `bonus` while resolving.
@@ -44,14 +46,16 @@ is committed on `main` (`.agents/skills/agentic-sales-propagate`, linked from
 
 ## Starter branches
 
-`ag-ui-starter` and `a2ui-starter` are handouts for lab sheets and live coding, so they
-deliberately lack code. Their own commits replace parts of the parent with stubs marked
-`// TODO #n` (`<!-- TODO #n -->` in templates), and `solution.md` shows the code for
-each TODO. The parent is the solution: `main` for `ag-ui-starter`, `a2ui-custom` for
-`a2ui-starter`. In a few places the starter's solution deliberately differs from the
-parent, e.g. `ag-ui-starter` projects `items` and `hasSavedState` in
-`dashboard-view.ts`, and TODO #1 of `a2ui-starter` starts with the basic catalog; keep
-these variants. A rebase must never fill a gap: afterwards the starter lacks exactly
+`ag-ui-starter`, `a2ui-starter` and `a2ui-intro-starter` are handouts for lab sheets
+and live coding, so they deliberately lack code. Their own commits replace parts of the
+parent with stubs marked `// TODO #n` (`<!-- TODO #n -->` in templates), and
+`solution.md` shows the code for each TODO; `a2ui-intro-starter` has no `solution.md`,
+only the hints in its TODO comments. The parent is the solution: `main` for
+`ag-ui-starter`, `a2ui-custom` for `a2ui-starter` and `a2ui-intro-starter`. In a few
+places the starter's solution deliberately differs from the parent, e.g.
+`ag-ui-starter` projects `items` and `hasSavedState` in `dashboard-view.ts`, and TODO
+#1 of `a2ui-starter` and `a2ui-intro-starter` starts with the basic catalog; keep these
+variants. A rebase must never fill a gap: afterwards the starter lacks exactly
 what it lacked before, only on top of the new parent.
 
 - Keep every stub and TODO comment, and the leftovers the stubs cause: unused imports
