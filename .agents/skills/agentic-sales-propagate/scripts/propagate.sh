@@ -9,6 +9,7 @@ CHAIN=(
   "bonus:mcp-apps"
   "ag-ui-starter:main"
   "a2ui-starter:a2ui-custom"
+  "a2ui-intro-starter:a2ui-custom"
 )
 TSCONFIGS=(agent/tsconfig.json tsconfig.app.json server/tsconfig.json mcp-server/tsconfig.json)
 
@@ -132,6 +133,8 @@ todo_markers() {
   { git grep -o -E 'TODO #[0-9]+' "$sha" -- ':!*.md' || true; } | cut -d: -f2- | sed 's/:TODO #/:#/' | sort
 }
 
+has_solution() { git cat-file -e "$1:solution.md" 2>/dev/null; }
+
 solution_drift() {
   local old_starter="$1" old_parent="$2" new_starter="$3" new_parent="$4"
   node "$SCRIPT_DIR/solution-drift.mjs" "$old_starter" "$old_parent" | sort -u >"$WORK/drift-old"
@@ -154,7 +157,9 @@ starter_report() {
     echo "    todo markers: CHECK missing=[$missing] new=[$added]"
   fi
   drift="$(solution_drift "$bk" "$base" "$b" "$p")"
-  if [ -z "$drift" ]; then
+  if ! has_solution "$b"; then
+    echo "    solution.md: none on $b, the TODO comments are the only hints"
+  elif [ -z "$drift" ]; then
     echo "    solution.md: OK (no code line that matched before is missing on $p)"
   else
     echo "    solution.md: CHECK code lines no longer found on $p:"
@@ -184,7 +189,9 @@ cmd_plan() {
         lab="$(lab_files_changed "$(old_base "$b")" "$ours" "$tip")"
         echo "    lab files the upstream change touches: ${lab:-none}"
         drift="$(solution_drift "$tip" "$(old_base "$b")" "$tip" "$ours")"
-        if [ -z "$drift" ]; then
+        if ! has_solution "$tip"; then
+          echo "    solution.md: none on $b"
+        elif [ -z "$drift" ]; then
           echo "    solution.md lines the upstream change outdates: none"
         else
           echo "    solution.md lines the upstream change outdates:"
