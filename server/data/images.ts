@@ -3,6 +3,15 @@ import type { Row } from './sales-dal.ts';
 
 export const IMAGES_DIR = join(import.meta.dirname, '..', 'images');
 
+const imageUrlSources: Record<string, string> = {
+  itemimageurl: 'ItemName',
+  itemcategoryimageurl: 'ItemCategory',
+};
+
+export function findImageUrlSource(column: string): string | undefined {
+  return imageUrlSources[column.toLowerCase()];
+}
+
 function toImageFileName(name: string): string {
   return `${name.toLowerCase().replaceAll(/[^a-z0-9]/g, '_')}.svg`;
 }
