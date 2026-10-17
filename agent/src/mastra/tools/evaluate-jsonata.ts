@@ -47,6 +47,8 @@ export const jsonataDescription = `
       \`and\` and \`or\` return booleans: \`$v or 0\` is no fallback, write \`$exists($v) ? $v : 0\`.
       Inside a filter \`[...]\`, \`$\` is the filtered item: bind an outer value to a variable,
         e.g. \`$map($cats, function($c) { $sum($rows[ItemCategory = $c].value) })\`.
+      A function body with several statements needs its own block, e.g.
+        \`function($c) { ( $x := $rows[Continent = $c]; { "continent": $c, "rows": $x } ) }\`.
 
     The 7 largest items plus "Other" for the rest:
       ( $slices := $rows.{ "label": ItemName, "value": value }^(>value);
