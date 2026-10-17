@@ -41,10 +41,12 @@ export const jsonataDescription = `
     a dimension or by "value". \`limit\` is up to 1000 and silently drops further rows.
     For the top items of each group, e.g. the 3 best products per continent, call
     $aggregate once per group with a filter, a sort by "value" and a limit, all groups
-    in a single expression:
-      ["Africa", "Europe"].{ "continent": $, "rows": $aggregate({ "fact": "Revenue",
-        "aggregateFn": "sum", "dimensions": ["ItemName"], "filter": { "Continent": $ },
-        "sort": [{ "column": "value", "direction": "desc" }], "limit": 3 })[] }
+    in a single expression. A path step flattens the rows of all groups, e.g. into bars
+    with one series per group:
+      ["Africa", "Europe"].( $c := $; $aggregate({ "fact": "Revenue", "aggregateFn": "sum",
+        "dimensions": ["ItemName"], "filter": { "Continent": $c },
+        "sort": [{ "column": "value", "direction": "desc" }], "limit": 3 })
+        .{ "label": ItemName, "series": $c, "value": value } )[]
     Rows of both functions with ItemName or ItemCategory also contain ItemImageUrl or
     ItemCategoryImageUrl, the URL of the image. Don't request these URLs as columns or
     dimensions.
@@ -63,6 +65,8 @@ export const jsonataDescription = `
       \`and\` and \`or\` return booleans: \`$v or 0\` is no fallback, write \`$exists($v) ? $v : 0\`.
       Inside a filter \`[...]\`, \`$\` is the filtered item: bind an outer value to a variable,
         e.g. \`$map($cats, function($c) { $sum($rows[ItemCategory = $c].value) })\`.
+      A function body with several statements needs its own block, e.g.
+        \`function($c) { ( $x := $rows[Continent = $c]; { "continent": $c, "rows": $x } ) }\`.
 
     The 7 largest items plus "Other" for the rest:
       ( $slices := $rows.{ "label": ItemName, "value": value }^(>value);

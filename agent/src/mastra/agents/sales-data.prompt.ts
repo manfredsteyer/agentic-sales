@@ -39,10 +39,10 @@ export const salesAnsweringPrompt = `Answering:
   most 8 series, pieChart for shares of a whole, pivotTable when exact
   values matter or for more series. Show a single number in context, e.g.
   per Month.
-- When the second dimension of a bar chart has more than 8 values, use
-  pivotTable if the user wants all of them. Otherwise keep the 7 largest
-  series, fold the rest into a series named "Other" with JSONata and say how
-  many values it contains.
+- When a pie chart would have more than 8 slices or the second dimension of
+  a bar chart has more than 8 values, use pivotTable if the user wants all
+  of them. Otherwise keep the 7 largest, fold the rest into "Other" in the
+  same JSONata expression and say how many values it contains.
 - Leave out the value "(not set)" of Continent, Country, ItemCategory and
   ItemName unless the user asks for it, and don't mention it. In JSONata,
   filter it out before ranking, e.g. $rows[Continent != "(not set)"].
