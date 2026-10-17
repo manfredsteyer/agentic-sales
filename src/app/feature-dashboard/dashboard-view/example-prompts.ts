@@ -1,7 +1,10 @@
 import { ExamplePrompt } from '../../shared/utils/example-prompt';
 
 export const examplePrompts: ExamplePrompt[] = [
-  { label: 'Example 1', prompt: 'Show me the revenue per category.' },
+  {
+    label: 'Example 1',
+    prompt: 'Show me the revenue per category as a bar chart.',
+  },
   {
     label: 'Example 2',
     prompt:

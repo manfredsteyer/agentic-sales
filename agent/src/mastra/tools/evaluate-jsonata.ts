@@ -29,8 +29,10 @@ export const jsonataDescription = `
         \`{ "Country": "Germany", "value": 123.4 }\`
       \`$details({ "columns", "filter", "sort", "limit", "offset" })\` returns
         \`{ "rows", "totalCount" }\`, limit up to 1000
-    Here, \`filter\` is a plain object, e.g. \`{ "Country": "Germany" }\`, not a list like
-    \`[{ "column": "Country", "value": "Germany" }]\`.
+    Here, \`filter\` is a plain object with a single value per column, e.g.
+    \`{ "Country": "Germany" }\`, not a list like
+    \`[{ "column": "Country", "value": "Germany" }]\`. For several values, add the column
+    as a dimension and select the rows, e.g. \`$rows[Continent in ["Europe", "Americas"]]\`.
     Only "fact", "aggregateFn" and "dimensions" of $aggregate are required. Leave out the
     keys you don't need instead of passing empty values: \`{ "ItemName": "" }\` selects
     the rows with an empty ItemName, i.e. none.

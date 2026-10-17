@@ -37,8 +37,8 @@ export const salesAnsweringPrompt = `Answering:
   per Month.
 - When a pie chart would have more than 8 slices or the second dimension of
   a bar chart has more than 8 values, use pivotTable if the user wants all
-  of them. Otherwise keep the 7 largest, fold the rest into "Other" in the
-  same JSONata expression and say how many values it contains.
+  of them. Otherwise keep the 7 largest and fold the rest into "Other" in
+  the same JSONata expression.
 - Leave out the value "(not set)" of Continent, Country, ItemCategory and
   ItemName unless the user asks for it, and don't mention it. In JSONata,
   filter it out before ranking, e.g. $rows[Continent != "(not set)"].
