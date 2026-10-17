@@ -48,8 +48,9 @@ export const jsonataDescription = `
         "sort": [{ "column": "value", "direction": "desc" }], "limit": 3 })
         .{ "label": ItemName, "series": $c, "value": value } )[]
     Rows of both functions with ItemName or ItemCategory also contain ItemImageUrl or
-    ItemCategoryImageUrl, the URL of the image. Don't request these URLs as columns or
-    dimensions.
+    ItemCategoryImageUrl, the URL of the image: read it from a row you query anyway, e.g.
+    \`$aggregate({ ..., "dimensions": ["ItemName"], "filter": { "ItemName": $p } })[0].ItemImageUrl\`.
+    The URLs are no dimensions.
     Compute sums, averages and counts with \`$aggregate\`, never from \`$details\` rows.
     Use \`$details\` only for values of single rows, e.g. prices.
 

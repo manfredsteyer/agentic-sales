@@ -1,5 +1,5 @@
 import type { RequestHandler } from 'express';
-import { withImageUrls } from '../data/images.ts';
+import { findImageUrlSource, withImageUrls } from '../data/images.ts';
 import type { DetailsQuery, SalesDal } from '../data/sales-dal.ts';
 import {
   assertPlainObject,
@@ -59,8 +59,13 @@ function parseColumns(input: unknown, dal: Schema): string[] {
       'Columns must be a non-empty array of column names, or omitted for all columns',
     );
   }
-  const names = input.map((c) => resolveColumnName(c, 'Columns', dal));
-  if (new Set(names).size !== names.length)
-    throw new BadRequest('Columns must be distinct');
-  return names;
+  const names = input.map((c) =>
+    resolveColumnName(toSourceColumn(c), 'Columns', dal),
+  );
+  return [...new Set(names)];
+}
+
+function toSourceColumn(column: unknown): unknown {
+  if (typeof column !== 'string') return column;
+  return findImageUrlSource(column) ?? column;
 }
