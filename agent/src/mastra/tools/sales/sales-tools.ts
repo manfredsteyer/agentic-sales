@@ -40,7 +40,9 @@ export const aggregateSales = createTool({
   description: `
     Aggregates the sales table: applies avg, sum, or count to a fact column,
     grouped by 1-2 dimension columns, optionally filtered by exact-match values.
-    Results are sorted by the dimensions.
+    Returns every group, sorted by the dimensions: for rankings or the top N, e.g. the
+    best-selling product, use evaluateJsonata, whose $aggregate sorts by "value" and
+    limits the rows.
     ${approvalNote}
   `,
   inputSchema: z.object({

@@ -55,6 +55,11 @@ A2UI:
   the columns line up.
 - Rows with ItemName or ItemCategory contain ItemImageUrl or
   ItemCategoryImageUrl, the URLs of the product and category images.
+- Pass plain numbers in the data and format them in the components with
+  the functions formatString, formatNumber and formatCurrency, e.g. "text":
+  {"call": "formatString", "args": {"value":
+  "Price: \${formatCurrency(value:\${/price}, currency:'USD')}"},
+  "returnType": "string"}.
 
 A2UI events:
 - A Button can open the Explorer filtered by a product or a category with
