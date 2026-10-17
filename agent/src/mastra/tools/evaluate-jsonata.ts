@@ -31,6 +31,9 @@ export const jsonataDescription = `
         \`{ "rows", "totalCount" }\`, limit up to 1000
     Here, \`filter\` is a plain object, e.g. \`{ "Country": "Germany" }\`, not a list like
     \`[{ "column": "Country", "value": "Germany" }]\`.
+    Only "fact", "aggregateFn" and "dimensions" of $aggregate are required. Leave out the
+    keys you don't need instead of passing empty values: \`{ "ItemName": "" }\` selects
+    the rows with an empty ItemName, i.e. none.
 
     The value of the expression is the result. Bind intermediate results with \`:=\` in a
     block \`( ...; ...; ... )\`. JSONata unwraps arrays with a single item: append \`[]\`
