@@ -5,10 +5,10 @@ import {
 } from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideCopilotKit } from '@copilotkit/angular';
+import { basicCatalog } from '@copilotkit/angular/a2ui';
 import { initDashboardAgent } from './agents/dashboard/dashboard-agent';
 import { initSalesAgent } from './agents/sales/sales-agent';
 import { routes } from './app.routes';
-import { salesCatalog } from './shared/a2ui/sales-catalog';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -18,9 +18,14 @@ export const appConfig: ApplicationConfig = {
     provideCopilotKit({
       defaultToolRendering: true,
       enableInspector: false,
-      a2ui: { catalog: salesCatalog, includeSchema: false },
+      // TODO #1: activate a2ui support
+      //  for basicCatalog
+      //  don't include schema
+      a2ui: { catalog: basicCatalog, includeSchema: false },
     }),
     provideAppInitializer(initSalesAgent),
     provideAppInitializer(initDashboardAgent),
   ],
 };
+
+// TODO #3: switch to salesCatalog
