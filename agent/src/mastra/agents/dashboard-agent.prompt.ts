@@ -49,10 +49,11 @@ A2UI:
   instead of writing it into a component. Pass no data to render_a2ui, but
   the evaluateJsonata expression that returns the complete data model: the
   app runs it to fill the data model, in the chat and on the dashboard.
-  Test the expression with evaluateJsonata first. For repeated content like
-  table rows or cards, use a template, e.g. "children": {"componentId":
-  "row", "path": "/rows"} with relative paths like {"path": "ItemName"}
-  inside.
+  Test the expression with evaluateJsonata first. Write it right away as one
+  expression that loads all values the surface shows, and test only that
+  one. For repeated content like table rows or cards, use a template, e.g.
+  "children": {"componentId": "row", "path": "/rows"} with relative paths
+  like {"path": "ItemName"} inside.
 - Let the expression return plain numbers and format them in the
   components with the functions formatString, formatNumber and
   formatCurrency, e.g. "text": {"call": "formatString", "args": {"value":
