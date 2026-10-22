@@ -14,11 +14,6 @@ import {
   jsonataDescription,
   jsonataLimitsDescription,
 } from './evaluate-jsonata';
-import {
-  approvalResumeSchema,
-  approvalSuspendSchema,
-  type ApprovalContext,
-} from './row-limit';
 
 export const runQuery = createTool({
   id: 'run-query',
@@ -30,11 +25,9 @@ export const runQuery = createTool({
   `,
   inputSchema: z.object({ spec: querySchema }),
   outputSchema: queryResultSchema,
-  suspendSchema: approvalSuspendSchema,
-  resumeSchema: approvalResumeSchema,
-  execute: async (input, context) => {
+  execute: async (input) => {
     try {
-      const result = await evaluateQuery(input.spec, context);
+      const result = await evaluateQuery(input.spec);
       return result;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -43,15 +36,9 @@ export const runQuery = createTool({
   },
 });
 
-export async function evaluateQuery(
-  spec: Query,
-  context?: ApprovalContext,
-): Promise<QueryResult> {
-  const evaluated = await evaluateExpression(spec.expression, context);
-  if (!('result' in evaluated)) {
-    return { kind: 'message', ...evaluated };
-  }
-  return toQueryResult(spec, evaluated.result);
+export async function evaluateQuery(spec: Query): Promise<QueryResult> {
+  const { result } = await evaluateExpression(spec.expression);
+  return toQueryResult(spec, result);
 }
 
 function toQueryResult(spec: Query, value: unknown): QueryResult {

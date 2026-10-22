@@ -149,64 +149,10 @@ File: `src/app/feature-sales/sales-chat.html`
 Replace the TODO at the top of the file with:
 
 ```html
-<copilot-chat
-  [agentId]="agentId"
-  [messageViewChildrenTemplate]="interruptTemplate"
-/>
+<copilot-chat [agentId]="agentId" />
 ```
 
-`CopilotChat` is already imported in `sales-chat.ts`. `interruptTemplate`
-refers to the `<ng-template>` at the end of the file (see TODO #6).
-
-## TODO #6: Show and resolve interrupts
-
-File: `src/app/feature-sales/sales-chat.ts`
-
-Import `injectInterrupt`:
-
-```ts
-import { CopilotChat, injectInterrupt } from '@copilotkit/angular';
-```
-
-Inject the interrupt controller for the agent:
-
-```ts
-protected readonly interruptController = injectInterrupt(this.agentId);
-```
-
-File: `src/app/shared/interrupt-list.ts`
-
-The component gets the controller via its `controller` input. Calculate the
-open interrupts with the existing `findOpen` function:
-
-```ts
-protected readonly interrupts = computed(() =>
-  findOpen(this.controller().interrupts(), this.answered()),
-);
-```
-
-Resolve the interrupt in `resolve`:
-
-```ts
-protected resolve(interruptId: string, payload: unknown): void {
-  this.answered.update((ids) => new Set(ids).add(interruptId));
-  void this.controller().resolve(payload, interruptId);
-}
-```
-
-Remove the TODO about registering the template.
-
-File: `src/app/feature-sales/sales-chat.html`
-
-Replace the TODO in the `<ng-template #interruptTemplate>` at the end of the
-file with:
-
-```html
-<app-interrupt-list [controller]="interruptController" />
-```
-
-TODO #5 passes this template to `copilot-chat` via
-`messageViewChildrenTemplate`.
+`CopilotChat` is already imported in `sales-chat.ts`.
 
 ## TODO #7: Implement the dashboard widget
 
@@ -269,36 +215,15 @@ provideAppInitializer(initDashboardAgent),
 
 ## TODO #9: Add the chat widget to the dashboard
 
-File: `src/app/feature-dashboard/dashboard-view/dashboard-view.ts`
-
-Import `injectInterrupt` and inject the interrupt controller for the agent, as
-in TODO #6:
-
-```ts
-import { CopilotChat, injectInterrupt } from '@copilotkit/angular';
-```
-
-```ts
-protected readonly interruptController = injectInterrupt(this.agentId);
-```
-
 File: `src/app/feature-dashboard/dashboard-view/dashboard-view.html`
 
 Replace the TODO in the chat panel, between the header and the examples, with:
 
 ```html
-<copilot-chat
-  [agentId]="agentId"
-  [messageViewChildrenTemplate]="interruptTemplate"
-/>
+<copilot-chat [agentId]="agentId" />
 ```
 
-Replace the TODO in the `<ng-template #interruptTemplate>` at the end of the
-file with:
-
-```html
-<app-interrupt-list [controller]="interruptController" />
-```
+`CopilotChat` is already imported in `dashboard-view.ts`.
 
 ## TODO #10: Connect the dashboard to the agent state
 

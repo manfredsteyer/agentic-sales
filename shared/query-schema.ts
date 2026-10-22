@@ -87,7 +87,7 @@ const pivotTableResultSchema = z.object({
 
 const queryMessageSchema = z.object({
   kind: z.literal('message'),
-  status: z.enum(['awaiting-approval', 'declined', 'failed']),
+  status: z.literal('failed'),
   message: z.string(),
 });
 

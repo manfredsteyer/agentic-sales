@@ -274,42 +274,6 @@ select:disabled {
   box-shadow: var(--focus-ring);
 }
 
-app-interrupt-list .interrupt {
-  display: flex;
-  gap: 0.75rem;
-  margin: 0.75rem 0;
-  padding: 0.9rem 1rem;
-  border: 1px solid color-mix(in srgb, var(--brand) 30%, transparent);
-  border-radius: var(--radius-md);
-  background: var(--brand-soft);
-}
-
-app-interrupt-list .interrupt-icon {
-  display: grid;
-  flex: none;
-  place-items: center;
-  width: 1.75rem;
-  height: 1.75rem;
-  border-radius: 50%;
-  background: var(--brand);
-}
-
-app-interrupt-list .interrupt-body {
-  flex: 1;
-  min-width: 0;
-}
-
-app-interrupt-list .interrupt-message {
-  margin: 0 0 0.75rem;
-  line-height: 1.5;
-}
-
-app-interrupt-list .interrupt-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
 [data-copilotkit] {
   font-family: var(--font-sans);
   --copilot-kit-primary-color: var(--brand);

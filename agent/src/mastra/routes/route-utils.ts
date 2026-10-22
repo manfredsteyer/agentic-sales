@@ -7,7 +7,6 @@ type StreamMessages = Parameters<Agent['stream']>[0];
 type StreamOptions = AgentExecutionOptionsBase<unknown> & {
   structuredOutput?: never;
 };
-type ResumeOptions = StreamOptions & { toolCallId?: string };
 
 export interface SseWriter {
   writeSSE(message: { data: string }): Promise<void>;
@@ -66,9 +65,7 @@ export function withoutMemoryArgs(agent: Agent): Agent {
   }
   const stream = (messages: StreamMessages, options?: StreamOptions) =>
     agent.stream(messages, { ...options, memory: undefined });
-  const resumeStream = (resumeData: unknown, options: ResumeOptions) =>
-    agent.resumeStream(resumeData, { ...options, memory: undefined });
-  return withMethods(agent, { stream, resumeStream });
+  return withMethods(agent, { stream });
 }
 
 export function withAbortSignal(agent: Agent, abortSignal: AbortSignal): Agent {

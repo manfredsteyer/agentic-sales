@@ -1,18 +1,6 @@
 import { createTool } from '@mastra/core/tools';
 import jsonata from 'jsonata';
 import { z } from 'zod';
-import { MAX_ROWS } from '../config';
-import {
-  approvalResumeSchema,
-  approvalSuspendSchema,
-  askForApproval,
-  DECLINED,
-  isApproved,
-  notExecutedSchema,
-  rememberApproval,
-  type ApprovalContext,
-  type NotExecuted,
-} from './row-limit';
 import {
   aggregate,
   details,
@@ -68,8 +56,6 @@ export const jsonataDescription = `
 
 export const jsonataLimitsDescription = `
     Limits: ${TIMEOUT_MS / 1000} s and results of up to ${MAX_RESULT_CHARS} characters.
-    A query with more than ${MAX_ROWS} result rows needs the user's approval; the
-    expression then runs again from the start.
 `;
 
 export const evaluateJsonata = createTool({
@@ -88,38 +74,13 @@ export const evaluateJsonata = createTool({
         $rows.{ "label": Country, "value": $round(value / $total * 100, 1) }[] )
     `),
   }),
-  outputSchema: z.union([z.object({ result: z.unknown() }), notExecutedSchema]),
-  suspendSchema: approvalSuspendSchema,
-  resumeSchema: approvalResumeSchema,
-  execute: async ({ expression }, context) =>
-    evaluateExpression(expression, context),
+  outputSchema: z.object({ result: z.unknown() }),
+  execute: async ({ expression }) => evaluateExpression(expression),
 });
 
 export async function evaluateExpression(
   expression: string,
-  context?: ApprovalContext,
-): Promise<{ result: unknown } | NotExecuted> {
-  const agent = context?.agent;
-  const approval = agent?.resumeData;
-  if (approval && !approval.approved) {
-    return DECLINED;
-  }
-  rememberApproval(context);
-
-  let tooLarge: number | undefined;
-  const checkRowLimit = (rows: number) => {
-    if (
-      agent &&
-      rows > MAX_ROWS &&
-      !approval?.approved &&
-      !isApproved(context, rows)
-    ) {
-      tooLarge = Math.max(tooLarge ?? 0, rows);
-      throw new Error(
-        `The result has ${rows} rows (max. ${MAX_ROWS}) and needs approval.`,
-      );
-    }
-  };
+): Promise<{ result: unknown }> {
   let result: unknown;
 
   try {
@@ -127,24 +88,19 @@ export async function evaluateExpression(
       undefined,
       {
         aggregate: async (query: AggregateQuery) => {
-          const { rowCount, rows } = await aggregate(query);
-          checkRowLimit(rowCount);
+          const { rows } = await aggregate(query);
           return rows;
         },
         details: async (query: DetailsQuery) => {
           const { rows, totalCount } = await details(query);
-          checkRowLimit(totalCount);
           return { rows, totalCount };
         },
       },
     );
   } catch (err) {
-    if (tooLarge === undefined) throw toError(err);
+    throw toError(err);
   }
 
-  if (tooLarge !== undefined) {
-    return askForApproval(context, tooLarge);
-  }
   if (result === undefined) {
     throw new Error(
       'The expression returned nothing. Check the field names and filter values.',

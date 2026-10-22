@@ -1,12 +1,5 @@
 import { createTool } from '@mastra/core/tools';
 import { z } from 'zod';
-import { MAX_ROWS } from '../../config';
-import {
-  approvalResumeSchema,
-  approvalSuspendSchema,
-  notExecutedSchema,
-  withRowLimit,
-} from '../row-limit';
 import { aggregate, details } from './sales-api';
 
 const filterSchema = z
@@ -30,18 +23,12 @@ const rowSchema = z.record(
   z.union([z.string(), z.number(), z.null()]),
 );
 
-const approvalNote = `
-  Results with more than ${MAX_ROWS} rows need the user's approval: the tool
-  pauses and asks the user before it returns them.
-`;
-
 export const aggregateSales = createTool({
   id: 'aggregate-sales',
   description: `
     Aggregates the sales table: applies avg, sum, or count to a fact column,
     grouped by 1-2 dimension columns, optionally filtered by exact-match values.
     Results are sorted by the dimensions.
-    ${approvalNote}
   `,
   inputSchema: z.object({
     fact: z
@@ -55,25 +42,15 @@ export const aggregateSales = createTool({
       .describe('1-2 columns to group by, e.g. ["Country", "DeviceCategory"]'),
     filter: filterSchema,
   }),
-  outputSchema: z.union([
-    z.object({
-      fact: z.string(),
-      aggregateFn: z.string(),
-      dimensions: z.array(z.string()),
-      rowCount: z.number(),
-      rows: z.array(rowSchema),
-    }),
-    notExecutedSchema,
-  ]),
-  suspendSchema: approvalSuspendSchema,
-  resumeSchema: approvalResumeSchema,
-  execute: async ({ filter, ...query }, context) => {
-    return withRowLimit(
-      context,
-      () => aggregate({ ...query, filter: toFilter(filter) }),
-      (result) => result.rowCount,
-    );
-  },
+  outputSchema: z.object({
+    fact: z.string(),
+    aggregateFn: z.string(),
+    dimensions: z.array(z.string()),
+    rowCount: z.number(),
+    rows: z.array(rowSchema),
+  }),
+  execute: async ({ filter, ...query }) =>
+    aggregate({ ...query, filter: toFilter(filter) }),
 });
 
 export const getSalesDetails = createTool({
@@ -83,8 +60,7 @@ export const getSalesDetails = createTool({
     optionally filtered by exact-match values and sorted. Use it to drill down
     behind an aggregate, e.g. the largest orders of a country or what a
     specific order contained. Returns one page (limit/offset) plus totalCount,
-    the number of all matching rows. The approval limit applies to totalCount.
-    ${approvalNote}
+    the number of all matching rows.
   `,
   inputSchema: z.object({
     columns: z.array(z.string()).min(1).optional().describe(`
@@ -114,22 +90,12 @@ export const getSalesDetails = createTool({
       .optional()
       .describe('Rows to skip, default 0'),
   }),
-  outputSchema: z.union([
-    z.object({
-      columns: z.array(z.string()),
-      rowCount: z.number(),
-      totalCount: z.number(),
-      rows: z.array(rowSchema),
-    }),
-    notExecutedSchema,
-  ]),
-  suspendSchema: approvalSuspendSchema,
-  resumeSchema: approvalResumeSchema,
-  execute: async ({ filter, limit, ...query }, context) => {
-    return withRowLimit(
-      context,
-      () => details({ ...query, filter: toFilter(filter), limit: limit ?? 20 }),
-      (result) => result.totalCount,
-    );
-  },
+  outputSchema: z.object({
+    columns: z.array(z.string()),
+    rowCount: z.number(),
+    totalCount: z.number(),
+    rows: z.array(rowSchema),
+  }),
+  execute: async ({ filter, limit, ...query }) =>
+    details({ ...query, filter: toFilter(filter), limit: limit ?? 20 }),
 });

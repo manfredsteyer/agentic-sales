@@ -1,21 +1,18 @@
 import { Component, computed, signal, viewChild } from '@angular/core';
-import { CopilotChat, injectInterrupt } from '@copilotkit/angular';
+import { CopilotChat } from '@copilotkit/angular';
 import { DASHBOARD_AGENT_ID } from '../../agents/dashboard/dashboard-agent';
-import { InterruptList } from '../../shared/interrupt-list';
 import { ExamplePrompt } from '../../shared/utils/example-prompt';
 import { DashboardTile } from '../dashboard-tile';
 import { examplePrompts } from './example-prompts';
 
 @Component({
   selector: 'app-dashboard-view',
-  imports: [CopilotChat, DashboardTile, InterruptList],
+  imports: [CopilotChat, DashboardTile],
   templateUrl: './dashboard-view.html',
   styleUrl: './dashboard-view.css',
 })
 export class DashboardView {
   protected readonly agentId = DASHBOARD_AGENT_ID;
-
-  protected readonly controller = injectInterrupt(this.agentId);
 
   protected readonly examples = examplePrompts;
 
