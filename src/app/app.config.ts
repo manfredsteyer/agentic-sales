@@ -14,6 +14,6 @@ export const appConfig: ApplicationConfig = {
 
     // TODO #4: provide initSalesAgent
 
-    // TODO #8: provide initDashboardAgent
+    // TODO #8a: provide initDashboardAgent
   ],
 };

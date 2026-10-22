@@ -4,6 +4,7 @@ import {
   type BaseEvent,
   type RunAgentInput,
 } from '@ag-ui/client';
+import { coalesceDeltas } from './coalesce-deltas';
 import type { SseWriter } from './route-utils';
 
 export async function streamAgentEvents(
@@ -11,8 +12,9 @@ export async function streamAgentEvents(
   agent: AbstractAgent,
   input: RunAgentInput,
 ): Promise<void> {
-  const send = (event: BaseEvent): Promise<void> =>
-    sse.writeSSE({ data: JSON.stringify(event) });
+  const send = coalesceDeltas((event: BaseEvent) =>
+    sse.writeSSE({ data: JSON.stringify(event) }),
+  );
 
   try {
     await agent.runAgent(input, {
